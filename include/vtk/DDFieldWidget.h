@@ -41,10 +41,6 @@
 #include <TriangularMesh.h>
 #include <DDconfigIO.h>
 #include <Polycrystal.h>
-//#include <DDconfigVtk.h>
-//#include <NetworkLinkActor.h>
-//#include <InclusionActor.h>
-//#include <NetworkLoopActor.h>
 #include <DefectiveCrystal.h>
 
 namespace model
@@ -55,44 +51,29 @@ namespace model
         
         typedef  typename MicrostructureBase<3>::ElementType ElementType;
 
-        
         static constexpr int mSize=ClusterDynamicsParameters<3>::mSize;
         static constexpr int iSize=ClusterDynamicsParameters<3>::iSize;
         const SymmetricVoigtTraits<3>& voigtTraits;
         const Eigen::Matrix<double,3,1> P;
         const ElementType* const ele;
-
-//        double solidAngle;
-        
         std::vector<Eigen::Matrix<double,3,1>> displacement;
         std::vector<Eigen::Matrix<double,3,3>> stress;
         std::vector<Eigen::Matrix<double,ClusterDynamicsParameters<3>::mSize,1>> mobileConcentration;
         std::vector<Eigen::Matrix<double,ClusterDynamicsParameters<3>::iSize,1>> immobileClusters;
-
-//        Eigen::Matrix<double,3,1> displacementED;
-//        Eigen::Matrix<double,3,3> stressED;
-//        Eigen::Matrix<double,3,3> stressDD;
-//        Eigen::Matrix<double,3,3> stressIN;
-//        Eigen::Matrix<double,ClusterDynamicsParameters<3>::mSize,1> mobileClustersDD;
-//        Eigen::Matrix<double,ClusterDynamicsParameters<3>::mSize,1> mobileClusters;
-//        Eigen::Matrix<double,ClusterDynamicsParameters<3>::iSize,1> immobileClusters;
-
-        FieldDataPnt(const SymmetricVoigtTraits<3>& voigtTraits_in,const Eigen::Matrix<double,3,1>& Pin,const ElementType* const ele_in);
         
-//        double value(const int& valID,const bool& useDD,const bool& useIN,const bool& useCD,const bool& useED) const;
+        FieldDataPnt(const DefectiveCrystal<3>& defectiveCrystal,const Eigen::Matrix<double,3,1>& Pin,const ElementType* const ele_in);
         double value(const int& valID,const std::vector<QCheckBox*>& microstructuresCheck) const;
     };
 
 
     struct DDPlaneField : public QWidget
-    , public TriangularMesh
-    , public std::deque<FieldDataPnt>
+    /*                */, public TriangularMesh
+    /*                */, public std::deque<FieldDataPnt>
     {
         
         Q_OBJECT
         
     public:
-
         typedef  typename MicrostructureBase<3>::ElementType ElementType;
         typedef Eigen::Matrix<double,3,1> VectorDim;
         
@@ -110,27 +91,20 @@ namespace model
         vtkGenericOpenGLRenderWindow* const renWin;
         vtkRenderer* const renderer;
         const DefectiveCrystal<3>& defectiveCrystal;
-//        const Polycrystal<3>& poly;
         std::shared_ptr<MeshPlane<3>> plane;
         
     public slots:
-        
         void resetPlane();
         void modify();
         
     public:
-        
-
-        
         DDPlaneField(vtkGenericOpenGLRenderWindow* const renWin_in,vtkRenderer* const renderer_in,const DefectiveCrystal<3>& defectiveCrystal_in);
         ~DDPlaneField();
         const std::deque<FieldDataPnt>& dataPnts() const;
         std::deque<FieldDataPnt>& dataPnts();
         void compute(const DefectiveCrystal<3>&);
         void plotField(const int& valID,const std::vector<QCheckBox*>& microstructuresCheck,const vtkSmartPointer<vtkLookupTable>& lut);
-
     };
-
 
     struct DDFieldWidget : public QWidget
     {
@@ -148,11 +122,6 @@ namespace model
         QComboBox* fieldComboBox;
         
         std::vector<QCheckBox*> microstructuresCheck;
-        
-//        QCheckBox* dislocationsCheck;
-//        QCheckBox* inclusionsCheck;
-//        QCheckBox* cdCheck;
-//        QCheckBox* edCheck;
 
         QGroupBox* customScaleBox;
         QLineEdit* minScale;
@@ -161,10 +130,8 @@ namespace model
         vtkSmartPointer<vtkLookupTable> lut;
         vtkSmartPointer<vtkScalarBarActor> scalarBar;
 
-        
         vtkGenericOpenGLRenderWindow* const renWin;
         vtkRenderer* const renderer;
-//        const ConfigurationFields<3>& configFields;
         const DefectiveCrystal<3>& defectiveCrystal;
         
     private slots:
@@ -180,7 +147,6 @@ namespace model
         DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
                       vtkRenderer* const renderer_in,
                       const  DefectiveCrystal<3>& defectiveCrystal_in);
-        
     };
 
 } // namespace model

@@ -36,18 +36,14 @@ std::string to_string_exact(const FloatType& x, const int& n)
   return os.str();
 }
 
-FieldDataPnt::FieldDataPnt(const SymmetricVoigtTraits<3>& voigtTraits_in,const Eigen::Matrix<double,3,1>& Pin,const ElementType* const ele_in):
-/* init */ voigtTraits(voigtTraits_in)
+FieldDataPnt::FieldDataPnt(const DefectiveCrystal<3>& defectiveCrystal,const Eigen::Matrix<double,3,1>& Pin,const ElementType* const ele_in):
+/* init */ voigtTraits(defectiveCrystal.ddBase.voigtTraits)
 /* init */,P(Pin)
 /* init */,ele(ele_in)
-///* init */,solidAngle(0.0)
-///* init */,displacementED(Eigen::Matrix<double,3,1>::Zero())
-///* init */,stressED(Eigen::Matrix<double,3,3>::Zero())
-///* init */,stressDD(Eigen::Matrix<double,3,3>::Zero())
-///* init */,stressIN(Eigen::Matrix<double,3,3>::Zero())
-///* init */,mobileClustersDD(Eigen::Matrix<double,ClusterDynamicsParameters<3>::mSize,1>::Zero())
-///* init */,mobileClusters(Eigen::Matrix<double,ClusterDynamicsParameters<3>::mSize,1>::Zero())
-///* init */,immobileClusters(Eigen::Matrix<double,ClusterDynamicsParameters<3>::iSize,1>::Zero())
+/* init */,displacement(defectiveCrystal.microstructures().size(),Eigen::Matrix<double,3,1>::Zero())
+/* init */,stress(defectiveCrystal.microstructures().size(),Eigen::Matrix<double,3,3>::Zero())
+/* init */,mobileConcentration(defectiveCrystal.microstructures().size(),Eigen::Matrix<double,ClusterDynamicsParameters<3>::mSize,1>::Zero())
+/* init */,immobileClusters(defectiveCrystal.microstructures().size(),Eigen::Matrix<double,ClusterDynamicsParameters<3>::iSize,1>::Zero())
 {
     
 }
@@ -707,7 +703,7 @@ void DDPlaneField::resetPlane()
                                 ele=&defectiveCrystal.ddBase.fe->elements().at(searchPair.second->xID);
                             }
                         }
-                        dataPnts().emplace_back(defectiveCrystal.ddBase.voigtTraits,point3d,ele);
+                        dataPnts().emplace_back(defectiveCrystal,point3d,ele);
                     }
                     
                     vtkSmartPointer<vtkCellArray> meshTriangles(vtkSmartPointer<vtkCellArray>::New());
