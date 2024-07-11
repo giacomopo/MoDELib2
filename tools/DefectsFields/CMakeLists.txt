@@ -1,0 +1,6 @@
+if(pybind11_FOUND)
+	pybind11_add_module(DefectsFields SHARED defectsFields.cpp)
+	target_link_libraries(DefectsFields PUBLIC pybind11::module)
+else()
+#	message(WARNING "pybind11 not found, pybind11 is disabled")
+endif()

@@ -1,0 +1,11 @@
+materialFile=../../../MaterialsLibrary/W.txt;
+absoluteTemperature=300; # [K] simulation temperature 
+meshFile=../../../MeshLibrary/unitCube24.msh; # mesh file 
+C2G1=1.0 0.0 0.0
+     0.0 1.0 0.0
+     0.0 0.0 1.0; # crystal rotation matrix 
+F=3464.101615137755 0.0 0.0
+  0.0 3464.101615137755 0.0
+  0.0 0.0 3464.101615137755; # mesh deformation gradient. Mesh nodes X are mapped to x=F*(X-X0) 
+X0=0.0 0.0 0.0; # mesh shift. Mesh nodes X are mapped to x=F*(X-X0) 
+periodicFaceIDs=-1; # IDs of faces labelled as periodic 

@@ -1,0 +1,6 @@
+type=StackingFaultTetrahedra;
+style=density;
+tag=sftd0;
+targetSFTdensity=1e21; # [1/m^3] number density of SFTs
+sftSizeMean=2.5e-08; # [m] SFT normal size distribution mean
+sftSizeStd=1e-9;     # [m] SFT normal size distribution std

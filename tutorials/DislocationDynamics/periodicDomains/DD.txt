@@ -1,0 +1,115 @@
+######################################
+# GENERAL SETTINGS
+useFEM=1; # enables/disables FEM throughout MoDELib
+useElasticDeformation=1;
+useElasticDeformationFEM=1;
+useDislocations=1;
+useClusterDynamics=0;
+useInclusions=0;
+useClusterDynamicsFEM=1;
+useCracks=0;
+Nsteps=250;		# total number of simulation steps
+startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
+
+######################################
+# Settings for simulationType=0 (finite sample without FEM)
+externalLoadControllerName=UniformExternalLoadController;
+
+######################################
+# Settings for simulationType=1 (finite sample with FEM)
+stepsBetweenBVPupdates = 1;
+virtualSegmentDistance=500;
+use_directSolver_FEM=1;
+solverTolerance=1.0e-7;
+# Surface nucleation model (0=no nucleation)
+surfaceNucleationModel=0;
+
+######################################
+# Settings for periodic simulations ()
+periodicImageSize= 0 0 0; # number of images for each periodic shift vector
+EwaldLengthFactor=0;
+
+######################################
+# Settings for fem simulations ()
+inertiaReliefPenaltyFactor=1e-3;
+
+
+######################################
+# TIME STEPPING
+timeSteppingMethod=adaptive; # can be "fixed" or "adaptive". dt=dtMax if timeIntegrationMethod=fixed. dt=min(dxMax/vMax,dtMax) if timeIntegrationMethod=adaptive
+dtMax=1.0e25; # max DD time step 
+dxMax=1; # max nodal displacement in adaptive stepping
+use_velocityFilter=1;
+velocityReductionFactor=0.75;
+use_stochasticForce=0;
+stochasticForceSeed=-1;
+useSubCycling=0;
+subcyclingBins=1 2 5 10 50 100;
+
+######################################
+# GLIDE
+glideSolverType=Galerkin; # type of glide solver (Galerkin or pybind11 or none)
+pyModuleName=../../../../../python/MLglideSolver.py; # relative path to Python module
+
+
+######################################
+# CLIMB
+climbSolverType=Galerkin; # type of glide solver (Galerkin or none)
+glideEquilibriumRate=1e-12; # climb rate threshold below which climb steps are taken
+
+
+######################################
+# DISLOCATION ELASTIC FIELDS
+quadPerLength=0.1; # number of quadrature points per unit length (in Burgers vector units)
+coreSize=2.0; # The dislocation core width, used in the non-singular expression of the dislocation stress field
+alphaLineTension=1.0; # dimensionless scale factor in for line tension forces
+
+######################################
+# NETWORK REMESHING
+remeshFrequency=1; # Enable/disable node redistribution 
+Lmin=25; # min segment length (in Burgers vector units)
+Lmax=100; # max segment length (in Burgers vector units)
+relativeAreaThreshold=0.001;
+
+######################################
+# DISLOCATION JUNCTIONS
+maxJunctionIterations=1; # Enable/disable the use of dislocation junction formation
+
+######################################
+# CROSS SLIP
+crossSlipModel=0; # 0=no cross-slip, 1=deterministic, 2= thermally-activated
+crossSlipAngle_deg=2.0; # [deg] angle between tangent and Burgers vector, below which a segment is considered to be a screw segment
+
+######################################
+# GRAIN-BOUNDARY MODEL
+grainBoundaryTransmissionModel=0;
+
+######################################
+# OUTPUT
+# Options for output files:
+outputFrequency=1;
+outputBinary=0;
+computeElasticEnergyPerLength=0;
+outputMeshDisplacement=0;
+outputFEMsolution=0;
+outputQuadraturePoints=1;
+outputLinkingNumbers=0;
+outputLoopLength=0;
+outputPlasticDistortionPerSlipSystem=0;
+
+#####################################
+# DEBUGGING
+computeDDinteractions=1;
+verboseLoopNetwork=0;
+verboseDislocationNetwork=0;
+verboseDislocationLoop=0;
+verboseDislocationLoopNode=0;
+verboseDislocationLoopLink=0;
+verboseDislocationNode=0;
+verboseDislocationSegment=0;
+verboseJunctions=0;
+verboseRemesh=0;
+verboseNodeContraction=0;
+verboseCrossSlip=0;
+outputSegmentPairDistances=0;
+outputDislocationStiffnessAndForce=0;

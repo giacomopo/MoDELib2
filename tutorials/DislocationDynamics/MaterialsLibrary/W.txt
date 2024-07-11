@@ -1,0 +1,83 @@
+materialName=W;
+crystalStructure=BCC;
+enabledSlipSystems=full; # types of slip systems enabled e.g. enabledSlipSystems=full Shockley Kear;
+b_SI=0.2722e-9;	# [m] 		Burgers vector magnitude 
+mu0_SI=161.0e9;	# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+mu1*T
+mu1_SI=0.0;		# [Pa/K] 	temperature-dependent shear modulus coeff in mu=mu0+mu1*T
+nu=0.28;		# [-]		Poisson's ratio
+rho_SI=19250.0;	# [kg/m^3]	mass density
+Tm=3695.0;		# [K]		melting temperature
+
+# Mobility parameters (G.Po et al. A phenomenological dislocation mobility law for bcc metals. Acta Mater 119, 2016)
+dislocationMobilityType=default; # default or FCC,BCC,HEXbasal,HEXprismatic,HEXpyramidal 
+B0e_SI=4.26e-04;	# [Pa*s]	temperature-independent drag coefficient for edge  dislocations
+B1e_SI=0.87e-06;	# [Pa*s/K]	temperature-dependent drag coefficient for edge  dislocations
+B0s_SI=9.8e-4;		# [Pa*s]	temperature-independent drag coefficient for screw  dislocations
+B1s_SI=0.0;			# [Pa*s/K]	temperature-dependent drag coefficient for screw  dislocations
+Bk_SI=8.3e-05;		# [Pa*s]	drag coefficient for kinks
+dH0_eV=1.63;		# [eV]		enthalpy barrier for kink nucleation
+p=0.86;				# [-]		mobility exponent
+q=1.69;				# [-]		mobility exponent
+Tf=0.8;				# [-]		athermal transition temperature in fraction of Tm 
+tauC_SI=2.03e9;		# [Pa]		Peierls stress
+a0=1.50;			# [-]		non-Schmid coefficient
+a1=1.15;			# [-]		non-Schmid coefficient
+a2=2.32;			# [-]		non-Schmid coefficient
+a3=4.29;			# [-]		non-Schmid coefficient
+
+# GlidePlane Noise
+solidSolutionNoiseMode=0; # 0=no noise, 1= read noise, 2=compute noise
+stackingFaultNoiseMode=0; # 0=no noise
+
+
+# Vacancy diffusion
+dOmegav=0;	# [-]	Relative vacancy relaxation volume
+Ufv_eV=0;	# [eV]	Vacancy formation energy
+Umv_eV=0; 	# [eV]	Vacancy migration energy
+D0v_SI=0;	    # [m^2/s]	vacancy diffusion coefficient
+
+
+# Second Phases
+enabledSecondPhases= sigma chi;
+
+sigmaWaveVectors110=0  0
+            1 0
+            2 3
+            4 0
+            0 2
+            0 4
+            1 3
+            3 2
+            2 2
+            3 3;
+sigmaGammaSurfacePoints110=0 0 0
+0.4714         0 2
+0.2357         0 3.5
+    0.7071         0 4
+    0.7071    0.5000 0
+     0.4714    0.3333 4
+     0.1571    0.1111 3.44
+     0.3143    0.2222 2.8
+    0.9428    0.5000 3.8
+    0.7071    0.1667 2.8;
+
+chiWaveVectors110=0  0
+            1 0
+            2 3
+            4 0
+            0 2
+            0 4
+            1 3
+            3 2
+            2 2
+            3 3;
+chiGammaSurfacePoints110=0 0 0
+0.4714         0 2
+0.2357         0 3.5
+    0.7071         0 4
+    0.7071    0.5000 0
+     0.4714    0.3333 4
+     0.1571    0.1111 3.44
+     0.3143    0.2222 2.8
+    0.9428    0.5000 3.8
+    0.7071    0.1667 2.8;
