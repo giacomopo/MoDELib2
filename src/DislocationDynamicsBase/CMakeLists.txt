@@ -11,7 +11,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationDynamicsBase.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/ClusterDynamicsParameters.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/ClusterDynamicsBase.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/ElasticDeformationBase.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/ElasticDeformationFEM.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/MicrostructureContainer.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/MicrostructureBase.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/InclusionMicrostructureBase.cpp

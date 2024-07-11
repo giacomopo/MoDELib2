@@ -1,15 +1,15 @@
 #microstructureFile = ../../../MicrostructureLibrary/periodicDipole.txt;
 #microstructureFile = ../../../MicrostructureLibrary/periodicDipoleDensity.txt;
-#microstructureFile = ../../../MicrostructureLibrary/shearLoopsDensity.txt;
+microstructureFile = ../../../MicrostructureLibrary/shearLoopsDensity.txt;
 #microstructureFile = ../../../MicrostructureLibrary/shearLoops.txt;
 #microstructureFile = ../../../MicrostructureLibrary/frankLoopsDensity.txt;
 #microstructureFile = ../../../MicrostructureLibrary/frankLoops.txt;
 #microstructureFile = ../../../MicrostructureLibrary/prismaticLoops.txt;
-microstructureFile = ../../../MicrostructureLibrary/prismaticLoopDensity.txt;
+#microstructureFile = ../../../MicrostructureLibrary/prismaticLoopDensity.txt;
 #microstructureFile = ../../../MicrostructureLibrary/planarLoop.txt;
 #microstructureFile = ../../../MicrostructureLibrary/sphericalInclusionsDensity.txt;
-#microstructureFile = ../../../MicrostructureLibrary/sphericalInclusionsIndividual.txt;
-#microstructureFile = ../../../MicrostructureLibrary/polyhedronInclusionIndividual.txt;
+microstructureFile = ../../../MicrostructureLibrary/sphericalInclusionsIndividual.txt;
+microstructureFile = ../../../MicrostructureLibrary/polyhedronInclusionIndividual.txt;
 #microstructureFile = ../../../MicrostructureLibrary/VTKindividual.txt;
 
 ### FCC-specific

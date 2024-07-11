@@ -6,20 +6,20 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_ElasticDeformationBase_cpp_
-#define model_ElasticDeformationBase_cpp_
+#ifndef model_ElasticDeformationFEM_cpp_
+#define model_ElasticDeformationFEM_cpp_
 
 #include <cmath>
-#include <ElasticDeformationBase.h>
+#include <ElasticDeformationFEM.h>
 
 namespace model
 {
 
     template<int dim>
-    ElasticDeformationBase<dim>::ElasticDeformationBase(DislocationDynamicsBase<dim>& ddBase_in) :
+    ElasticDeformationFEM<dim>::ElasticDeformationFEM(DislocationDynamicsBase<dim>& ddBase_in) :
     /* init */ ddBase(ddBase_in)
 //    /* init */,voigtTraits((typename SymmetricVoigtTraits<3>::VoigtSizeMatrixType()<<0,0,1,1,2,2,0,1,1,2,0,2).finished())
-    /* init */,voigtTraits(ddBase.voigtTraits)
+//    /* init */,voigtTraits(ddBase.voigtTraits)
     /* init */,C(get_C(ddBase.poly.mu,ddBase.poly.nu))
     /* init */,u(ddBase.fe->template trial<'u',dim>())
     /* init */,b(grad(u))
@@ -34,7 +34,7 @@ namespace model
     }
 
 template<int dim>
-typename ElasticDeformationBase<dim>::CmatrixType ElasticDeformationBase<dim>::get_C(const double& mu, const double& nu) const
+typename ElasticDeformationFEM<dim>::CmatrixType ElasticDeformationFEM<dim>::get_C(const double& mu, const double& nu) const
 {
     const double lam=2.0*mu*nu/(1.0-2.0*nu);
     const double C11(lam+2.0*mu);
@@ -52,7 +52,7 @@ typename ElasticDeformationBase<dim>::CmatrixType ElasticDeformationBase<dim>::g
 }
 
 template<int dim>
-typename ElasticDeformationBase<dim>::MomentumMatrixType ElasticDeformationBase<dim>::elementMomentumKernelMatrix(const VectorDim& abscissa,const ElementType& ele) const
+typename ElasticDeformationFEM<dim>::MomentumMatrixType ElasticDeformationFEM<dim>::elementMomentumKernelMatrix(const VectorDim& abscissa,const ElementType& ele) const
 {
     const Eigen::Matrix<double,dim+1,1> bary(BarycentricTraits<dim>::x2l(abscissa));
     const auto NJ(ele.sf(bary)*ele.absJ(bary)/this->ddBase.mesh.volume());
@@ -69,14 +69,14 @@ typename ElasticDeformationBase<dim>::MomentumMatrixType ElasticDeformationBase<
 
 
 template<int dim>
-typename ElasticDeformationBase<dim>::MomentumMatrixType ElasticDeformationBase<dim>::elementMomentumMatrix(const ElementType& ele) const
+typename ElasticDeformationFEM<dim>::MomentumMatrixType ElasticDeformationFEM<dim>::elementMomentumMatrix(const ElementType& ele) const
 {
     MomentumMatrixType km(MomentumMatrixType::Zero());
-    MomentumQuadratureType::integrate(this,km,&ElasticDeformationBase<dim>::elementMomentumKernelMatrix,ele);
+    MomentumQuadratureType::integrate(this,km,&ElasticDeformationFEM<dim>::elementMomentumKernelMatrix,ele);
     return km;
 }
     
-    template struct ElasticDeformationBase<3>;
+    template struct ElasticDeformationFEM<3>;
 
 }
 #endif

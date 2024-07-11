@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_PeriodicLoopGenerator_H_
-#define model_PeriodicLoopGenerator_H_
+#ifndef model_ShearLoopGenerator_H_
+#define model_ShearLoopGenerator_H_
 
 
 #include <chrono>
@@ -46,7 +46,7 @@
 namespace model
 {
 
-    class PeriodicLoopGenerator : public MicrostructureGeneratorBase
+    class ShearLoopGenerator : public MicrostructureGeneratorBase
     {
         
         static void generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& dipolePoint,const double& radius,const size_t& sides);
@@ -63,7 +63,7 @@ namespace model
         
     public:
         
-        PeriodicLoopGenerator(const std::string& fileName);
+        ShearLoopGenerator(const std::string& fileName);
 
 //        void generate(MicrostructureGenerator& mg) override;
         void generateIndividual(MicrostructureGenerator& mg) override;

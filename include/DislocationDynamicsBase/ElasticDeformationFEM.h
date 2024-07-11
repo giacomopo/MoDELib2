@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_ElasticDeformationBase_H_
-#define model_ElasticDeformationBase_H_
+#ifndef model_ElasticDeformationFEM_H_
+#define model_ElasticDeformationFEM_H_
 
 
 #include <ClusterDynamicsParameters.h>
@@ -19,7 +19,7 @@ namespace model
 {
 
     template<int dim>
-    struct ElasticDeformationBase
+    struct ElasticDeformationFEM
     {
         typedef typename DislocationDynamicsBase<dim>::ElementType ElementType;
         typedef typename DislocationDynamicsBase<dim>::VectorDim VectorDim;
@@ -49,7 +49,7 @@ namespace model
         MomentumMatrixType elementMomentumMatrix(const ElementType& ele) const;
 
         DislocationDynamicsBase<dim>& ddBase;
-        const SymmetricVoigtTraits<dim>& voigtTraits;
+//        const SymmetricVoigtTraits<dim>& voigtTraits;
 
         CmatrixType C; // matrix of elastic moduli
         TrialFunctionType u; // displacement u=[u1 u2 u3]'
@@ -62,7 +62,7 @@ namespace model
                 
         DiffusiveTrialType z; // diffusive displacement
 
-        ElasticDeformationBase(DislocationDynamicsBase<dim>& ddBase_in);
+        ElasticDeformationFEM(DislocationDynamicsBase<dim>& ddBase_in);
         
         CmatrixType get_C(const double& mu, const double& nu) const;
         

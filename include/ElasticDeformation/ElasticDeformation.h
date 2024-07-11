@@ -10,7 +10,7 @@
 #define model_ElasticDeformation_H_
 
 #include <MicrostructureContainer.h>
-#include <ElasticDeformationBase.h>
+#include <ElasticDeformationFEM.h>
 //#include <ExternalLoadControllerBase.h>
 #include <IntegrationDomain.h>
 #include <GaussLegendre.h>
@@ -22,7 +22,7 @@ namespace model
 
     template<int dim>
     struct ElasticDeformation : public MicrostructureBase<dim>
-    /*                      */, public ElasticDeformationBase<dim>
+//    /*                      */, public ElasticDeformationBase<dim>
     {
         typedef typename MicrostructureBase<dim>::ElementType ElementType;
         typedef typename MicrostructureBase<dim>::FiniteElementType FiniteElementType;
@@ -37,18 +37,14 @@ namespace model
         static constexpr int imageTractionIntegrationOrder=3;
         typedef IntegrationDomain<FiniteElementType,1,imageTractionIntegrationOrder,GaussLegendre> TractionIntegrationDomainType;
         typedef IntegrationList<1,FEMfaceEvaluation<ElementType,dim,dim>> TractionIntegrationListType;
-//        typedef UniformController<dim,dim> UniformControllerType;
         typedef UniformController<SymmetricVoigtTraits<dim>::voigtSize> UniformControllerType;
 
+//        const SymmetricVoigtTraits<dim>& voigtTraits;
         const bool useElasticDeformationFEM;
-//        const std::unique_ptr<ExternalLoadControllerBase<dim>> externalLoadController;
-        
-//        const VoigtTraits<dim,dim> vt_new;
-        const SymmetricVoigtTraits<dim> voigtTraits;
+        const std::unique_ptr<ElasticDeformationFEM<dim>> elasticDeformationFEM;
         const std::unique_ptr<UniformControllerType> uniformLoadController;
-
         const double inertiaReliefPenaltyFactor;
-        Eigen::SimplicialLLT<typename ElasticDeformationBase<dim>::SparseMatrixType> directSolver;
+        Eigen::SimplicialLLT<typename ElasticDeformationFEM<dim>::SparseMatrixType> directSolver;
         TractionIntegrationDomainType ndA;
         TractionIntegrationListType tractionList;
         

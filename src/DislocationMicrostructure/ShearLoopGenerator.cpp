@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_PeriodicLoopGenerator_cpp_
-#define model_PeriodicLoopGenerator_cpp_
+#ifndef model_ShearLoopGenerator_cpp_
+#define model_ShearLoopGenerator_cpp_
 
 #include <numbers>
 #include <chrono>
@@ -41,19 +41,19 @@
 #include <MeshModule.h>
 #include <Plane.h>
 #include <MicrostructureGenerator.h>
-#include <PeriodicLoopGenerator.h>
+#include <ShearLoopGenerator.h>
 #include <PlaneLineIntersection.h>
 
 namespace model
 {
 
-    PeriodicLoopGenerator::PeriodicLoopGenerator(const std::string& fileName) :
+    ShearLoopGenerator::ShearLoopGenerator(const std::string& fileName) :
     /* init */ MicrostructureGeneratorBase(fileName)
     {
         
     }
 
-    void PeriodicLoopGenerator::generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& center,const double& radius,const size_t& sides)
+    void ShearLoopGenerator::generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& center,const double& radius,const size_t& sides)
     {
         std::pair<bool,const Simplex<dim,dim>*> found(mg.ddBase.mesh.search(center));
         if(!found.first)
@@ -104,9 +104,9 @@ namespace model
         }
     }
 
-    void PeriodicLoopGenerator::generateDensity(MicrostructureGenerator& mg)
+    void ShearLoopGenerator::generateDensity(MicrostructureGenerator& mg)
     {
-        std::cout<<magentaBoldColor<<"Generating periodic loop density"<<defaultColor<<std::endl;
+        std::cout<<magentaBoldColor<<"Generating shear loop density"<<defaultColor<<std::endl;
         const double targetDensity(this->parser.readScalar<double>("targetDensity",true));
         if(targetDensity>0.0)
         {
@@ -128,7 +128,7 @@ namespace model
                 {
                     generateSingle(mg,rSS,L0.cartesian(),radius,numberOfSides);
                     density+=2.0*std::numbers::pi*radius/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,2);
-                    std::cout<<"periodic loop density="<<density<<std::endl;
+                    std::cout<<"shear loop density="<<density<<std::endl;
                 }
                 catch(const std::exception& e)
                 {
@@ -138,7 +138,7 @@ namespace model
         }
     }
 
-    void PeriodicLoopGenerator::generateIndividual(MicrostructureGenerator& mg)
+    void ShearLoopGenerator::generateIndividual(MicrostructureGenerator& mg)
     {
         const std::vector<int> periodicLoopSlipSystemIDs(this->parser.readArray<int>("periodicLoopSlipSystemIDs",true));
         

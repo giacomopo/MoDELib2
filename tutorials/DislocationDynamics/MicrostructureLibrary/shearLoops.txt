@@ -1,4 +1,4 @@
-type=PeriodicLoop;
+type= ShearLoop;
 style=individual;
 tag=plp0;
 periodicLoopSlipSystemIDs=0;

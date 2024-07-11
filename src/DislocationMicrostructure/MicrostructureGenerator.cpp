@@ -15,7 +15,7 @@
 
 #include <MicrostructureGenerator.h>
 #include <PeriodicDipoleGenerator.h>
-#include <PeriodicLoopGenerator.h>
+#include <ShearLoopGenerator.h>
 #include <PrismaticLoopGenerator.h>
 #include <SphericalInclusionsGenerator.h>
 #include <PolyhedronInclusionsGenerator.h>
@@ -76,9 +76,9 @@ void MicrostructureGenerator::readMicrostructureFile()
         {
             success=this->emplace(tag,new PeriodicDipoleGenerator(microstructureFileName)).second;
         }
-        else if(microstructureType=="PeriodicLoop")
+        else if(microstructureType=="ShearLoop")
         {
-            success=this->emplace(tag,new PeriodicLoopGenerator(microstructureFileName)).second;
+            success=this->emplace(tag,new ShearLoopGenerator(microstructureFileName)).second;
         }
         else if(microstructureType=="PlanarLoop")
         {
