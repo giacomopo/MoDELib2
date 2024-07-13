@@ -12,6 +12,7 @@
 
 
 #include <DislocationDynamicsModule.h>
+#include <MeshedDislocationLoop.h>
 
 
 #ifndef NDEBUG
@@ -98,6 +99,7 @@ namespace model
         const DislocationLoopPatches<_dim>& patches() const;
 //        const std::vector<VectorDim>& barycentricNodes() const;
 //        void computeStackingFaultForces();
+        std::deque<MeshedDislocationLoop> meshed(const double& meshSize) const;
 
         static void initFromFile(const std::string&);
         static double planarSolidAngle(const VectorDim& x,const VectorDim& planePoint,const VectorDim& rhN,const std::vector<std::pair<VectorDim,VectorDim>>& polygonSegments);

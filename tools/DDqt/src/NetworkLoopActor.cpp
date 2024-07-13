@@ -37,6 +37,7 @@
 #include <vtkCellData.h>
 #include <vtkPolygon.h>
 #include <vtkCellArray.h>
+#include <vtkTriangle.h>
 
 #include <DDconfigIO.h>
 #include <MeshPlane.h>
@@ -53,8 +54,9 @@ NetworkLoopActor::NetworkLoopActor(vtkGenericOpenGLRenderWindow* const renWin,vt
 /* init */ renderWindow(renWin)
 /* init */,mainLayout(new QGridLayout(this))
 /* init */,showLoops(new QCheckBox(this))
-/* init */,slippedAreaBox(new QGroupBox(tr("&Slip Area")))
+/* init */,slippedAreaBox(new QGroupBox(tr("&Slipped Area")))
 /* init */,sliderSlippedArea(new QSlider(this))
+/* init */,meshAreaBox(new QGroupBox(tr("&Slipped Mesh")))
 /* init */,loopPolyData(vtkSmartPointer<vtkPolyData>::New())
 /* init */,loopMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
 /* init */,loopActor(vtkSmartPointer<vtkActor>::New())
@@ -62,6 +64,9 @@ NetworkLoopActor::NetworkLoopActor(vtkGenericOpenGLRenderWindow* const renWin,vt
 /* init */,areaTriangleFilter(vtkSmartPointer<vtkTriangleFilter>::New())
 /* init */,areaMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
 /* init */,areaActor(vtkSmartPointer<vtkActor>::New())
+/* init */,meshPolydata(vtkSmartPointer<vtkPolyData>::New())
+/* init */,meshMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+/* init */,meshActor(vtkSmartPointer<vtkActor>::New())
 /* init */,defectiveCrystal(defectiveCrystal_in)
 /* init */,dislocationNetwork(defectiveCrystal.template getUniqueTypedMicrostructure<DislocationNetwork<3,0>>())
 {
@@ -71,8 +76,9 @@ NetworkLoopActor::NetworkLoopActor(vtkGenericOpenGLRenderWindow* const renWin,vt
     slippedAreaBox->setCheckable(true);
     slippedAreaBox->setChecked(false);
     
-    
-    
+    meshAreaBox->setCheckable(true);
+    meshAreaBox->setChecked(false);
+
     
     //            showSlippedArea->setChecked(false);
     //            showSlippedArea->setText("SlippedArea");
@@ -106,6 +112,8 @@ NetworkLoopActor::NetworkLoopActor(vtkGenericOpenGLRenderWindow* const renWin,vt
     
     mainLayout->addWidget(showLoops,0,0,1,1);
     mainLayout->addWidget(slippedAreaBox,1,0,1,1);
+    mainLayout->addWidget(meshAreaBox,2,0,1,1);
+
     //            mainLayout->addWidget(sliderSlippedArea,1,1,1,1);
     //            mainLayout->addWidget(colorSlippedArea,1,2,1,1);
     
@@ -133,10 +141,16 @@ NetworkLoopActor::NetworkLoopActor(vtkGenericOpenGLRenderWindow* const renWin,vt
     areaActor->GetProperty()->SetColor(0.0, 1.0, 1.0); //(R,G,B)
     areaActor->SetVisibility(false);
     
+    meshPolydata->Allocate();
+    meshMapper->SetInputData(meshPolydata);
+    meshActor->SetMapper ( meshMapper );
+    meshActor->GetProperty()->SetOpacity(0.8); //Make the mesh have some transparency.
+
     
     renderer->AddActor(loopActor);
     renderer->AddActor(areaActor);
-    
+    renderer->AddActor(meshActor);
+
     //            std::vector<Eigen::Vector2d> clippedPolygonTemp(SutherlandHodgman::clip(polygon2d,box2d));
     
 }
@@ -219,6 +233,50 @@ void NetworkLoopActor::updateConfiguration()
         areaPolyData->SetPoints(areaPoints);
         areaPolyData->SetPolys(areaPolygons);
         areaTriangleFilter->Update();
+        
+        
+        if(meshAreaBox->isChecked())
+        {
+            vtkSmartPointer<vtkPoints> meshPts(vtkSmartPointer<vtkPoints>::New());
+            vtkSmartPointer<vtkCellArray> meshTriangles(vtkSmartPointer<vtkCellArray>::New());
+            vtkSmartPointer<vtkUnsignedCharArray> meshColors(vtkSmartPointer<vtkUnsignedCharArray>::New());
+            meshColors->SetNumberOfComponents(3);
+
+            double meshSize(1000);
+            size_t ptsIncrement(0);
+            for(const auto& weakloop : dislocationNetwork->loops())
+            {
+                const auto& loop(weakloop.second.lock());
+                for(const auto& patchMesh : loop->meshed(meshSize))
+                {
+                    for(const auto& point3d : patchMesh.points)
+                    {
+                        meshPts->InsertNextPoint(point3d(0),point3d(1),point3d(2));
+                    }
+                    for(const auto& tri : patchMesh.triangles())
+                    {
+                        vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
+                        triangle->GetPointIds()->SetId (0,tri(0)+ptsIncrement);
+                        triangle->GetPointIds()->SetId (1,tri(1)+ptsIncrement);
+                        triangle->GetPointIds()->SetId (2,tri(2)+ptsIncrement);
+                        meshTriangles->InsertNextCell ( triangle );
+                        const auto triColor(Eigen::Matrix<int,1,3>::Random()*255);
+                        meshColors->InsertNextTuple3(triColor(0),triColor(1),triColor(2)); // use this to assig color to each vertex
+                    }
+                    ptsIncrement+=patchMesh.points.size();
+
+                }
+            }
+            meshPolydata->SetPoints ( meshPts );
+            meshPolydata->SetPolys ( meshTriangles );
+            meshPolydata->GetCellData()->SetScalars(meshColors);
+            meshPolydata->Modified();
+            meshMapper->SetScalarModeToUseCellData();
+//            renWin->Render();
+
+            
+        }
+        
     }
     std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 }

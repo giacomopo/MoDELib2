@@ -6,6 +6,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/DDtimeStepper.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationSegment.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationLoop.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/MeshedDislocationLoop.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationLoopLink.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationLoopNode.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationNetworkRemesh.cpp

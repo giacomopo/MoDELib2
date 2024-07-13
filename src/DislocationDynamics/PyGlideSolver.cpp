@@ -48,8 +48,14 @@ namespace model
     const auto t0= std::chrono::system_clock::now();
     std::cout<<"PyGlideSolver solving "<<std::flush;
     
-    auto configIO(this->DN.io().configIO()); //evl files
-    const auto auxIO(this->DN.io().auxIO()); //DDaux files
+    DDconfigIO<dim> configIO(".");
+    DDauxIO<dim> auxIO(".");
+    std::ofstream f_file;
+    std::ofstream F_labels;
+    this->DN.output(configIO,auxIO,f_file,F_labels);
+        
+//    auto configIO(this->DN.io().configIO()); //evl files
+//    const auto auxIO(this->DN.io().auxIO()); //DDaux files
     const auto Temperature(this->DN.ddBase.poly.T);
 
     // PULL FROM MEMORY

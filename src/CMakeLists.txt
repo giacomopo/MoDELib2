@@ -10,6 +10,4 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/DislocationMicrostructure Microstru
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ClusterDynamics ClusterDynamics)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ElasticDeformation ElasticDeformation)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/DislocationDynamics DislocationDynamics)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/DefectsFields DefectsFields)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/InclusionMicrostructure Inclusions)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/vtk vtk)

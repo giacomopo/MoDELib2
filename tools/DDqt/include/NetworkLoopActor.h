@@ -65,6 +65,9 @@ namespace model
         QGroupBox* slippedAreaBox;
         QSlider* sliderSlippedArea;
 
+        QGroupBox* meshAreaBox;
+
+        
         vtkSmartPointer<vtkPolyData> loopPolyData;
         vtkSmartPointer<vtkPolyDataMapper> loopMapper;
         vtkSmartPointer<vtkActor> loopActor;
@@ -74,6 +77,11 @@ namespace model
         vtkSmartPointer<vtkTriangleFilter> areaTriangleFilter; // needed to handle non-convex area polygons
         vtkSmartPointer<vtkPolyDataMapper> areaMapper;
         vtkSmartPointer<vtkActor> areaActor;
+        
+        vtkSmartPointer<vtkPolyData> meshPolydata;
+        vtkSmartPointer<vtkPolyDataMapper> meshMapper;
+        vtkSmartPointer<vtkActor> meshActor;
+
 
         
         public:

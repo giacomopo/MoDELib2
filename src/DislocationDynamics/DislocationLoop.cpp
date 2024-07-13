@@ -526,6 +526,17 @@ namespace model
     }
 
     template <int dim, short unsigned int corder>
+    std::deque<MeshedDislocationLoop> DislocationLoop<dim, corder>::meshed(const double& meshSize) const
+    {
+        std::deque<MeshedDislocationLoop> temp;
+        for(const auto& gPatch : patches().globalPatches())
+        {
+            temp.emplace_back(MeshedDislocationLoop(*gPatch.first->glidePlane,gPatch.second,meshSize));
+        }
+        return temp;
+    }
+
+    template <int dim, short unsigned int corder>
     int DislocationLoop<dim,corder>::verboseDislocationLoop=0;
 
     template class DislocationLoop<3,0>;

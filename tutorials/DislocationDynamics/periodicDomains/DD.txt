@@ -5,7 +5,7 @@ useElasticDeformation=1;
 useElasticDeformationFEM=1;
 useDislocations=1;
 useClusterDynamics=0;
-useInclusions=0;
+useInclusions=1;
 useClusterDynamicsFEM=1;
 useCracks=0;
 Nsteps=250;		# total number of simulation steps
@@ -26,7 +26,7 @@ surfaceNucleationModel=0;
 
 ######################################
 # Settings for periodic simulations ()
-periodicImageSize= 0 0 0; # number of images for each periodic shift vector
+periodicImageSize= 1 1 1; # number of images for each periodic shift vector
 EwaldLengthFactor=0;
 
 ######################################

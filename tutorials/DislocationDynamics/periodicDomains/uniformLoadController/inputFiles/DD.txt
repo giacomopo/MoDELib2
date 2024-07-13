@@ -26,7 +26,7 @@ surfaceNucleationModel=0;
 
 ######################################
 # Settings for periodic simulations ()
-periodicImageSize= 0 0 0; # number of images for each periodic shift vector
+periodicImageSize= 1 1 1; # number of images for each periodic shift vector
 EwaldLengthFactor=0;
 
 ######################################

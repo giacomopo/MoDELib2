@@ -535,23 +535,55 @@ namespace model
                 if (parentSegment.network().alphaLineTension>0.0 && !parentSegment.hasZeroBurgers() && parentSegment.chordLength()>FLT_EPSILON)
                 {
                     //Add the line tension contribution due to only non -zero segments
+//                    for (const auto &ll : parentSegment.loopLinks())
+//                    {
+//                        const double paramU (ll->source->networkNode==parentSegment.source ? qPoint.abscissa : 1.0-qPoint.abscissa);
+//                        const auto spline(ll->spline());
+//                        const VectorDim llunitTangent(spline.get_rl(paramU));
+//                        const double qPointEnergyDensity (parentSegment.network().alphaLineTension * parentSegment.network().ddBase.poly.C2 * (ll->loop->burgers().squaredNorm()-parentSegment.network().ddBase.poly.nu*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
+//                        qPoint.coreEnergyPerLength+=qPointEnergyDensity;
+//                        
+//                        const VectorDim rll(spline.get_rll(paramU));
+//                        if(!std::isnan(rll.squaredNorm()))
+//                        {// curvature can be nan for straight lines
+//                            const VectorDim qPointForceVector (qPointEnergyDensity * rll);
+//                            qPoint.lineTensionForce+=qPointForceVector;
+//                        }
+//                    }
+                    
+                    // Collect burgers,tangent,curvature for each loopLink
+                    std::vector<std::tuple<VectorDim,VectorDim,VectorDim>> linkSplineVector; // burgers,tangent,curvature
                     for (const auto &ll : parentSegment.loopLinks())
                     {
                         const double paramU (ll->source->networkNode==parentSegment.source ? qPoint.abscissa : 1.0-qPoint.abscissa);
                         const auto spline(ll->spline());
-                        const VectorDim llunitTangent(spline.get_rl(paramU));
-                        const double qPointEnergyDensity (parentSegment.network().alphaLineTension * parentSegment.network().ddBase.poly.C2 * (ll->loop->burgers().squaredNorm()-parentSegment.network().ddBase.poly.nu*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
-                        qPoint.coreEnergyPerLength+=qPointEnergyDensity;
-                        
-                        const VectorDim rll(spline.get_rll(paramU));
-                        if(!std::isnan(rll.squaredNorm()))
-                        {// curvature can be nan for straight lines
-                            const VectorDim qPointForceVector (qPointEnergyDensity * rll);
-                            qPoint.lineTensionForce+=qPointForceVector;
+                        linkSplineVector.emplace_back(ll->loop->burgers(),spline.get_rl(paramU),spline.get_rll(paramU));
+                    }
+                    
+                    // Compute core energy
+                    for(size_t ii=0;ii<linkSplineVector.size();++ii)
+                    {
+                        for(size_t jj=ii;jj<linkSplineVector.size();++jj)
+                        {
+                            const double preFactor(ii==jj? parentSegment.network().alphaLineTension * parentSegment.network().ddBase.poly.C2 : 2.0*parentSegment.network().alphaLineTension * parentSegment.network().ddBase.poly.C2);
+                            const auto& bii(std::get<0>(linkSplineVector[ii]));
+                            const auto& bjj(std::get<0>(linkSplineVector[jj]));
+                            const auto& tii(std::get<1>(linkSplineVector[ii]));
+                            const auto& tjj(std::get<1>(linkSplineVector[jj]));
+                            qPoint.coreEnergyPerLength+=preFactor*(bii.dot(bjj)*tii.dot(tjj)-parentSegment.network().ddBase.poly.nu*bii.dot(tii)*bjj.dot(tii));
+                        }
+                    }
+                    
+                    // Compute line tension force
+                    for(size_t ii=0;ii<linkSplineVector.size();++ii)
+                    {
+                        const auto& kii(std::get<2>(linkSplineVector[ii]));
+                        if(!std::isnan(kii.squaredNorm()))
+                        {
+                            qPoint.lineTensionForce+=qPoint.coreEnergyPerLength*kii;
                         }
                     }
                 }
-                
                 
                 // Add other stress contributions, and compute PK force
                 for(const auto& microstructure : parentSegment.network().microstructures)
@@ -560,38 +592,8 @@ namespace model
                     {// not the DD physics, which we already accounted for above
                         qPoint.stress += microstructure->stress(qPoint.r,nullptr,nullptr,parentSegment.source->includingSimplex());
                     }
-//                    else
-//                    {
-//                        std::cout<<"DD found"<<std::endl;
-//                    }
                 }
-                
-                
-//                if(parentSegment.network().externalLoadController)
-//                {// Add stress of externalLoadController
-//                    qPoint.stress += parentSegment.network().externalLoadController->stress(qPoint.r);
-//                }
-//                
-//                if(parentSegment.network().bvpSolver)
-//                {// Add BVP stress
-//                    qPoint.stress += parentSegment.network().bvpSolver->stress(qPoint.r,parentSegment.source->includingSimplex());
-//                }
-                
-                //                    for(const auto& sStraight : parentSegment.network().poly.grainBoundaryDislocations() )
-                //                    {// Add GB stress
-                //                        qPoint.stress += sStraight.stress(qPoint.r);
-                //                    }
-                
-//                for(const auto& inclusion : parentSegment.network().eshelbyInclusions() )
-//                {// Add EshelbyInclusions stress
-//                    for(const auto& shift : parentSegment.network().ddBase.periodicShifts)
-//                    {
-//                        qPoint.stress += inclusion.second->stress(qPoint.r+shift);
-//                    }
-//                }
-                
-                
-                
+                                
                 qPoint.updateForcesAndVelocities(parentSegment,isClimbStep);
             }
             

@@ -1,4 +1,3 @@
-# cmake .. -DCMAKE_CXX_COMPILER=/opt/local/bin/g++-mp-11
 
 # https://mcilloni.ovh/2021/02/09/cxx-cross-clang/
 #export LDFLAGS=-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib 
@@ -30,22 +29,6 @@ else()
 	message(WARNING "Boost not found")
 endif()
 
-### Qt ###
-find_package(Qt6 COMPONENTS Widgets OpenGL REQUIRED)
-message (STATUS "Qt6_VERSION: ${Qt6_VERSION}")
-if (NOT Qt6_FOUND)
-  message("Skipping DDvtk: ${Qt6_NOT_FOUND_MESSAGE}")
-  return()
-endif()
-
-### VTK ###
-find_package(VTK REQUIRED)
-message (STATUS "VTK_VERSION: ${VTK_VERSION}")
-if (NOT VTK_FOUND)
-  message("Skipping DDvtk: ${VTK_NOT_FOUND_MESSAGE}")
-  return()
-endif()
-
 ### fftw3 ### find_package is currently broken. Workaround using find_library
 find_library(FFTW3_LIBRARIES fftw3)  
 if(FFTW3_LIBRARIES)
@@ -61,28 +44,11 @@ else()
   message(WARNING "library ${FFTW3_LIBRARIES} not found, noise generator is disabled")
 endif()
 
-### pybind11 ###
-find_package(Python COMPONENTS Interpreter Development)
-if(Python_FOUND)
-	message(STATUS "Python_VERSION:" ${Python_VERSION})
-#	find_package(pybind11 CONFIG REQUIRED)
-if(pybind11_FOUND)
-	message(STATUS "pybind11_VERSION:" ${pybind11_VERSION})
-	set(pybind11_LIBRARIES pybind11::embed)
-	message(STATUS "pybind11_LIBRARIES: ${pybind11_LIBRARIES}")
-	add_definitions(-D _MODEL_PYBIND11_)
-else()
-	message(WARNING "pybind11 not found, pybind11 is disabled")
-endif()
-else()
-	message(WARNING "Python not found, pybind11 is disabled")
-endif()
 
 add_library(MoDELib "")
 set(MoDELib_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 include_directories ( ${EIGEN3_INCLUDE_DIRS} )
-#add_subdirectory(${MoDELib_INCLUDE_DIR} include)
 include_directories(${MoDELib_INCLUDE_DIR}/Utilities/)
 include_directories(${MoDELib_INCLUDE_DIR}/IO/)
 include_directories(${MoDELib_INCLUDE_DIR}/Math/)
@@ -105,11 +71,8 @@ include_directories(${MoDELib_INCLUDE_DIR}/ClusterDynamics/)
 include_directories(${MoDELib_INCLUDE_DIR}/ElasticDeformation/)
 include_directories(${MoDELib_INCLUDE_DIR}/InclusionMicrostructure/)
 include_directories(${MoDELib_INCLUDE_DIR}/DislocationDynamics/)
-include_directories(${MoDELib_INCLUDE_DIR}/DefectsFields/)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/vtk/)
-
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/ src)
+target_link_libraries(MoDELib ${FFTW3_LIBRARIES} ${pybind11_LIBRARIES})
 
-target_link_libraries(MoDELib ${FFTW3_LIBRARIES} ${VTK_LIBRARIES} Qt6::Widgets Qt6::OpenGL Qt6::Core ${pybind11_LIBRARIES})
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tools tools)
