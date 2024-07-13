@@ -10,8 +10,9 @@ ddBase=pyMoDELib.DislocationDynamicsBase(simulationDir)
 defectiveCrystal=pyMoDELib.DefectiveCrystal(ddBase)
 
 points=np.array([[0.0,0.0,0.0],[1.0,0.0,0.0],[2.0,0.0,0.0]])
-displ=defectiveCrystal.displacement(points)
-
+print(points)
+disp=defectiveCrystal.displacement(points)
+print(disp)
 #
 ## create the DefectsFieldsExtractor object
 #dfe=DefectsFields.DefectsFieldsExtractor(simulationDir)

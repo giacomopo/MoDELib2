@@ -21,8 +21,8 @@
 namespace model
 {
     template <int dim>
-    struct MicrostructureContainer : public std::vector<std::unique_ptr<MicrostructureBase<dim>>>
-    /*                           */, public MicrostructureBase<dim>
+    struct MicrostructureContainer : public MicrostructureBase<dim>
+    /*                           */, public std::vector<std::unique_ptr<MicrostructureBase<dim>>>
     {
         typedef typename MicrostructureBase<dim>::MatrixDim MatrixDim;
         typedef typename MicrostructureBase<dim>::VectorDim VectorDim;

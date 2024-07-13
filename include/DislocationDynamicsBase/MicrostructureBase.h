@@ -62,7 +62,7 @@ namespace model
         virtual MatrixDim averagePlasticDistortionRate() const = 0;
         
         virtual VectorDim displacement(const VectorDim&, const NodeType* const, const ElementType* const,const SimplexDim* const) const = 0;
-        Eigen::Matrix<double,Eigen::Dynamic,dim> displacement(const Eigen::Matrix<double,Eigen::Dynamic,dim>&) const;
+        Eigen::Matrix<double,Eigen::Dynamic,dim> displacement(Eigen::Ref<const Eigen::Matrix<double,Eigen::Dynamic,dim>>) const;
 
         virtual MatrixDim stress(const VectorDim&, const NodeType* const, const ElementType* const,const SimplexDim* const) const = 0;
         virtual MatrixDim averageStress() const = 0;

@@ -37,19 +37,20 @@ namespace model
         return microstructures.ddBase.simulationParameters.totalTime-lastUpdateTime;
     }
 
-template <int dim>
-Eigen::Matrix<double,Eigen::Dynamic,dim> MicrostructureBase<dim>::displacement(const Eigen::Matrix<double,Eigen::Dynamic,dim>& points) const
-{
-    Eigen::Matrix<double,Eigen::Dynamic,dim> temp(Eigen::Matrix<double,Eigen::Dynamic,3>::Zero(points.rows(),dim));
-    #ifdef _OPENMP
-    #pragma omp parallel for
-    #endif
-    for(long int k=0;k<points.rows();++k)
+    template <int dim>
+    Eigen::Matrix<double,Eigen::Dynamic,dim> MicrostructureBase<dim>::displacement(Eigen::Ref<const Eigen::Matrix<double,Eigen::Dynamic,dim>> points) const
     {
-        temp.row(k)=displacement(points.row(k),nullptr,nullptr,nullptr);
+//        std::cout<<"points=\n"<<points<<std::endl;
+        Eigen::Matrix<double,Eigen::Dynamic,dim> temp(Eigen::Matrix<double,Eigen::Dynamic,3>::Zero(points.rows(),dim));
+        #ifdef _OPENMP
+        #pragma omp parallel for
+        #endif
+        for(long int k=0;k<points.rows();++k)
+        {
+            temp.row(k)=displacement(points.row(k),nullptr,nullptr,nullptr);
+        }
+        return temp;
     }
-    return temp;
-}
 
 template <int dim>
 std::set<const Grain<dim>*> MicrostructureBase<dim>::pointGrains(const VectorDim& x, const NodeType* const node, const ElementType* const ele,const SimplexDim* const guess) const

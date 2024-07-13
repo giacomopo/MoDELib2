@@ -14,6 +14,12 @@
 #include <pybind11/eigen.h>
 #endif
 
+#include <string>
+#include <vector>
+#include <memory>
+
+#include <MicrostructureBase.h>
+#include <MicrostructureContainer.h>
 #include <DislocationDynamicsBase.h>
 #include <DefectiveCrystal.h>
 
@@ -30,10 +36,17 @@ PYBIND11_MODULE(pyMoDELib,m)
         .def(py::init<const std::string&>())
     ;
     
-    py::class_<model::DefectiveCrystal<3>>(m,"DefectiveCrystal")
+    // https://pybind11.readthedocs.io/en/stable/advanced/cast/eigen.html
+    py::class_<model::MicrostructureBase<3>>(m,"MicrostructureBase")
+        .def("displacement", static_cast<Eigen::Matrix<double,Eigen::Dynamic,3> (model::MicrostructureBase<3>::*)(Eigen::Ref<const Eigen::Matrix<double,Eigen::Dynamic,3>>) const>(&model::MicrostructureBase<3>::displacement))
+    ;
+    
+    py::class_<model::MicrostructureContainer<3>,model::MicrostructureBase<3>>(m,"MicrostructureContainer")
         .def(py::init<model::DislocationDynamicsBase<3>&>())
-    //        .def("displacement", static_cast<Eigen::Matrix<double,Eigen::Dynamic,3> (model::MicrostructureBase<3>::*)(const Eigen::Matrix<double,Eigen::Dynamic,3>&) const>(&model::DefectiveCrystal<3>::displacement))
-        .def("displacement", &model::DefectiveCrystal<3>::displacement)
+    ;
+ 
+    py::class_<model::DefectiveCrystal<3>,model::MicrostructureContainer<3>>(m,"DefectiveCrystal")
+        .def(py::init<model::DislocationDynamicsBase<3>&>())
     ;
 }
 #endif
