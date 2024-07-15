@@ -44,6 +44,7 @@ namespace model
         DefectiveCrystalParameters simulationParameters;
         const SymmetricVoigtTraits<dim> voigtTraits;
         const SimplicialMesh<dim> mesh;
+
         const bool isPeriodicDomain;
         const std::vector<int> periodicImageSize;
         const Eigen::Matrix<double,dim,Eigen::Dynamic> periodicLatticeBasis;

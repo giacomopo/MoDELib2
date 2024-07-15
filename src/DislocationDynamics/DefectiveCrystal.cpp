@@ -142,6 +142,22 @@ namespace model
         std::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<this->ddBase.simulationParameters.Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
     }
 
+    template <int _dim>
+    const DislocationNetwork<_dim,0>& DefectiveCrystal<_dim>::dislocationNetwork() const
+    {
+        const auto ptrDN(this->template getUniqueTypedMicrostructure<DislocationNetwork<_dim,0>>());
+        if(ptrDN)
+        {
+            return *ptrDN;
+        }
+        else
+        {
+            throw std::runtime_error("Unique DislocationNetwork<_dim,0> does not exist");
+            return *ptrDN;
+        }
+    }
+
+
     template class DefectiveCrystal<3>;
 }
 #endif

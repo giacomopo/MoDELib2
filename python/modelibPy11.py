@@ -12,7 +12,16 @@ defectiveCrystal=pyMoDELib.DefectiveCrystal(ddBase)
 points=np.array([[0.0,0.0,0.0],[1.0,0.0,0.0],[2.0,0.0,0.0]])
 print(points)
 disp=defectiveCrystal.displacement(points)
+DN=defectiveCrystal.dislocationNetwork()
+DN.loops()
 print(disp)
+
+rp=ddBase.poly.grain(1)
+#print(rp)
+
+#mesh=pyMoDELib.SimplicialMesh()
+#print(mesh.xMin())
+
 #
 ## create the DefectsFieldsExtractor object
 #dfe=DefectsFields.DefectsFieldsExtractor(simulationDir)

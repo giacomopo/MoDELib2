@@ -144,9 +144,6 @@ namespace model
         
         const MeshRegionBoundaryType& regionBoundary(const int& i,const int& j) const;
         
-        
-        
-        
     };
     
 }

@@ -60,15 +60,13 @@ namespace model
         virtual void updateConfiguration() = 0;
         virtual MatrixDim averagePlasticDistortion() const = 0;
         virtual MatrixDim averagePlasticDistortionRate() const = 0;
-        
         virtual VectorDim displacement(const VectorDim&, const NodeType* const, const ElementType* const,const SimplexDim* const) const = 0;
-        Eigen::Matrix<double,Eigen::Dynamic,dim> displacement(Eigen::Ref<const Eigen::Matrix<double,Eigen::Dynamic,dim>>) const;
-
         virtual MatrixDim stress(const VectorDim&, const NodeType* const, const ElementType* const,const SimplexDim* const) const = 0;
         virtual MatrixDim averageStress() const = 0;
-
         virtual VectorDim inelasticDisplacementRate(const VectorDim&, const NodeType* const, const ElementType* const,const SimplexDim* const) const = 0;
         virtual VectorMSize mobileConcentration(const VectorDim&, const NodeType* const, const ElementType* const,const SimplexDim* const) const = 0;
+
+        Eigen::Matrix<double,Eigen::Dynamic,dim> displacement(Eigen::Ref<const Eigen::Matrix<double,Eigen::Dynamic,dim>>) const;
 
     };
 

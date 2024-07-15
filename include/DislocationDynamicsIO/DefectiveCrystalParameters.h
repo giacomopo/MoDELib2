@@ -32,11 +32,7 @@ namespace model
         const bool useClusterDynamics;
         const bool useCracks;
         const bool useInclusions;
-//        const bool correctPeriodicGradients;
-//        const double EwaldLength;
-//        const bool periodicImageCentered;
         const long int Nsteps;
-//        const int timeIntegrationMethod;
         const int useSubCycling;
         const std::set<int> subcyclingBins; 
         const std::string externalLoadControllerName;

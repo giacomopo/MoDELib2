@@ -531,7 +531,7 @@ namespace model
         std::deque<MeshedDislocationLoop> temp;
         for(const auto& gPatch : patches().globalPatches())
         {
-            temp.emplace_back(MeshedDislocationLoop(*gPatch.first->glidePlane,gPatch.second,meshSize));
+            temp.emplace_back(MeshedDislocationLoop(burgers(),this->network().ddBase.periodicShifts,*gPatch.first->glidePlane,gPatch.second,meshSize));
         }
         return temp;
     }
