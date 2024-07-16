@@ -12,13 +12,8 @@ Nsteps=250;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 
 ######################################
-# Settings for simulationType=0 (finite sample without FEM)
-externalLoadControllerName=UniformExternalLoadController;
-
-######################################
 # Settings for simulationType=1 (finite sample with FEM)
 stepsBetweenBVPupdates = 1;
-virtualSegmentDistance=500;
 use_directSolver_FEM=1;
 solverTolerance=1.0e-7;
 # Surface nucleation model (0=no nucleation)

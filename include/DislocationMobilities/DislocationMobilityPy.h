@@ -14,10 +14,28 @@
 #include <DislocationMobilityBase.h>
 
 #ifdef _MODEL_PYBIND11_
-#include <pybind11/embed.h>
-#include <pybind11/eigen.h>
-#include <pybind11/stl.h>
+    #undef slots
+    #include <pybind11/embed.h>
+    #include <pybind11/eigen.h>
+    #include <pybind11/stl.h>
+    #define slots Q_SLOTS
 #endif
+
+//#ifdef _MODEL_PYBIND11_
+//    #ifdef slots
+//        #define SAVED_SLOTS slots
+//        #undef slots
+//    #endif
+//    #include <pybind11/embed.h>
+//    #include <pybind11/eigen.h>
+//    #include <pybind11/stl.h>
+//    #ifdef SAVED_SLOTS
+//        #define slots SAVED_SLOTS
+//        #undef SAVED_SLOTS
+//    #else
+//        #define slots Q_SLOTS
+//    #endif
+//#endif
 
 
 namespace model

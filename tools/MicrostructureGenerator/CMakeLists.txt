@@ -1,3 +1,2 @@
-
 add_executable(microstructureGenerator microstructureGenerator.cpp)
 target_link_libraries(microstructureGenerator MoDELib)

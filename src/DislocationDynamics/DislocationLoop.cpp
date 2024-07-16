@@ -44,15 +44,11 @@ namespace model
     {
         
         std::deque<std::deque<std::pair<const LoopLinkType*,int>>> csBranches;
-        //std::cout<<"Loop "<<this->tag()<<std::endl;
         if(this->network().crossSlipModel)
         {
             std::deque<std::pair<const LoopLinkType*,int>> currentBranch; // pair<link,cross-slip slipSystem ID>
             for(const auto& link : this->linkSequence())
             {
-                //std::cout<<"Link "<<link->tag()<<std::endl;
-                
-                
                 if(link->hasNetworkLink())
                 {
                     const auto isCSLink(this->network().crossSlipModel->isCrossSlipLink(*link->networkLink()));

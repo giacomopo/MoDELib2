@@ -117,14 +117,14 @@ PYBIND11_MODULE(pyMoDELib,m)
         .def("dislocationNetwork", &model::DefectiveCrystal<3>::dislocationNetwork)
     ;
     
-    py::class_<model::DislocationNetwork<3,0>,model::MicrostructureBase<3>,model::LoopNetwork<DislocationNetwork<3,0>>>(m,"DislocationNetwork")
-        .def(py::init<model::MicrostructureContainer<3>&>())
-    ;
-    
-    py::class_<model::LoopNetwork<model::DislocationNetwork<3,0>>,model::WeakPtrFactory<model::DislocationNetwork<3,0>,typename TypeTraits<model::DislocationNetwork<3,0>>::LoopType>>(m,"LoopNetwork",py::multiple_inheritance())
-        .def(py::init<>())
-        .def("loops", static_cast<const model::WeakPtrFactory<model::DislocationNetwork<3,0>,typename TypeTraits<model::DislocationNetwork<3,0>>::LoopType>& (model::LoopNetwork<model::DislocationNetwork<3,0>>::*)()const>(&model::LoopNetwork<model::DislocationNetwork<3,0>>::loops))
-    ;
+//    py::class_<model::DislocationNetwork<3,0>,model::MicrostructureBase<3>,model::LoopNetwork<DislocationNetwork<3,0>>>(m,"DislocationNetwork")
+//        .def(py::init<model::MicrostructureContainer<3>&>())
+//    ;
+//    
+//    py::class_<model::LoopNetwork<model::DislocationNetwork<3,0>>,model::WeakPtrFactory<model::DislocationNetwork<3,0>,typename TypeTraits<model::DislocationNetwork<3,0>>::LoopType>>(m,"LoopNetwork",py::multiple_inheritance())
+//        .def(py::init<>())
+//        .def("loops", static_cast<const model::WeakPtrFactory<model::DislocationNetwork<3,0>,typename TypeTraits<model::DislocationNetwork<3,0>>::LoopType>& (model::LoopNetwork<model::DislocationNetwork<3,0>>::*)()const>(&model::LoopNetwork<model::DislocationNetwork<3,0>>::loops))
+//    ;
 }
 #endif
 }

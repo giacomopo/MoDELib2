@@ -13,6 +13,9 @@
 
 int main(int argc, char *argv[])
 {
+#ifdef _MODEL_PYBIND11_ // COMPILED WITH PYBIND11
+    pybind11::scoped_interpreter guard{};
+#endif
     QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat()); // needed to ensure appropriate OpenGL context is created for VTK rendering.
     QApplication a(argc, argv);
     model::DDqtMainWindow window;

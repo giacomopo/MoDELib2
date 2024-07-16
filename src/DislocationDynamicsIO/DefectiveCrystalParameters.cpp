@@ -86,7 +86,7 @@ namespace model
 //        /* init */,timeIntegrationMethod(TextFileParser(traitsIO.ddFile).readScalar<int>("timeIntegrationMethod",true))
         /* init */,useSubCycling(TextFileParser(traitsIO.ddFile).readScalar<int>("useSubCycling",true))
         /* init */,subcyclingBins(getSubCyclingSet(TextFileParser(traitsIO.ddFile).readArray<int>("subcyclingBins",true)))
-        /* init */,externalLoadControllerName(TextFileParser(traitsIO.ddFile).readString("externalLoadControllerName",true))
+    //    /* init */,externalLoadControllerName(TextFileParser(traitsIO.ddFile).readString("externalLoadControllerName",true))
         /* init */,use_stochasticForce(TextFileParser(traitsIO.ddFile).readScalar<int>("use_stochasticForce",true))
         /* init */,periodicFaceIDs(TextFileParser(traitsIO.polyFile).template readSet<int>("periodicFaceIDs",true))
         /* init */,dtMax(TextFileParser(traitsIO.ddFile).template readScalar<double>("dtMax",true))

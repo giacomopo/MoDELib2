@@ -51,31 +51,21 @@ namespace model
         const GrainType& grain;
         const int loopType;
 
-        
     private:
         
         VectorDim nA;
         VectorDim nAR;
         double _slippedArea;
         double _slippedAreaRate;
-
         VectorDim _rightHandedUnitNormal;
         ReciprocalLatticeDirectionType _rightHandedNormal;
         std::shared_ptr<SlipSystem> _slipSystem;
-//        std::map<std::shared_ptr<PeriodicPlanePatch<_dim>>,std::vector<Eigen::Matrix<double,_dim-1,1>>> _patches;
-        
-//        std::shared_ptr<PeriodicPlanePatch<_dim>> _barycentricPatch;
-//        std::vector<VectorDim> _barycentricNodes;
-        
+
     public:
         
         DislocationLoop(LoopNetworkType* const,
                         const VectorDim&,
                         const std::shared_ptr<GlidePlaneType>& glidePlane_in);
-//        DislocationLoop(LoopNetworkType *const ,
-//                        const VectorDim &,
-//                        const int &,
-//                        const int &);
         ~DislocationLoop();
         std::shared_ptr<LoopType> clone() const;
         const double& slippedArea() const;
@@ -94,35 +84,11 @@ namespace model
         bool isVirtualBoundaryLoop() const;
         double solidAngle(const VectorDim& x) const;
         void crossSlipBranches(std::deque<std::pair<std::deque<std::shared_ptr<LoopNodeType>>,int>>& csNodes) const;
-//        int windingNumber(const VectorDim& pt);
-//        int windingNumber(const Eigen::Matrix<double,_dim-1,1>& ptLocal,const std::shared_ptr<GlidePlane<_dim>>& ptPlane);
         const DislocationLoopPatches<_dim>& patches() const;
-//        const std::vector<VectorDim>& barycentricNodes() const;
-//        void computeStackingFaultForces();
         std::deque<MeshedDislocationLoop> meshed(const double& meshSize) const;
-
         static void initFromFile(const std::string&);
         static double planarSolidAngle(const VectorDim& x,const VectorDim& planePoint,const VectorDim& rhN,const std::vector<std::pair<VectorDim,VectorDim>>& polygonSegments);
         template <typename T> static int sgn(const T& val);
-        
-//        void printPeriodicLoop() const
-//        {
-//            std::cout<<"Loop "<<this->tag()<<" patches:"<<std::endl;
-//            if(periodicGlidePlane)
-//            {
-//                for(const auto& weakPatch : periodicGlidePlane->patches())
-//                {
-//                    const auto patch(weakPatch.second.lock());
-//                    for(const auto& edge : patch->edges())
-//                    {
-//                        std::cout<<patch->sID<<" "<<edge->edgeID<<" "<<edge->source->transpose()<<std::endl;
-//                    }
-//                }
-//            }
-//            
-//            
-//        }
-        
    };
     
 }

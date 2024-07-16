@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 sys.path.append("../build/tools/pyMoDELib")
 import pyMoDELib
+#sys.path.append("../build/")
+#import libMoDELib
 
 simulationDir="../tutorials/DislocationDynamics/periodicDomains/uniformLoadController/"
 ddBase=pyMoDELib.DislocationDynamicsBase(simulationDir)
@@ -12,8 +14,8 @@ defectiveCrystal=pyMoDELib.DefectiveCrystal(ddBase)
 points=np.array([[0.0,0.0,0.0],[1.0,0.0,0.0],[2.0,0.0,0.0]])
 print(points)
 disp=defectiveCrystal.displacement(points)
-DN=defectiveCrystal.dislocationNetwork()
-DN.loops()
+#DN=defectiveCrystal.dislocationNetwork()
+#DN.loops()
 print(disp)
 
 rp=ddBase.poly.grain(1)
