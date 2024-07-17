@@ -97,14 +97,9 @@ namespace model
     /* init */ simulationParameters( folderName)
     /* init */,voigtTraits((typename SymmetricVoigtTraits<3>::VoigtSizeMatrixType()<<0,0,1,1,2,2,0,1,1,2,0,2).finished())
     /* init */,mesh(simulationParameters.traitsIO.meshFile,
-                    TextFileParser(
-                                   simulationParameters.traitsIO.polyFile
-                                   ).readMatrix<double>("F",_dim,_dim,true),
-                    TextFileParser(
-                                   simulationParameters.traitsIO.polyFile
-                                   ).readMatrix<double>("X0",1,_dim,true).transpose(),
-                    simulationParameters.periodicFaceIDs
-                    )
+                    TextFileParser(simulationParameters.traitsIO.polyFile).readMatrix<double>("F",_dim,_dim,true),
+                    TextFileParser(simulationParameters.traitsIO.polyFile).readMatrix<double>("X0",1,_dim,true).transpose(),
+                    simulationParameters.periodicFaceIDs)
     /* init */,isPeriodicDomain(checkIfFullyPeriodicDomain(mesh))
     /* init */,periodicImageSize(isPeriodicDomain? TextFileParser(simulationParameters.traitsIO.ddFile).readArray<int>("periodicImageSize",true) : std::vector<int>())
     /* init */,periodicLatticeBasis(mesh.periodicBasis())

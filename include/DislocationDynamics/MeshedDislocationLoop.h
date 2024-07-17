@@ -30,8 +30,8 @@ namespace model
         typedef Eigen::Matrix<double,3,1> VectorDim;
         
         const VectorDim burgers;
-        const std::vector<VectorDim>& periodicShifts;
-        const Plane<3>& plane;
+        const std::vector<VectorDim> periodicShifts;
+        const Plane<3> plane;
         std::deque<VectorDim> points;
         
         MeshedDislocationLoop(const VectorDim& burgers_in,const std::vector<VectorDim>& periodicShifts_in,const Plane<3>& plane_in,const std::vector<Eigen::Matrix<double,3,1>>& globalBndPts,const double& meshSize);

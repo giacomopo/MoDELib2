@@ -78,13 +78,13 @@ namespace model
     std::shared_ptr<DislocationClimbSolverBase<DislocationNetworkType>> DislocationClimbSolverFactory<DislocationNetworkType>::getClimbSolver(const DislocationNetworkType& DN,const std::string& solverType)
 {
 //        const ClusterDynamics<DislocationClimbSolverFactory<DislocationNetworkType>::dim>* CD(getCD(DN));
-        const ClusterDynamics<DislocationClimbSolverFactory<DislocationNetworkType>::dim>* CD(DN.microstructures.template getUniqueTypedMicrostructure<ClusterDynamics<dim>>());
+        const auto CD(DN.microstructures.template getUniqueTypedMicrostructure<ClusterDynamics<dim>>());
         if(CD)
         {
             if(solverType=="Galerkin" || solverType=="galerkin")
             {
                 
-                return std::shared_ptr<DislocationClimbSolverBase<DislocationNetworkType>>(new GalerkinClimbSolver<DislocationNetworkType>(DN,CD));
+                return std::shared_ptr<DislocationClimbSolverBase<DislocationNetworkType>>(new GalerkinClimbSolver<DislocationNetworkType>(DN,CD.get()));
             }
             else
             {

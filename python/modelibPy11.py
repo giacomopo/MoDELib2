@@ -14,9 +14,26 @@ defectiveCrystal=pyMoDELib.DefectiveCrystal(ddBase)
 points=np.array([[0.0,0.0,0.0],[1.0,0.0,0.0],[2.0,0.0,0.0]])
 print(points)
 disp=defectiveCrystal.displacement(points)
-#DN=defectiveCrystal.dislocationNetwork()
-#DN.loops()
-print(disp)
+
+DN=defectiveCrystal.dislocationNetwork()
+print(len(DN.loops()))
+print(len(DN.loopNodes()))
+
+for loopID in DN.loops():
+    loop=DN.loops().getRef(loopID)
+    #print(type(loop))
+    #point=np.array([0.0,0.0,0.0])
+    #loop.meshed(100)
+    meshedLoopVector=loop.meshed(100)
+#    print(type(meshedLoopVector[0]))
+#    for meshedLoop in meshedLoopVector:
+#        a=1
+#    loop.solidAngle(point)
+#    print(loop.solidAngle(point))
+
+
+#for node in DN.loopNodes():
+#    print(node)
 
 rp=ddBase.poly.grain(1)
 #print(rp)

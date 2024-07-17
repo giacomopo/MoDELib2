@@ -20,13 +20,37 @@ namespace model
     
     
     template<typename Derived,typename ValueType,typename CompareType=std::less<typename  ValueType::KeyType>>
-    struct WeakPtrFactory : public std::map<typename ValueType::KeyType,
-    /*                                   */ const std::weak_ptr<ValueType>>
+    struct WeakPtrFactory : public std::map<typename ValueType::KeyType,const std::weak_ptr<ValueType>>
     {
-        
-        typedef typename ValueType::KeyType   KeyType;
+        typedef typename ValueType::KeyType KeyType;
         typedef std::weak_ptr<ValueType> WeakPtrType;
-        typedef std::shared_ptr<ValueType> SharedPtrType;                
+        typedef std::shared_ptr<ValueType> SharedPtrType;  
+        
+//        using Base = std::map<typename ValueType::KeyType,const std::weak_ptr<ValueType>>;
+//        using typename Base::const_iterator;
+//        using typename Base::iterator;
+//        using typename Base::key_type;
+//        using typename Base::mapped_type;
+//        using typename Base::size_type;
+//        using typename Base::value_type;
+//
+//        using Base::at;
+//        using Base::Base;
+//        using Base::begin;
+//        using Base::cbegin;
+//        using Base::cend;
+//        using Base::clear;
+//        using Base::emplace;
+//        using Base::emplace_hint;
+//        using Base::empty;
+//        using Base::end;
+//        using Base::erase;
+//        using Base::find;
+//        using Base::insert;
+//        using Base::max_size;
+//        using Base::swap;
+//        using Base::operator[];
+//        using Base::size;
                 
         template<typename...Args>
         SharedPtrType create(const Args&...args)
@@ -72,6 +96,20 @@ namespace model
             else
             {// key not found found
                 return SharedPtrType(nullptr);
+            }
+        }
+        
+        const ValueType& getRef(const KeyType& key) const
+        {
+            SharedPtrType ptr(get(key));
+            if(ptr)
+            {
+                return *ptr;
+            }
+            else
+            {
+                throw std::runtime_error("WeakPtrFactory::getRef key not found");
+                return *ptr;
             }
         }
         

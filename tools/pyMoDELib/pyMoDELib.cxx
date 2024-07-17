@@ -12,6 +12,11 @@
 #ifdef _MODEL_PYBIND11_
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
+#include <pybind11/stl.h>
+#include <pybind11/complex.h>
+#include <pybind11/functional.h>
+#include <pybind11/chrono.h>
+#include <pybind11/stl_bind.h>
 #endif
 
 #include <Eigen/Dense>
@@ -19,6 +24,7 @@
 #include <vector>
 #include <set>
 #include <memory>
+#include <map>
 
 #include <DefectiveCrystalParameters.h>
 #include <SimplicialMesh.h>
@@ -30,52 +36,63 @@
 #include <DefectiveCrystal.h>
 
 
-namespace model
-{
-
+using namespace model;
 // https://pybind11.readthedocs.io/en/stable/advanced/cast/eigen.html
 // https://pybind11.readthedocs.io/en/stable/advanced/classes.html
 
+typedef Eigen::Matrix<double,3,1> VectorDim;
+typedef Eigen::Matrix<double,3,3> MatrixDim;
+typedef GlidePlane<3> GlidePlaneType;
+typedef DislocationNetwork<3,0> DislocationNetworkType;
+typedef typename TypeTraits<DislocationNetworkType>::LoopNodeType LoopNodeType;
+typedef typename TypeTraits<DislocationNetworkType>::LoopType LoopType;
+typedef typename TypeTraits<DislocationNetworkType>::NetworkNodeType NetworkNodeType;
+
 #ifdef _MODEL_PYBIND11_
+
+PYBIND11_MAKE_OPAQUE(std::map<typename LoopNodeType::KeyType,const std::weak_ptr<LoopNodeType>>);
+PYBIND11_MAKE_OPAQUE(std::map<typename LoopType::KeyType,const std::weak_ptr<LoopType>>);
+PYBIND11_MAKE_OPAQUE(std::vector<std::shared_ptr<MeshedDislocationLoop>>);
+
 PYBIND11_MODULE(pyMoDELib,m)
 {
     namespace py=pybind11;
 
-    py::class_<model::DefectiveCrystalParameters>(m,"DefectiveCrystalParameters")
+    py::class_<DefectiveCrystalParameters>(m,"DefectiveCrystalParameters")
         .def(py::init<const std::string&>())
-        .def_readwrite("runID", &model::DefectiveCrystalParameters::runID)
-        .def_readonly("useFEM", &model::DefectiveCrystalParameters::useFEM)
+        .def_readwrite("runID", &DefectiveCrystalParameters::runID)
+        .def_readonly("useFEM", &DefectiveCrystalParameters::useFEM)
     ;
     
-    py::class_<model::MeshRegionObserver<model::MeshRegion<3>>>(m,"MeshRegionObserver")
+    py::class_<MeshRegionObserver<MeshRegion<3>>>(m,"MeshRegionObserver")
         .def(py::init<>())
     ;
     
-    py::class_<model::SimplexReader<3>>(m,"SimplexReader")
+    py::class_<SimplexReader<3>>(m,"SimplexReader")
         .def(py::init<>())
     ;
     
-    py::class_<std::map<typename model::SimplexTraits<3,3>::SimplexIDType,const model::Simplex<3,3>>>(m,"SimplexIDMap")
+    py::class_<std::map<typename SimplexTraits<3,3>::SimplexIDType,const Simplex<3,3>>>(m,"SimplexIDMap")
         .def(py::init<>())
     ;
     
-    py::class_<std::map<std::pair<size_t,size_t>,model::MeshRegionBoundary<3>>>(m,"MeshRegionBoundaryMap")
+    py::class_<std::map<std::pair<size_t,size_t>,MeshRegionBoundary<3>>>(m,"MeshRegionBoundaryMap")
         .def(py::init<>())
     ;
     
-    py::class_<model::SimplicialMesh<3>,
-    /*      */ model::MeshRegionObserver<model::MeshRegion<3>>,
-    /*      */ model::SimplexReader<3>,
-    /*      */ std::map<typename model::SimplexTraits<3,3>::SimplexIDType,const model::Simplex<3,3>>,
-    /*      */ std::map<std::pair<size_t,size_t>,model::MeshRegionBoundary<3>>>(m,"SimplicialMesh")
+    py::class_<SimplicialMesh<3>,
+    /*      */ MeshRegionObserver<MeshRegion<3>>,
+    /*      */ SimplexReader<3>,
+    /*      */ std::map<typename SimplexTraits<3,3>::SimplexIDType,const Simplex<3,3>>,
+    /*      */ std::map<std::pair<size_t,size_t>,MeshRegionBoundary<3>>>(m,"SimplicialMesh")
         .def(py::init<>())
 //        .def(py::init<const std::string&,const Eigen::Matrix<double,3,3>&,const Eigen::Matrix<double,3,1>&,const std::set<int>&>())
-        .def("xMin",static_cast<const Eigen::Matrix<double,3,1>& (model::SimplicialMesh<3>::*)() const>(&model::SimplicialMesh<3>::xMin))
-        .def("xMax",static_cast<const Eigen::Matrix<double,3,1>& (model::SimplicialMesh<3>::*)() const>(&model::SimplicialMesh<3>::xMax))
-        .def("volume",&model::SimplicialMesh<3>::volume)
+        .def("xMin",static_cast<const Eigen::Matrix<double,3,1>& (SimplicialMesh<3>::*)() const>(&SimplicialMesh<3>::xMin))
+        .def("xMax",static_cast<const Eigen::Matrix<double,3,1>& (SimplicialMesh<3>::*)() const>(&SimplicialMesh<3>::xMax))
+        .def("volume",&SimplicialMesh<3>::volume)
     ;
 
-    py::class_<model::PolycrystallineMaterialBase>(m,"PolycrystallineMaterialBase")
+    py::class_<PolycrystallineMaterialBase>(m,"PolycrystallineMaterialBase")
         .def(py::init<const std::string&,const double&>())
     ;
 
@@ -83,57 +100,114 @@ PYBIND11_MODULE(pyMoDELib,m)
         .def(py::init<>())
     ;
     
-    py::class_<model::Grain<3>,std::map<std::pair<size_t,size_t>,const std::shared_ptr<GrainBoundary<3>>>>(m,"Grain")
+    py::class_<Grain<3>,std::map<std::pair<size_t,size_t>,const std::shared_ptr<GrainBoundary<3>>>>(m,"Grain")
         .def(py::init<const MeshRegion<3>&,const PolycrystallineMaterialBase&,const std::string& >())
-//            .def_readonly("grainID", &model::Grain<3>::grainID)
-
+//            .def_readonly("grainID", &Grain<3>::grainID)
     ;
     
-    py::class_<model::Polycrystal<3>,PolycrystallineMaterialBase>(m,"Polycrystal")
+    py::class_<Polycrystal<3>,PolycrystallineMaterialBase>(m,"Polycrystal")
         .def(py::init<const std::string&,const SimplicialMesh<3>&>())
-//        .def("mesh", &model::Polycrystal<3>::mesh)
-        .def("randomPoint", &model::Polycrystal<3>::randomPoint)
-        .def_readonly("grains", &model::Polycrystal<3>::grains)
-        .def("grain", &model::Polycrystal<3>::grain)
+//        .def("mesh", &Polycrystal<3>::mesh)
+        .def("randomPoint", &Polycrystal<3>::randomPoint)
+        .def_readonly("grains", &Polycrystal<3>::grains)
+        .def("grain", &Polycrystal<3>::grain)
     ;
     
-    py::class_<model::DislocationDynamicsBase<3>>(m,"DislocationDynamicsBase")
+    py::class_<DislocationDynamicsBase<3>>(m,"DislocationDynamicsBase")
         .def(py::init<const std::string&>())
-//        .def("getMesh", &model::DislocationDynamicsBase<3>::getMesh)
-        .def_readonly("poly", &model::DislocationDynamicsBase<3>::poly)
-//        .def_readonly("mesh", &model::DislocationDynamicsBase<3>::mesh)
+//        .def("getMesh", &DislocationDynamicsBase<3>::getMesh)
+        .def_readonly("poly", &DislocationDynamicsBase<3>::poly)
+//        .def_readonly("mesh", &DislocationDynamicsBase<3>::mesh)
     ;
     
-    py::class_<model::MicrostructureBase<3>>(m,"MicrostructureBase")
-        .def("displacement", static_cast<Eigen::Matrix<double,Eigen::Dynamic,3> (model::MicrostructureBase<3>::*)(Eigen::Ref<const Eigen::Matrix<double,Eigen::Dynamic,3>>) const>(&model::MicrostructureBase<3>::displacement))
+    py::class_<MicrostructureBase<3>>(m,"MicrostructureBase")
+        .def("displacement", static_cast<Eigen::Matrix<double,Eigen::Dynamic,3> (MicrostructureBase<3>::*)(Eigen::Ref<const Eigen::Matrix<double,Eigen::Dynamic,3>>) const>(&MicrostructureBase<3>::displacement))
     ;
     
-    py::class_<model::MicrostructureContainer<3>,model::MicrostructureBase<3>>(m,"MicrostructureContainer",py::multiple_inheritance())
-        .def(py::init<model::DislocationDynamicsBase<3>&>())
-    ;
- 
-    py::class_<model::DefectiveCrystal<3>,model::MicrostructureContainer<3>>(m,"DefectiveCrystal")
-        .def(py::init<model::DislocationDynamicsBase<3>&>())
-        .def("dislocationNetwork", &model::DefectiveCrystal<3>::dislocationNetwork)
+    py::class_<MicrostructureContainer<3>,MicrostructureBase<3>>(m,"MicrostructureContainer",py::multiple_inheritance())
+        .def(py::init<DislocationDynamicsBase<3>&>())
     ;
     
-//    py::class_<model::DislocationNetwork<3,0>,model::MicrostructureBase<3>,model::LoopNetwork<DislocationNetwork<3,0>>>(m,"DislocationNetwork")
-//        .def(py::init<model::MicrostructureContainer<3>&>())
-//    ;
-//    
-//    py::class_<model::LoopNetwork<model::DislocationNetwork<3,0>>,model::WeakPtrFactory<model::DislocationNetwork<3,0>,typename TypeTraits<model::DislocationNetwork<3,0>>::LoopType>>(m,"LoopNetwork",py::multiple_inheritance())
-//        .def(py::init<>())
-//        .def("loops", static_cast<const model::WeakPtrFactory<model::DislocationNetwork<3,0>,typename TypeTraits<model::DislocationNetwork<3,0>>::LoopType>& (model::LoopNetwork<model::DislocationNetwork<3,0>>::*)()const>(&model::LoopNetwork<model::DislocationNetwork<3,0>>::loops))
-//    ;
+    // LoopNode
+    py::bind_map<std::map<typename LoopNodeType::KeyType,const std::weak_ptr<LoopNodeType>>>(m, "LoopNodeWeakPtrMap");
+
+    py::class_<WeakPtrFactory<DislocationNetworkType,LoopNodeType>
+    /*      */,std::map<typename LoopNodeType::KeyType,const std::weak_ptr<LoopNodeType>>
+    /*      */>(m,"LoopNodeWeakPtrFactory")
+        .def(py::init<>())
+        .def("getRef",&WeakPtrFactory<DislocationNetworkType,LoopNodeType>::getRef,pybind11::return_value_policy::reference)
+    ;
+    
+    py::class_<LoopNodeType
+    /*      */ >(m,"LoopNode")
+        .def(py::init<typename TypeTraits<DislocationNetworkType>::LoopNetworkType* const,
+             const std::shared_ptr<LoopType>&,
+             const std::shared_ptr<NetworkNodeType>&,
+             const typename TypeTraits<DislocationNetworkType>::VectorDim&,
+             const std::shared_ptr<PeriodicPlanePatch<3>>&,
+             const std::pair<const std::shared_ptr<PeriodicPlaneEdge<3>>,const std::shared_ptr<PeriodicPlaneEdge<3>>>&>())
+    ;
+    
+    //Loop
+    py::bind_vector<std::vector<std::shared_ptr<MeshedDislocationLoop>>>(m, "MeshedDislocationLoopVector");
+
+    py::bind_map<std::map<typename LoopType::KeyType,const std::weak_ptr<LoopType>>>(m, "LoopWeakPtrMap");
+
+    py::class_<WeakPtrFactory<DislocationNetworkType,LoopType>
+    /*      */,std::map<typename LoopType::KeyType,const std::weak_ptr<LoopType>>
+    /*      */>(m,"LoopWeakPtrFactory")
+        .def(py::init<>())
+        .def("getRef",&WeakPtrFactory<DislocationNetworkType,LoopType>::getRef,pybind11::return_value_policy::reference)
+    ;
+    
+    py::class_<LoopType
+    /*      */ >(m,"Loop")
+        .def(py::init<DislocationNetworkType* const,
+             const VectorDim&,
+             const std::shared_ptr<GlidePlaneType>&>())
+        .def("solidAngle",&LoopType::solidAngle)
+        .def("meshed",&LoopType::meshed)
+    ;
+    
+    py::class_<MeshedDislocationLoop
+    /*      */ >(m,"MeshedDislocationLoop")
+        .def(py::init<const VectorDim&,
+             const std::vector<VectorDim>&,
+             const Plane<3>&,const std::vector<Eigen::Matrix<double,3,1>>&,
+             const double&>())
+//        .def("solidAngle",&LoopType::solidAngle)
+//        .def("meshed",&LoopType::meshed)
+    ;
+
+    py::class_<LoopNetwork<DislocationNetworkType>
+    /*      */,WeakPtrFactory<DislocationNetworkType,LoopType>
+    /*      */,WeakPtrFactory<DislocationNetworkType,LoopNodeType>
+    /*      */ >(m,"LoopNetwork",py::multiple_inheritance())
+        .def(py::init<>())
+        .def("loops", static_cast<const WeakPtrFactory<DislocationNetworkType,LoopType>& (LoopNetwork<DislocationNetworkType>::*)()const>(&LoopNetwork<DislocationNetworkType>::loops),pybind11::return_value_policy::reference)
+        .def("loopNodes", static_cast<const WeakPtrFactory<DislocationNetworkType,LoopNodeType>& (LoopNetwork<DislocationNetworkType>::*)()const>(&LoopNetwork<DislocationNetworkType>::loopNodes),pybind11::return_value_policy::reference)
+    ;
+    
+    py::class_<DislocationNetworkType
+    /*      */,MicrostructureBase<3>
+    /*      */,LoopNetwork<DislocationNetworkType>>(m,"DislocationNetwork")
+        .def(py::init<MicrostructureContainer<3>&>())
+    ;
+    
+    py::class_<DefectiveCrystal<3>
+    /*      */,MicrostructureContainer<3>
+    /*      */>(m,"DefectiveCrystal")
+        .def(py::init<DislocationDynamicsBase<3>&>())
+        .def("dislocationNetwork", &DefectiveCrystal<3>::dislocationNetwork,pybind11::return_value_policy::reference)
+    ;
+
 }
 #endif
-}
+
 
 int main(int argc, char** argv)
 {
-    
     return 0;
 }
-
 
 #endif

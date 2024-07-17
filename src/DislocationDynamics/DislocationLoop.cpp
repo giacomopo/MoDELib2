@@ -522,12 +522,12 @@ namespace model
     }
 
     template <int dim, short unsigned int corder>
-    std::deque<MeshedDislocationLoop> DislocationLoop<dim, corder>::meshed(const double& meshSize) const
+    std::vector<std::shared_ptr<MeshedDislocationLoop>> DislocationLoop<dim, corder>::meshed(const double& meshSize) const
     {
-        std::deque<MeshedDislocationLoop> temp;
+        std::vector<std::shared_ptr<MeshedDislocationLoop>> temp;
         for(const auto& gPatch : patches().globalPatches())
         {
-            temp.emplace_back(MeshedDislocationLoop(burgers(),this->network().ddBase.periodicShifts,*gPatch.first->glidePlane,gPatch.second,meshSize));
+            temp.emplace_back(new MeshedDislocationLoop(burgers(),this->network().ddBase.periodicShifts,*gPatch.first->glidePlane,gPatch.second,meshSize));
         }
         return temp;
     }

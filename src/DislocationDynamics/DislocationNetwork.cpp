@@ -12,7 +12,6 @@
 #include <numbers>
 
 #include <DislocationNetwork.h>
-//#include <PolyhedronInclusionNodes.h>
 #include <algorithm>
 
 
@@ -23,8 +22,6 @@ namespace model
     /* init */ MicrostructureBase<dim>("DislocationDynamics",mc)
     /* init */,glideStepsSinceLastClimb(0)
     /* init */,ddBase(this->microstructures.ddBase)
-//    /* init */,glideSolver(DislocationGlideSolverFactory<DislocationNetwork<dim,corder>>::getGlideSolver(*this,TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readString("glideSolverType",true)))
-//    /* init */,climbSolver(DislocationClimbSolverFactory<DislocationNetwork<dim,corder>>::getClimbSolver(*this,TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readString("climbSolverType",true)))
     /* init */,networkRemesher(*this)
     /* init */,junctionsMaker(*this)
     /* init */,crossSlipModel(DislocationCrossSlip<DislocationNetwork<dim,corder>>::getModel(ddBase.poly,ddBase.simulationParameters.traitsIO))
@@ -179,140 +176,7 @@ namespace model
             this->insertLoop(this->loops().get(loop.sID),loopNodes);
         }
         updateGeometry();
-        
-        
-//        
-//        for(const auto& inclusion : evl.sphericalInclusions())
-//        {
-//            //        std::cout<<"Creating spherical inclusion "<<inclusion.inclusionID<<std::endl;
-//            const std::pair<bool,const Simplex<dim,dim>*> searchPair(ddBase.mesh.search(inclusion.C));
-//            if(searchPair.first)
-//            {
-//                
-//                const auto& grain(ddBase.poly.grain(searchPair.second->region->regionID));
-//                if(inclusion.phaseID<int(grain.singleCrystal->secondPhases().size()))
-//                {
-//                    const auto secondPhase(grain.singleCrystal->secondPhases().at(inclusion.phaseID));
-//                    EshelbyInclusionBase<dim>::set_count(inclusion.inclusionID);
-//                    
-//                    
-//                    std::shared_ptr<EshelbyInclusionBase<dim>> iptr(new SphericalInclusion<dim>(inclusion.C,inclusion.a,inclusion.eT,ddBase.poly.nu,ddBase.poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase));
-//                    
-//                    eshelbyInclusions().emplace(inclusion.inclusionID,iptr);
-//                }
-//                else
-//                {
-//                    throw std::runtime_error("phaseID does not exist in grain.");
-//                }
-//            }
-//        }
-//        
-//        for(const auto& piNode : evl.polyhedronInclusionNodes())
-//        {
-//            polyhedronInclusionNodes().emplace(piNode.nodeID,piNode);
-//        }
-//        
-//        std::map<size_t,std::map<size_t,std::vector<size_t>>> faceMap;
-//        for(const auto& edge : evl.polyhedronInclusionEdges())
-//        {
-//            const size_t& iID(edge.inclusionID);
-//            const size_t& fID(edge.faceID);
-//            const size_t& sourceID(edge.sourceID);
-//            faceMap[iID][fID].push_back(sourceID);
-//        }
-//        
-//        
-//        for(const auto& inclusion : evl.polyhedronInclusions())
-//        {
-//            //        std::cout<<"Creating polyhedron inclusion "<<inclusion.inclusionID<<std::endl;
-//            
-//            const auto faceIter(faceMap.find(inclusion.inclusionID));
-//            if(faceIter!=faceMap.end())
-//            {
-//                const auto& faces(faceIter->second);
-//                //            std::cout<<"    #faces= "<<faces.size()<<std::endl;
-//                std::set<const PolyhedronInclusionNodeIO<dim>*> uniquePolyNodes;
-//                for(const auto& pair : faces)
-//                {
-//                    for(const auto& nodeID : pair.second)
-//                    {
-//                        uniquePolyNodes.emplace(&polyhedronInclusionNodes().at(nodeID));
-//                    }
-//                }
-//                //            std::cout<<"    #nodes= "<<uniquePolyNodes.size()<<std::endl;
-//                if(uniquePolyNodes.size()>=dim+1)
-//                {
-//                    // Find grain
-//                    std::set<size_t> grainIDs;
-//                    for(const auto& nodePtr : uniquePolyNodes)
-//                    {
-//                        const std::pair<bool,const Simplex<dim,dim>*> searchPair(ddBase.mesh.search(nodePtr->P));
-//                        if(searchPair.first)
-//                        {
-//                            grainIDs.insert(searchPair.second->region->regionID);
-//                        }
-//                        else
-//                        {
-//                            throw std::runtime_error("inclusion node outside mesh");
-//                        }
-//                    }
-//                    
-//                    // Add inclusion
-//                    if(grainIDs.size()==1)
-//                    {
-//                        const auto& grain(ddBase.poly.grain(*grainIDs.begin()));
-//                        if(inclusion.phaseID<int(grain.singleCrystal->secondPhases().size()))
-//                        {
-//                            const auto secondPhase(grain.singleCrystal->secondPhases().at(inclusion.phaseID));
-//                            EshelbyInclusionBase<dim>::set_count(inclusion.inclusionID);
-//                            std::shared_ptr<EshelbyInclusionBase<dim>> iptr(new PolyhedronInclusion<dim>( polyhedronInclusionNodes(),faces,inclusion.eT,ddBase.poly.nu,ddBase.poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase));
-//                            eshelbyInclusions().emplace(inclusion.inclusionID,iptr);
-//                        }
-//                        else
-//                        {
-//                            throw std::runtime_error("phaseID does not exist in grain.");
-//                        }
-//                    }
-//                    else
-//                    {
-//                        throw std::runtime_error("inclusion across grain boundaries");
-//                    }
-//                }
-//                else
-//                {
-//                    throw std::runtime_error("inclusion does not have enough nodes");
-//                }
-//            }
-//            else
-//            {
-//                throw std::runtime_error("inclusionID not found in faceMap");
-//            }
-//        }
     }
-
-//    template <int dim, short unsigned int corder>
-//    const typename DislocationNetwork<dim,corder>::EshelbyInclusionContainerType& DislocationNetwork<dim,corder>::eshelbyInclusions() const
-//    {
-//        return *this;
-//    }
-//
-//    template <int dim, short unsigned int corder>
-//    typename DislocationNetwork<dim,corder>::EshelbyInclusionContainerType& DislocationNetwork<dim,corder>::eshelbyInclusions()
-//    {
-//        return *this;
-//    }
-//
-//    template <int dim, short unsigned int corder>
-//    const typename DislocationNetwork<dim,corder>::PolyhedronInclusionNodeContainerType& DislocationNetwork<dim,corder>::polyhedronInclusionNodes() const
-//    {
-//        return *this;
-//    }
-//
-//    template <int dim, short unsigned int corder>
-//    typename DislocationNetwork<dim,corder>::PolyhedronInclusionNodeContainerType& DislocationNetwork<dim,corder>::polyhedronInclusionNodes()
-//    {
-//        return *this;
-//    }
 
     template <int dim, short unsigned int corder>
     void DislocationNetwork<dim,corder>::updateGeometry()
@@ -438,7 +302,7 @@ namespace model
 
 
     template <int dim, short unsigned int corder>
-    const InclusionMicrostructure<dim>* const DislocationNetwork<dim,corder>::inclusions() const
+    const std::shared_ptr<InclusionMicrostructure<dim>>& DislocationNetwork<dim,corder>::inclusions() const
     {
         return _inclusions;
     }

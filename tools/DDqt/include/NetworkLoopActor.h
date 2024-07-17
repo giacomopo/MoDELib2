@@ -87,7 +87,7 @@ namespace model
         public:
                 
         const DefectiveCrystal<3>& defectiveCrystal;
-        const DislocationNetwork<3,0>* const dislocationNetwork;
+        const std::shared_ptr<DislocationNetwork<3,0>> dislocationNetwork;
 
         NetworkLoopActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,const DefectiveCrystal<3>& defectiveCrystal_in);
         void updateConfiguration();

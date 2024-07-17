@@ -35,7 +35,6 @@ namespace model
         const long int Nsteps;
         const int useSubCycling;
         const std::set<int> subcyclingBins; 
-//        const std::string externalLoadControllerName;
         const bool use_stochasticForce;
         const std::set<int> periodicFaceIDs;
         const double dtMax;

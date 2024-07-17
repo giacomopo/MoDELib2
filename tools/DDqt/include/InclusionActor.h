@@ -78,7 +78,7 @@ namespace model
                 
     public:
         const DefectiveCrystal<3>& defectiveCrystal;
-        const InclusionMicrostructure<3>* const inclusions;
+        const std::shared_ptr<InclusionMicrostructure<3>>  inclusions;
 
         
     public:

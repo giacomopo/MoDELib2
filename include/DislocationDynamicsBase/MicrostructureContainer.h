@@ -22,7 +22,7 @@ namespace model
 {
     template <int dim>
     struct MicrostructureContainer : public MicrostructureBase<dim>
-    /*                           */, public std::vector<std::unique_ptr<MicrostructureBase<dim>>>
+    /*                           */, public std::vector<std::shared_ptr<MicrostructureBase<dim>>>
     {
         typedef typename MicrostructureBase<dim>::MatrixDim MatrixDim;
         typedef typename MicrostructureBase<dim>::VectorDim VectorDim;
@@ -31,13 +31,13 @@ namespace model
         typedef typename MicrostructureBase<dim>::SimplexDim SimplexDim;
         typedef typename MicrostructureBase<dim>::VectorMSize VectorMSize;
 
-        typedef std::vector<std::unique_ptr<MicrostructureBase<dim>>> BaseContainerType;
+        typedef std::vector<std::shared_ptr<MicrostructureBase<dim>>> BaseContainerType;
         
         DislocationDynamicsBase<dim>& ddBase;
 
         MicrostructureContainer(DislocationDynamicsBase<dim>& ddBase_in);
-        const std::vector<std::unique_ptr<MicrostructureBase<dim>>>& microstructures() const;
-        std::vector<std::unique_ptr<MicrostructureBase<dim>>>& microstructures();
+        const BaseContainerType& microstructures() const;
+        BaseContainerType& microstructures();
         void initializeConfiguration(const DDconfigIO<dim>& configIO,const std::ofstream& f_file,const std::ofstream& F_labels) override;
         void solve() override;
         double getDt() const override;
@@ -51,22 +51,54 @@ namespace model
         VectorDim inelasticDisplacementRate(const VectorDim&, const NodeType* const, const ElementType* const,const SimplexDim* const) const override;
         VectorMSize mobileConcentration(const VectorDim&, const NodeType* const, const ElementType* const,const SimplexDim* const) const override;
 
+//        template<typename MicrostructureType>
+//        std::set<MicrostructureType*> getTypedMicrostructures() const
+//        {
+//            std::set<MicrostructureType*> temp;
+//            for(const auto& microstructure : microstructures())
+//            {
+//                if(dynamic_cast<MicrostructureType*>(microstructure.get()))
+//                {
+//                    temp.insert(dynamic_cast<MicrostructureType*>(microstructure.get()));
+//                }
+//            }
+//            return temp;
+//        }
+        
+        
+        
         template<typename MicrostructureType>
-        std::set<MicrostructureType*> getTypedMicrostructures() const
+        std::set<std::shared_ptr<MicrostructureType>> getTypedMicrostructures() const
         {
-            std::set<MicrostructureType*> temp;
+            std::set<std::shared_ptr<MicrostructureType>> temp;
             for(const auto& microstructure : microstructures())
             {
-                if(dynamic_cast<MicrostructureType*>(microstructure.get()))
+                std::shared_ptr<MicrostructureType> derived(std::dynamic_pointer_cast<MicrostructureType>(microstructure));
+                if(derived)
                 {
-                    temp.insert(dynamic_cast<MicrostructureType*>(microstructure.get()));
+                    temp.insert(derived);
                 }
             }
             return temp;
         }
         
+//        template<typename MicrostructureType>
+//        MicrostructureType* getUniqueTypedMicrostructure() const
+//        {
+//            const auto cdMicrostructures(getTypedMicrostructures<MicrostructureType>());
+//            if(cdMicrostructures.size()==1)
+//            {
+//                return *cdMicrostructures.begin();
+//            }
+//            else
+//            {
+//                std::cout<<"Found "<<cdMicrostructures.size()<<" microstructures of requested type"<<std::endl;
+//                return nullptr;
+//            }
+//        }
+        
         template<typename MicrostructureType>
-        MicrostructureType* getUniqueTypedMicrostructure() const
+        std::shared_ptr<MicrostructureType> getUniqueTypedMicrostructure() const
         {
             const auto cdMicrostructures(getTypedMicrostructures<MicrostructureType>());
             if(cdMicrostructures.size()==1)
