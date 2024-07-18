@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 sys.path.append("../build/tools/pyMoDELib")
 import pyMoDELib
-#sys.path.append("../build/")
-#import libMoDELib
 
 simulationDir="../tutorials/DislocationDynamics/periodicDomains/uniformLoadController/"
 ddBase=pyMoDELib.DislocationDynamicsBase(simulationDir)
@@ -19,21 +17,13 @@ DN=defectiveCrystal.dislocationNetwork()
 print(len(DN.loops()))
 print(len(DN.loopNodes()))
 
+meshSize=100
 for loopID in DN.loops():
     loop=DN.loops().getRef(loopID)
-    #print(type(loop))
-    #point=np.array([0.0,0.0,0.0])
-    #loop.meshed(100)
-    meshedLoopVector=loop.meshed(100)
-#    print(type(meshedLoopVector[0]))
-#    for meshedLoop in meshedLoopVector:
-#        a=1
-#    loop.solidAngle(point)
-#    print(loop.solidAngle(point))
-
-
-#for node in DN.loopNodes():
-#    print(node)
+    meshedLoopVector=loop.meshed(meshSize)
+    for meshedLoop in meshedLoopVector:
+        disp=meshedLoop.plasticDisplacement(points)
+        print(disp)
 
 rp=ddBase.poly.grain(1)
 #print(rp)

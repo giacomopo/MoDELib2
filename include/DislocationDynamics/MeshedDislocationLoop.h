@@ -20,22 +20,22 @@
 #endif
 
 #include <vector>
-#include <TriangularMesh.h>
 #include <Plane.h>
 
 namespace model
 {
-    struct MeshedDislocationLoop : public TriangularMesh
+    struct MeshedDislocationLoop //: public TriangularMesh
     {
         typedef Eigen::Matrix<double,3,1> VectorDim;
         
-        const VectorDim burgers;
-        const std::vector<VectorDim> periodicShifts;
-        const Plane<3> plane;
+        VectorDim burgers;
+        std::vector<VectorDim> periodicShifts;
+        //Plane<3> plane;
         std::deque<VectorDim> points;
+        std::deque<Eigen::Vector3i> triangles;
         
         MeshedDislocationLoop(const VectorDim& burgers_in,const std::vector<VectorDim>& periodicShifts_in,const Plane<3>& plane_in,const std::vector<Eigen::Matrix<double,3,1>>& globalBndPts,const double& meshSize);
-        VectorDim plasticDisplacement(const VectorDim&) const;
+        VectorDim plasticDisplacementKernel(const Eigen::Ref<const VectorDim>& x) const;
         Eigen::Matrix<double,Eigen::Dynamic,3> plasticDisplacement(Eigen::Ref<const Eigen::Matrix<double,Eigen::Dynamic,3>>) const;
         VectorDim triangleAreaVector(const Eigen::Vector3i&) const;
         double solidAngle(const VectorDim& x) const;

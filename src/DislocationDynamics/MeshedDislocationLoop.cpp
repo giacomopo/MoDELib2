@@ -12,14 +12,16 @@
 
 #include <numbers>
 #include <MeshedDislocationLoop.h>
+#include <TriangularMesh.h>
+
 
 namespace model
 {
     
-MeshedDislocationLoop::MeshedDislocationLoop(const VectorDim& burgers_in,const std::vector<VectorDim>& periodicShifts_in,const Plane<3>& plane_in,const std::vector<Eigen::Matrix<double,3,1>>& globalBndPts,const double& meshSize):
+MeshedDislocationLoop::MeshedDislocationLoop(const VectorDim& burgers_in,const std::vector<VectorDim>& periodicShifts_in,const Plane<3>& plane,const std::vector<Eigen::Matrix<double,3,1>>& globalBndPts,const double& meshSize):
 /* init */ burgers(burgers_in)
 /* init */,periodicShifts(periodicShifts_in)
-/* init */,plane(plane_in)
+///* init */,plane(plane_in)
 {
     
     std::deque<Eigen::Matrix<double,2,1>> localBndPts;
@@ -28,10 +30,11 @@ MeshedDislocationLoop::MeshedDislocationLoop(const VectorDim& burgers_in,const s
     {
         localBndPts.push_back(plane.localPosition(gpt));
     }
-    this->reMesh(localBndPts,internalPts,meshSize);
-
+    TriangularMesh triMesh;
+    triMesh.reMesh(localBndPts,internalPts,meshSize);
+    triangles=triMesh.triangles();
     
-    for(const auto& v : this->vertices())
+    for(const auto& v : triMesh.vertices())
     {
         points.push_back(plane.globalPosition(v));
     }
@@ -56,7 +59,7 @@ double MeshedDislocationLoop::solidAngle(const VectorDim& x) const
     const double a2(1.0e-2);
     const double oneA2=sqrt(1.0+a2);
     double temp(0.0);
-    for(const auto& tri : this->triangles())
+    for(const auto& tri : triangles)
     {
         const auto nA(triangleAreaVector(tri));
         const double triangleArea(nA.norm());
@@ -105,7 +108,7 @@ double MeshedDislocationLoop::solidAngle(const VectorDim& x) const
 }
 
 
-typename MeshedDislocationLoop::VectorDim MeshedDislocationLoop::plasticDisplacement(const VectorDim& x) const
+typename MeshedDislocationLoop::VectorDim MeshedDislocationLoop::plasticDisplacementKernel(const Eigen::Ref<const VectorDim>& x) const
 {
     VectorDim temp(VectorDim::Zero());
     for(const auto& shift : periodicShifts)
@@ -123,7 +126,7 @@ Eigen::Matrix<double,Eigen::Dynamic,3> MeshedDislocationLoop::plasticDisplacemen
     #endif
     for(long int k=0;k<points.rows();++k)
     {
-        temp.row(k)=plasticDisplacement(VectorDim(points.row(k)));
+        temp.row(k)=plasticDisplacementKernel(points.row(k));
     }
     return temp;
 }

@@ -52,7 +52,7 @@ typedef typename TypeTraits<DislocationNetworkType>::NetworkNodeType NetworkNode
 
 PYBIND11_MAKE_OPAQUE(std::map<typename LoopNodeType::KeyType,const std::weak_ptr<LoopNodeType>>);
 PYBIND11_MAKE_OPAQUE(std::map<typename LoopType::KeyType,const std::weak_ptr<LoopType>>);
-PYBIND11_MAKE_OPAQUE(std::vector<std::shared_ptr<MeshedDislocationLoop>>);
+PYBIND11_MAKE_OPAQUE(std::vector<MeshedDislocationLoop>);
 
 PYBIND11_MODULE(pyMoDELib,m)
 {
@@ -149,7 +149,7 @@ PYBIND11_MODULE(pyMoDELib,m)
     ;
     
     //Loop
-    py::bind_vector<std::vector<std::shared_ptr<MeshedDislocationLoop>>>(m, "MeshedDislocationLoopVector");
+    py::bind_vector<std::vector<MeshedDislocationLoop>>(m, "MeshedDislocationLoopVector");
 
     py::bind_map<std::map<typename LoopType::KeyType,const std::weak_ptr<LoopType>>>(m, "LoopWeakPtrMap");
 
@@ -175,8 +175,11 @@ PYBIND11_MODULE(pyMoDELib,m)
              const std::vector<VectorDim>&,
              const Plane<3>&,const std::vector<Eigen::Matrix<double,3,1>>&,
              const double&>())
-//        .def("solidAngle",&LoopType::solidAngle)
-//        .def("meshed",&LoopType::meshed)
+        .def("solidAngle",&MeshedDislocationLoop::solidAngle)
+        .def("plasticDisplacement",&MeshedDislocationLoop::plasticDisplacement)
+        .def("plasticDisplacementKernel",&MeshedDislocationLoop::plasticDisplacementKernel)
+        .def_readwrite("points", &MeshedDislocationLoop::points)
+        .def_readwrite("triangles", &MeshedDislocationLoop::triangles)
     ;
 
     py::class_<LoopNetwork<DislocationNetworkType>

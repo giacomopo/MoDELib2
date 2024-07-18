@@ -249,11 +249,11 @@ void NetworkLoopActor::updateConfiguration()
                 const auto& loop(weakloop.second.lock());
                 for(const auto& patchMesh : loop->meshed(meshSize))
                 {
-                    for(const auto& point3d : patchMesh->points)
+                    for(const auto& point3d : patchMesh.points)
                     {
                         meshPts->InsertNextPoint(point3d(0),point3d(1),point3d(2));
                     }
-                    for(const auto& tri : patchMesh->triangles())
+                    for(const auto& tri : patchMesh.triangles)
                     {
                         vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
                         triangle->GetPointIds()->SetId (0,tri(0)+ptsIncrement);
@@ -263,7 +263,7 @@ void NetworkLoopActor::updateConfiguration()
                         const auto triColor(Eigen::Matrix<int,1,3>::Random()*255);
                         meshColors->InsertNextTuple3(triColor(0),triColor(1),triColor(2)); // use this to assig color to each vertex
                     }
-                    ptsIncrement+=patchMesh->points.size();
+                    ptsIncrement+=patchMesh.points.size();
 
                 }
             }
