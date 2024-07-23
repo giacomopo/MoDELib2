@@ -69,7 +69,6 @@ else()
 	add_library(MoDELib "")
 endif()
 
-#add_library(MoDELib "")
 set(MoDELib_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 include_directories ( ${EIGEN3_INCLUDE_DIRS} )
 include_directories(${MoDELib_INCLUDE_DIR}/Utilities/)

@@ -40,34 +40,30 @@
 #include <GlidePlaneModule.h>
 #include <MeshModule.h>
 #include <Plane.h>
-#include <MicrostructureGeneratorBase.h>
-
+//#include <MicrostructureGeneratorBase.h>
+#include <PrismaticLoopDensitySpecification.h>
+#include <PrismaticLoopIndividualSpecification.h>
 
 namespace model
 {
 
-    class PrismaticLoopGenerator : public MicrostructureGeneratorBase
+    class PrismaticLoopGenerator //: public MicrostructureGeneratorBase
     {
         
+        typedef Eigen::Matrix<double,3,1> VectorDimD;
+        
         static double generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& center,const double& radius,const double& step);
-
-//        static void insertJunctionLoop(MicrostructureGenerator& mg,
-//                                std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>>& uniqueNetworkNodeMap,
-//                                const std::vector<VectorDimD>& loopNodePos,
-//                                const std::shared_ptr<PeriodicGlidePlane<3>>& periodicPlane,
-//                                const VectorDimD& b,
-//                                const VectorDimD& unitNormal,
-//                                const VectorDimD& P0,
-//                                const size_t& grainID,
-//                                const DislocationLoopIO<dim>::DislocationLoopType& loopType);
         
     public:
         
-        PrismaticLoopGenerator(const std::string& fileName);
+        PrismaticLoopGenerator(const PrismaticLoopDensitySpecification& spec,MicrostructureGenerator& mg);
+        PrismaticLoopGenerator(const PrismaticLoopIndividualSpecification& spec,MicrostructureGenerator& mg);
 
-//        void generate(MicrostructureGenerator& mg) override;
-        void generateIndividual(MicrostructureGenerator& mg) override;
-        void generateDensity(MicrostructureGenerator& mg) override;
+//        PrismaticLoopGenerator(const std::string& fileName);
+//
+////        void generate(MicrostructureGenerator& mg) override;
+//        void generateIndividual(MicrostructureGenerator& mg) override;
+//        void generateDensity(MicrostructureGenerator& mg) override;
 
     };
 

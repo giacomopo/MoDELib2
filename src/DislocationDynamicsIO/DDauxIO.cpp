@@ -15,8 +15,8 @@ namespace model
 {
     
         template<int dim>
-        DDauxIO<dim>::DDauxIO(const std::string& folderName,const std::string& suffix) :
-        /* init */ DDbaseIO(folderName,"ddAux",suffix)
+        DDauxIO<dim>::DDauxIO(const std::string& folderName) :
+        /* init */ DDbaseIO(folderName,"ddAux")
         {
             
         }

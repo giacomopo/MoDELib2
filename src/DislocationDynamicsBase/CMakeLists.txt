@@ -7,10 +7,9 @@ target_sources(${PROJECT_NAME} PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/StraightDislocationSegment.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/StressStraight.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VoigtTraits.cpp
-#		${CMAKE_CURRENT_SOURCE_DIR}/ConfigurationFields.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationDynamicsBase.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/ClusterDynamicsParameters.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/ClusterDynamicsBase.cpp
+#		${CMAKE_CURRENT_SOURCE_DIR}/ClusterDynamicsFEM.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/ElasticDeformationFEM.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/MicrostructureContainer.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/MicrostructureBase.cpp

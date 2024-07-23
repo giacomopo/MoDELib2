@@ -5,27 +5,83 @@ import numpy as np
 sys.path.append("../build/tools/pyMoDELib")
 import pyMoDELib
 
-simulationDir="../tutorials/DislocationDynamics/periodicDomains/uniformLoadController/"
+simulationDir="../tutorials/DislocationDynamics/periodicDomains/climb/"
 ddBase=pyMoDELib.DislocationDynamicsBase(simulationDir)
+
+# Microstructure Generation
+microstructureGenerator=pyMoDELib.MicrostructureGenerator(ddBase)
+
+spec0=pyMoDELib.ShearLoopDensitySpecification()
+spec0.targetDensity=5.0e12
+spec0.radiusDistributionMean=1.0e-07
+spec0.radiusDistributionStd=0.0e-8
+spec0.numberOfSides=20
+#microstructureGenerator.addShearLoopDensity(spec0)
+
+spec1=pyMoDELib.ShearLoopIndividualSpecification()
+spec1.slipSystemIDs=[0,-1]
+spec1.loopRadii=[27.0e-8,27.0e-8]
+spec1.loopCenters=np.array([[200.0,0.0,0.0],[0.0,0.0,0.0]])
+spec1.loopSides=[10,10]
+#microstructureGenerator.addShearLoopIndividual(spec1)
+
+spec2=pyMoDELib.PeriodicDipoleDensitySpecification()
+spec2.targetDensity=5.0e13
+#microstructureGenerator.addPeriodicDipoleDensity(spec2)
+
+spec3=pyMoDELib.PeriodicDipoleIndividualSpecification()
+spec3.slipSystemIDs=[0,-1]
+spec3.exitFaceIDs=[1,0]
+spec3.dipoleCenters=np.array([[200.0,0.0,0.0],[0.0,0.0,0.0]])
+spec3.dipoleHeights=[100.,100.]
+spec3.nodesPerLine=[4,4]
+spec3.glideSteps=[10.,10.]
+#microstructureGenerator.addPeriodicDipoleIndividual(spec3)
+
+spec4=pyMoDELib.PrismaticLoopDensitySpecification()
+spec4.targetDensity=5.0e13
+spec4.radiusDistributionMean=3e-08
+spec4.radiusDistributionStd=0e-08
+#microstructureGenerator.addPrismaticLoopDensity(spec4)
+
+spec5=pyMoDELib.PrismaticLoopIndividualSpecification()
+spec5.slipSystemIDs=[0,7,13]
+spec5.loopRadii=[5e-8,2e-7,2e-8]
+spec5.loopCenters=np.array([[0,0,0],[500,600,500],[500,500,500]])
+spec5.glideSteps=[10.,10.,300.]
+microstructureGenerator.addPrismaticLoopIndividual(spec5)
+
+
+microstructureGenerator.writeConfigFiles(0) # write evel_0.txt (optional)
+
+# Defective Crystal
 defectiveCrystal=pyMoDELib.DefectiveCrystal(ddBase)
+defectiveCrystal.initializeConfiguration(microstructureGenerator.configIO)
 
 points=np.array([[0.0,0.0,0.0],[1.0,0.0,0.0],[2.0,0.0,0.0]])
-print(points)
+#
 disp=defectiveCrystal.displacement(points)
+print(disp)
 
-DN=defectiveCrystal.dislocationNetwork()
-print(len(DN.loops()))
-print(len(DN.loopNodes()))
 
-meshSize=100
-for loopID in DN.loops():
-    loop=DN.loops().getRef(loopID)
-    meshedLoopVector=loop.meshed(meshSize)
-    for meshedLoop in meshedLoopVector:
-        disp=meshedLoop.plasticDisplacement(points)
-        print(disp)
+#DN=defectiveCrystal.dislocationNetwork()
+#print(len(DN.loops()))
+#print(len(DN.loopNodes()))
+#
+#meshSize=100
+#for loopID in DN.loops():
+#    loop=DN.loops().getRef(loopID)
+#    meshedLoopVector=loop.meshed(meshSize)
+#    for meshedLoop in meshedLoopVector:
+#        disp=meshedLoop.plasticDisplacement(points)
+#        print(disp)
+#
+#rp=ddBase.poly.grain(1)
 
-rp=ddBase.poly.grain(1)
+
+
+
+
 #print(rp)
 
 #mesh=pyMoDELib.SimplicialMesh()

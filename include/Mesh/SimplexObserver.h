@@ -154,7 +154,6 @@ namespace model
                                            const SimplexIDType& xID)
         {
 			typename SimplexMapType::const_iterator iter(this->find(xID));
-//			return (iter!=this->end())? (*(iter->second->parentBegin()))->child(xID) : SharedPtrType(new SimplexType(mesh,xID));
             return (iter!=this->end())? (iter->second->parents().begin())->second->child(xID) : SharedPtrType(new SimplexType(mesh,xID));
         }
         

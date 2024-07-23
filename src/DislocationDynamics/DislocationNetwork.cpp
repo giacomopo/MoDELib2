@@ -800,67 +800,6 @@ else
             }
         }
         
-        //    if(this->outputMeshDisplacement)
-        //    {
-        //        std::vector<FEMnodeEvaluation<typename DislocationNetworkType::ElementType,dim,1>> fieldPoints; // the container of field points
-        //        fieldPoints.reserve(this->ddBase.mesh.template observer<0>().size());
-        //        for (const auto& sIter : this->ddBase.mesh.template observer<0>())
-        //        {
-        //            if(sIter.second->isBoundarySimplex())
-        //            {
-        //                fieldPoints.emplace_back(sIter.second->xID(0),sIter.second->P0);
-        //            }
-        //        }
-        //        auxIO.meshNodes().reserve(fieldPoints.size());
-        //
-        //        this->displacement(fieldPoints);
-        //
-        //        for(auto& node : fieldPoints)
-        //        {// add FEM solution and output
-        //            if(this->ddBase.simulationParameters.simulationType==DDtraitsIO::FINITE_FEM)
-        //            {
-        //                const size_t femID=this->bvpSolver->finiteElement().mesh2femIDmap().at(node.pointID)->gID;
-        //                node+=this->bvpSolver->displacement().dofs(femID);
-        //            }
-        //            auxIO.meshNodes().emplace_back(node);
-        //        }
-        //    }
-        
-        
-//        const Eigen::Matrix<double,dim,dim>& pD(this->averagePlasticDistortion());
-//        f_file<<pD.row(0)<<" "<<pD.row(1)<<" "<<pD.row(2)<<" "<<pD.trace()<<" "<<pD.norm()<<" ";
-//        if(ddBase.simulationParameters.runID==0)
-//        {
-//            F_labels<<"betaP_11\n";
-//            F_labels<<"betaP_12\n";
-//            F_labels<<"betaP_13\n";
-//            F_labels<<"betaP_21\n";
-//            F_labels<<"betaP_22\n";
-//            F_labels<<"betaP_23\n";
-//            F_labels<<"betaP_31\n";
-//            F_labels<<"betaP_32\n";
-//            F_labels<<"betaP_33\n";
-//            F_labels<<"tr(betaP)\n";
-//            F_labels<<"norm(betaP)"<<std::endl;
-//        }
-//        
-//        const Eigen::Matrix<double,dim,dim>& pDR(this->averagePlasticDistortionRate());
-//        f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" "<<pDR.trace()<<" "<<pDR.norm()<<" ";
-//        if(ddBase.simulationParameters.runID==0)
-//        {
-//            F_labels<<"dotBetaP_11 [cs/b]\n";
-//            F_labels<<"dotBetaP_12 [cs/b]\n";
-//            F_labels<<"dotBetaP_13 [cs/b]\n";
-//            F_labels<<"dotBetaP_21 [cs/b]\n";
-//            F_labels<<"dotBetaP_22 [cs/b]\n";
-//            F_labels<<"dotBetaP_23 [cs/b]\n";
-//            F_labels<<"dotBetaP_31 [cs/b]\n";
-//            F_labels<<"dotBetaP_32 [cs/b]\n";
-//            F_labels<<"dotBetaP_33 [cs/b]\n";
-//            F_labels<<"tr(dotBetaP) [cs/b]\n";
-//            F_labels<<"norm(dotBetaP) [cs/b]"<<std::endl;
-//        }
-        
         const std::tuple<double,double,double,double> length(this->networkLength());
         const double densityFactor(1.0/this->ddBase.mesh.volume()/std::pow(this->ddBase.poly.b_SI,2));
         f_file<<std::get<0>(length)*densityFactor<<" "<<std::get<1>(length)*densityFactor<<" "<<std::get<2>(length)*densityFactor<<" "<<std::get<3>(length)*densityFactor<<" ";

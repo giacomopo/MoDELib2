@@ -40,34 +40,27 @@
 #include <GlidePlaneModule.h>
 #include <MeshModule.h>
 #include <Plane.h>
-#include <MicrostructureGeneratorBase.h>
+#include <MicrostructureGenerator.h>
+#include <ShearLoopDensitySpecification.h>
+#include <ShearLoopIndividualSpecification.h>
 
 
 namespace model
 {
 
-    class ShearLoopGenerator : public MicrostructureGeneratorBase
+    class ShearLoopGenerator
     {
+        typedef Eigen::Matrix<double,3,1> VectorDimD;
         
-        static void generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& dipolePoint,const double& radius,const size_t& sides);
-
-//        static void insertJunctionLoop(MicrostructureGenerator& mg,
-//                                std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>>& uniqueNetworkNodeMap,
-//                                const std::vector<VectorDimD>& loopNodePos,
-//                                const std::shared_ptr<PeriodicGlidePlane<3>>& periodicPlane,
-//                                const VectorDimD& b,
-//                                const VectorDimD& unitNormal,
-//                                const VectorDimD& P0,
-//                                const size_t& grainID,
-//                                const DislocationLoopIO<dim>::DislocationLoopType& loopType);
+        static bool generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& dipolePoint,const double& radius,const size_t& sides);
+//        void generateIndividual(MicrostructureGenerator& mg);
+//        void generateDensity(MicrostructureGenerator& mg);
         
     public:
         
-        ShearLoopGenerator(const std::string& fileName);
-
-//        void generate(MicrostructureGenerator& mg) override;
-        void generateIndividual(MicrostructureGenerator& mg) override;
-        void generateDensity(MicrostructureGenerator& mg) override;
+//        ShearLoopGenerator(const std::string& fileName);
+        ShearLoopGenerator(const ShearLoopDensitySpecification&,MicrostructureGenerator& mg);
+        ShearLoopGenerator(const ShearLoopIndividualSpecification&,MicrostructureGenerator& mg);
 
     };
 

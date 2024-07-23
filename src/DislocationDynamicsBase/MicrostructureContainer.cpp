@@ -20,7 +20,6 @@
 
 namespace model
 {
-
     template <int dim>
     MicrostructureContainer<dim>::MicrostructureContainer(DislocationDynamicsBase<dim>& ddBase_in) :
     /* init */ MicrostructureBase<dim>("MicrostructureContainer",*this)
@@ -44,9 +43,6 @@ namespace model
     template <int dim>
     void MicrostructureContainer<dim>::initializeConfiguration(const DDconfigIO<dim>& configIO,const std::ofstream& f_file,const std::ofstream& F_labels)
     {
-        
-
-
         for(auto& pair : microstructures())
         {
             const auto t0= std::chrono::system_clock::now();
@@ -184,6 +180,5 @@ namespace model
     }
 
     template struct MicrostructureContainer<3>;
-
 }
 #endif

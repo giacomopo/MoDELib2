@@ -64,9 +64,16 @@ void DDconfigIO<dim>::finalize()
 
 
 
+//template <int dim>
+//DDconfigIO<dim>::DDconfigIO(const std::string& folderName,const std::string& suffix) :
+///* init */ DDbaseIO(folderName,"evl",suffix)
+//{
+//    
+//}
+
 template <int dim>
-DDconfigIO<dim>::DDconfigIO(const std::string& folderName,const std::string& suffix) :
-/* init */ DDbaseIO(folderName,"evl",suffix)
+DDconfigIO<dim>::DDconfigIO(const std::string& folderName) :
+/* init */ DDbaseIO(folderName,"evl")
 {
     
 }

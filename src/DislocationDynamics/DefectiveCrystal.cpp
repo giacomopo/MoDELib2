@@ -45,17 +45,12 @@ namespace model
         {
             this->emplace_back(new ElasticDeformationType(*this));
         }
-
-        DDconfigIO<dim> configIO(this->ddBase.simulationParameters.traitsIO.evlFolder);
-        configIO.read(this->ddBase.simulationParameters.runID);
-        this->initializeConfiguration(configIO);
     }
 
     template <int _dim>
     void DefectiveCrystal<_dim>::initializeConfiguration(const DDconfigIO<dim>& configIO)
     {
         this->initializeConfiguration(configIO,f_file,F_labels);
-
     }
 
     template <int _dim>

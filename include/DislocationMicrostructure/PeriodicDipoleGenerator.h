@@ -40,14 +40,17 @@
 #include <GlidePlaneModule.h>
 #include <MeshModule.h>
 #include <Plane.h>
-#include <MicrostructureGeneratorBase.h>
-
+//#include <MicrostructureGeneratorBase.h>
+#include <PeriodicDipoleDensitySpecification.h>
 
 namespace model
 {
 
-class PeriodicDipoleGenerator : public MicrostructureGeneratorBase
+class PeriodicDipoleGenerator //: public MicrostructureGeneratorBase
 {
+    
+    typedef Eigen::Matrix<double,3,1> VectorDimD;
+
     
     static void generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& dipolePoint,const int& exitFaceID,const int& dipoleHeight,const int& dipoleNodes,double glideStep);
     
@@ -64,11 +67,15 @@ class PeriodicDipoleGenerator : public MicrostructureGeneratorBase
     
 public:
     
-    PeriodicDipoleGenerator(const std::string& fileName);
+//    PeriodicDipoleGenerator(const std::string& fileName);
+    PeriodicDipoleGenerator(const PeriodicDipoleDensitySpecification& spec,MicrostructureGenerator& mg);
+    PeriodicDipoleGenerator(const PeriodicDipoleIndividualSpecification& spec,MicrostructureGenerator& mg);
+
+    
     
 //    void generate(MicrostructureGenerator& mg) override;
-    void generateIndividual(MicrostructureGenerator& mg) override;
-    void generateDensity(MicrostructureGenerator& mg) override;
+//    void generateIndividual(MicrostructureGenerator& mg) override;
+//    void generateDensity(MicrostructureGenerator& mg) override;
     
     
 };

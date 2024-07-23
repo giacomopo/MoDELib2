@@ -27,8 +27,8 @@ namespace model
         DefectiveCrystalActor::DefectiveCrystalActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,
                                  QVTKOpenGLStereoWidget* const qvtkGLwidget_in,
                                  DislocationDynamicsBase<3>& ddBase_in) :
-        /* init */ DDconfigIO<3>(ddBase_in.simulationParameters.traitsIO.evlFolder,"")
-        /* init */,DDauxIO<3>(ddBase_in.simulationParameters.traitsIO.auxFolder,"")
+        /* init */ DDconfigIO<3>(ddBase_in.simulationParameters.traitsIO.evlFolder)
+        /* init */,DDauxIO<3>(ddBase_in.simulationParameters.traitsIO.auxFolder)
         /* init */,renderWindow(renWin)
         /* init */,qvtkGLwidget(qvtkGLwidget_in)
         /* init */,ddBase(ddBase_in)
@@ -174,7 +174,11 @@ namespace model
         {
             try
             {
-                
+                DislocationNode<3,0>::force_count(0);
+                DislocationLoopNode<3,0>::force_count(0);
+                DislocationLoop<3,0>::force_count(0);
+                EshelbyInclusionBase<3>::force_count(0);
+
                 configIO().read(frameID);
                 auxIO().read(frameID);
                 //configFields.updateConfiguration();

@@ -16,16 +16,9 @@
 namespace model
 {
     
-    
-//    template <int dim, int comp>
     template <int voigtSize>
     struct UniformController
     {
-        
-//        static constexpr int gradSize=comp*dim;
-
-//        typedef Eigen::Matrix<double,comp,1>            VectorComp;
-//        typedef Eigen::Matrix<double,dim,1>             VectorDim;
         typedef Eigen::Matrix<double,voigtSize,1>          VectorVoigt;
         typedef Eigen::Matrix<double,voigtSize,voigtSize>  MatrixVoigt;
         

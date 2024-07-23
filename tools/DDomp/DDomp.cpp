@@ -25,7 +25,10 @@ int main (int argc, char* argv[])
     try 
     {
         DislocationDynamicsBase<3> ddBase(folderName);
+        DDconfigIO<3> configIO(ddBase.simulationParameters.traitsIO.evlFolder);
+        configIO.read(ddBase.simulationParameters.runID);
         DefectiveCrystal<3> DC(ddBase);
+        DC.initializeConfiguration(configIO);
         DC.runSteps();
     } 
     catch (const std::exception& e)

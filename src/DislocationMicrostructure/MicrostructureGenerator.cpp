@@ -12,10 +12,12 @@
 #include <fstream>
 #include <filesystem>
 
+#include <ShearLoopGenerator.h>
+#include <ShearLoopDensitySpecification.h>
+#include <ShearLoopIndividualSpecification.h>
 
 #include <MicrostructureGenerator.h>
 #include <PeriodicDipoleGenerator.h>
-#include <ShearLoopGenerator.h>
 #include <PrismaticLoopGenerator.h>
 #include <SphericalInclusionsGenerator.h>
 #include <PolyhedronInclusionsGenerator.h>
@@ -31,9 +33,9 @@ namespace model
 
     /**********************************************************************/
     MicrostructureGenerator::MicrostructureGenerator(DislocationDynamicsBase<3>& ddBase_in) :
-    /* init*/ configIO(ddBase_in.simulationParameters.traitsIO.evlFolder)
+    /* init*/ ddBase(ddBase_in)
+    /* init*/,configIO(ddBase_in.simulationParameters.traitsIO.evlFolder)
     /* init*/,auxIO(ddBase_in.simulationParameters.traitsIO.auxFolder)
-    /* init*/,ddBase(ddBase_in)
     /* init*/,outputBinary(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("outputBinary",true))
     /* init*/,minSize(0.1*std::min(ddBase.mesh.xMax(0)-ddBase.mesh.xMin(0),std::min(ddBase.mesh.xMax(1)-ddBase.mesh.xMin(1),ddBase.mesh.xMax(2)-ddBase.mesh.xMin(2))))
     /* init*/,maxSize(std::max(ddBase.mesh.xMax(0)-ddBase.mesh.xMin(0),std::max(ddBase.mesh.xMax(1)-ddBase.mesh.xMin(1),ddBase.mesh.xMax(2)-ddBase.mesh.xMin(2))))
@@ -47,96 +49,164 @@ namespace model
         {
             throw std::runtime_error("mesh "+ddBase.simulationParameters.traitsIO.meshFile+" is empty.");
         }
-        
-        
-//        std::ifstream initialMicrostructureFile(ddBase.simulationParameters.traitsIO.microstructureFile);
-       
-        
-        
-
-        
-//        writeConfigFiles(0);
     }
+
+
+void MicrostructureGenerator::addShearLoopDensity(const ShearLoopDensitySpecification& spec)
+{
+    ShearLoopGenerator gen(spec,*this);
+}
+
+void MicrostructureGenerator::addShearLoopIndividual(const ShearLoopIndividualSpecification& spec)
+{
+    ShearLoopGenerator gen(spec,*this);
+}
+
+void MicrostructureGenerator::addPeriodicDipoleDensity(const PeriodicDipoleDensitySpecification& spec)
+{
+    PeriodicDipoleGenerator gen(spec,*this);
+}
+
+void MicrostructureGenerator::addPeriodicDipoleIndividual(const PeriodicDipoleIndividualSpecification& spec)
+{
+    PeriodicDipoleGenerator gen(spec,*this);
+}
+
+void MicrostructureGenerator::addPrismaticLoopDensity(const PrismaticLoopDensitySpecification& spec)
+{
+    PrismaticLoopGenerator gen(spec,*this);
+}
+
+void MicrostructureGenerator::addPrismaticLoopIndividual(const PrismaticLoopIndividualSpecification& spec)
+{
+    PrismaticLoopGenerator gen(spec,*this);
+}
 
 void MicrostructureGenerator::readMicrostructureFile()
 {
-    this->clear();
+//    this->clear();
     configIO.clear();
     auxIO.clear();
-
 
     const auto microstructureFiles(TextFileParser(ddBase.simulationParameters.traitsIO.microstructureFile).readStringVector("microstructureFile"));
     for(const auto& pair : microstructureFiles)
     {
         const std::string microstructureFileName(std::filesystem::path(ddBase.simulationParameters.traitsIO.microstructureFile).parent_path().string()+"/"+TextFileParser::removeSpaces(pair.first));
-        const std::string microstructureType(TextFileParser::removeSpaces(TextFileParser(microstructureFileName).readString("type",false)));
-        const std::string tag(TextFileParser::removeSpaces(TextFileParser(microstructureFileName).readString("tag",false)));
-        bool success(false);
-        if(microstructureType=="PeriodicDipole")
-        {
-            success=this->emplace(tag,new PeriodicDipoleGenerator(microstructureFileName)).second;
-        }
-        else if(microstructureType=="ShearLoop")
-        {
-            success=this->emplace(tag,new ShearLoopGenerator(microstructureFileName)).second;
-        }
-        else if(microstructureType=="PlanarLoop")
-        {
-            success=this->emplace(tag,new PlanarLoopGenerator(microstructureFileName)).second;
-        }
-        else if(microstructureType=="PrismaticLoop")
-        {
-            success=this->emplace(tag,new PrismaticLoopGenerator(microstructureFileName)).second;
-        }
-        else if(microstructureType=="SphericalInclusions")
-        {
-            success=this->emplace(tag,new SphericalInclusionsGenerator(microstructureFileName)).second;
-        }
-        else if(microstructureType=="PolyhedronInclusions")
-        {
-            success=this->emplace(tag,new PolyhedronInclusionsGenerator(microstructureFileName)).second;
-        }
-        else if(microstructureType=="StackingFaultTetrahedra")
-        {
-            success=this->emplace(tag,new StackingFaultTetrahedraGenerator(microstructureFileName)).second;
-        }
-        else if(microstructureType=="FrankLoops")
-        {
-            success=this->emplace(tag,new FrankLoopsGenerator(microstructureFileName)).second;
-        }
-        else if(microstructureType=="VTK")
-        {
-            success=this->emplace(tag,new VTKGenerator(microstructureFileName)).second;
-        }
-        else
-        {
-            std::runtime_error("Unkown microstructure type "+microstructureType+".");
-        }
-        if(!success)
-        {
-            throw std::runtime_error("Duplicate microstructure tag "+tag+".");
-        }
-    }
-    
-    for(auto& gen : *this)
-    {
-        if(gen.second->style=="individual")
-        {
-            gen.second->generateIndividual(*this);
-        }
-        else if(gen.second->style=="density")
-        {
-            gen.second->generateDensity(*this);
-        }
-        else
-        {
-            throw std::runtime_error("Uknown style for generator "+gen.second->tag);
-        }
-    }
-    
-    configIO.finalize();
+        const std::string type(TextFileParser::removeSpaces(TextFileParser(microstructureFileName).readString("type",false)));
+        const std::string style(TextFileParser::removeSpaces(TextFileParser(microstructureFileName).readString("style",false)));
 
+//        const std::string tag(TextFileParser::removeSpaces(TextFileParser(microstructureFileName).readString("tag",false)));
+//        bool success(false);
+
+        if(type=="ShearLoop")
+        {
+            if(style=="Density" || style=="density")
+            {
+                ShearLoopDensitySpecification spec(microstructureFileName);
+                addShearLoopDensity(spec);
+            }
+            else if(style=="Individual" || style=="individual")
+            {
+                ShearLoopIndividualSpecification spec(microstructureFileName);
+                addShearLoopIndividual(spec);
+            }
+            else
+            {
+                
+            }
+            //            success=this->emplace(tag,new ShearLoopGenerator(microstructureFileName)).second;
+        }
+        else if(type=="PeriodicDipole")
+        {
+            if(style=="Density" || style=="density")
+            {
+                PeriodicDipoleDensitySpecification spec(microstructureFileName);
+                addPeriodicDipoleDensity(spec);
+            }
+            else if(style=="Individual" || style=="individual")
+            {
+                PeriodicDipoleIndividualSpecification spec(microstructureFileName);
+                addPeriodicDipoleIndividual(spec);
+            }
+            else
+            {
+                
+            }
+        }
+        else if(type=="PrismaticLoop")
+        {
+            if(style=="Density" || style=="density")
+            {
+                PrismaticLoopDensitySpecification spec(microstructureFileName);
+                addPrismaticLoopDensity(spec);
+            }
+            else if(style=="Individual" || style=="individual")
+            {
+                PrismaticLoopIndividualSpecification spec(microstructureFileName);
+                addPrismaticLoopIndividual(spec);
+            }
+            else
+            {
+                
+            }
+            //            success=this->emplace(tag,new PrismaticLoopGenerator(microstructureFileName)).second;
+        }
+//        else if(microstructureType=="PlanarLoop")
+//        {
+//            success=this->emplace(tag,new PlanarLoopGenerator(microstructureFileName)).second;
+//        }
+//        else if(microstructureType=="SphericalInclusions")
+//        {
+//            success=this->emplace(tag,new SphericalInclusionsGenerator(microstructureFileName)).second;
+//        }
+//        else if(microstructureType=="PolyhedronInclusions")
+//        {
+//            success=this->emplace(tag,new PolyhedronInclusionsGenerator(microstructureFileName)).second;
+//        }
+//        else if(microstructureType=="StackingFaultTetrahedra")
+//        {
+//            success=this->emplace(tag,new StackingFaultTetrahedraGenerator(microstructureFileName)).second;
+//        }
+//        else if(microstructureType=="FrankLoops")
+//        {
+//            success=this->emplace(tag,new FrankLoopsGenerator(microstructureFileName)).second;
+//        }
+//        else if(microstructureType=="VTK")
+//        {
+//            success=this->emplace(tag,new VTKGenerator(microstructureFileName)).second;
+//        }
+//        else
+//        {
+//            std::runtime_error("Unkown microstructure type "+microstructureType+".");
+//        }
+//        if(!success)
+//        {
+//            throw std::runtime_error("Duplicate microstructure tag "+tag+".");
+//        }
+    }
+//    generateMicrostructure();
 }
+
+//void MicrostructureGenerator::generateMicrostructure()
+//{
+//    for(auto& gen : *this)
+//    {
+//        if(gen.second->style=="individual")
+//        {
+//            gen.second->generateIndividual(*this);
+//        }
+//        else if(gen.second->style=="density")
+//        {
+//            gen.second->generateDensity(*this);
+//        }
+//        else
+//        {
+//            throw std::runtime_error("Uknown style for generator "+gen.second->tag);
+//        }
+//    }
+//    
+//    configIO.finalize();
+//}
 
 const DDtraitsIO& MicrostructureGenerator::traits() const
 {
@@ -292,19 +362,6 @@ size_t MicrostructureGenerator::insertInclusion(const std::map<size_t,Eigen::Vec
     void MicrostructureGenerator::writeConfigFiles(const size_t& fileID)
     {
         
-//        const int outputGlidePlanes(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("outputGlidePlanes",true));
-
-        
-//        if(outputGlidePlanes)
-//        {
-//            for(const auto& loop : configIO.loops())
-//            {
-//                GlidePlaneKey<dim> loopPlaneKey(loop.P, poly.grain(loop.grainID).singleCrystal->reciprocalLatticeDirection(loop.N));
-//                auxIO.glidePlanes().emplace_back(loopPlaneKey);
-//            }
-//        }
-                
-
             if(outputBinary)
             {
                 std::cout<<greenBoldColor<<"Writing configuration to "<<configIO.getBinFilename(fileID)<<defaultColor<<std::endl;

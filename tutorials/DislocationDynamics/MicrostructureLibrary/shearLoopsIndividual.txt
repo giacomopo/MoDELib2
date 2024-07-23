@@ -1,0 +1,6 @@
+type= ShearLoop;
+style=individual;
+slipSystemIDs=0;
+loopRadii_SI=27.0e-8; [m] loop radii
+loopSides=10; [-] number of side of loop polygon
+loopCenters=200 0 0;

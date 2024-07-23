@@ -1,0 +1,10 @@
+ExternalStress0 = 0.0 0.0 0.1 0.0 0.0 1e-3;
+ExternalStressRate = 0.0 0.0 0.0 0.0 0.0 0.0;
+ExternalStrain0 = 0.0 0.0 0.0 0.0 0.0 0.0;
+ExternalStrainRate = 0.0 0.0 0.0 0.0 0.0 0.;
+stiffnessRatio =0.0 0.0 0.0 0.0 0.0 0.0;
+
+# MachineStiffnessRatio=0 means pure stress control,  
+# MachineStiffnessRatio=infinity (such as 1e20) means pure strain control
+
+

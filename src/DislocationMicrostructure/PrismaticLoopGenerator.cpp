@@ -50,15 +50,82 @@
 namespace model
 {
 
-PrismaticLoopGenerator::PrismaticLoopGenerator(const std::string& fileName) :
-/* init */ MicrostructureGeneratorBase(fileName)
+//PrismaticLoopGenerator::PrismaticLoopGenerator(const std::string& fileName) :
+///* init */ MicrostructureGeneratorBase(fileName)
+//{
+//    
+//}
+
+PrismaticLoopGenerator::PrismaticLoopGenerator(const PrismaticLoopDensitySpecification& spec,MicrostructureGenerator& mg)
 {
+    std::cout<<magentaBoldColor<<"Generating prismatic loop density"<<defaultColor<<std::endl;
+//    const double targetDensity(this->parser.readScalar<double>("targetDensity",true));
+    if(spec.targetDensity>0.0)
+    {
+//        const double radiusDistributionMean(this->parser.readScalar<double>("radiusDistributionMean",true));
+//        const double radiusDistributionStd(this->parser.readScalar<double>("radiusDistributionStd",true));
+        std::normal_distribution<double> radiusDistribution(spec.radiusDistributionMean/mg.ddBase.poly.b_SI,spec.radiusDistributionStd/mg.ddBase.poly.b_SI);
+        std::mt19937 generator;
+        double density=0.0;
+        while(density<spec.targetDensity)
+        {
+            const std::pair<LatticeVector<3>, int> rp(mg.ddBase.poly.randomLatticePointInMesh());
+            const LatticeVector<3> L0=rp.first;
+            const size_t grainID=rp.second;
+            std::uniform_int_distribution<> ssDist(0,mg.ddBase.poly.grain(grainID).singleCrystal->slipSystems().size()-1);
+            const int rSS(ssDist(generator)); // a random SlipSystem
+            const double radius(radiusDistribution(generator));
+            try
+            {
+                
+                density+=generateSingle(mg,rSS,L0.cartesian(),radius,50.0)/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,2);
+                std::cout<<"prismatic loop density="<<density<<std::endl;
+            }
+            catch(const std::exception& e)
+            {
+                
+            }
+        }
+    }
+}
+
+PrismaticLoopGenerator::PrismaticLoopGenerator(const PrismaticLoopIndividualSpecification& spec,MicrostructureGenerator& mg)
+{
+//    const std::vector<int> prismaticLoopSlipSystemIDs(this->parser.readArray<int>("prismaticLoopSlipSystemIDs",true));
+    std::cout<<magentaBoldColor<<"Generating individual prismatic loops"<<defaultColor<<std::endl;
+    if(spec.slipSystemIDs.size())
+    {
+//        const std::vector<double> prismaticLoopRadii(this->parser.readArray<double>("prismaticLoopRadii_SI",true));
+//        const Eigen::Matrix<double,Eigen::Dynamic,3> prismaticLoopCenters(this->parser.readMatrix<double>("prismaticLoopCenters",spec.slipSystemIDs.size(),dim,true));
+//        const std::vector<double> prismaticLoopSteps(this->parser.readArray<double>("prismaticLoopSteps",true));
+
+        //            const std::vector<int> prismaticLoopSides(this->parser.readArray<int>("prismaticLoopSides",true));
+        
+        if(spec.slipSystemIDs.size()!=spec.loopRadii.size())
+        {
+            throw std::runtime_error("spec.slipSystemIDs.size()="+std::to_string(spec.slipSystemIDs.size())+" NOT EQUAL TO spec.loopRadii.size()="+std::to_string(spec.loopRadii.size()));
+        }
+        if(int(spec.slipSystemIDs.size())!=spec.loopCenters.rows())
+        {
+            throw std::runtime_error("spec.slipSystemIDs.size()="+std::to_string(spec.slipSystemIDs.size())+" NOT EQUAL TO spec.loopCenters.rows()="+std::to_string(spec.loopCenters.rows()));
+        }
+        if(spec.slipSystemIDs.size()!=spec.glideSteps.size())
+        {
+            throw std::runtime_error("spec.slipSystemIDs.size()="+std::to_string(spec.slipSystemIDs.size())+" NOT EQUAL TO spec.glideSteps.size()="+std::to_string(spec.glideSteps.size()));
+        }
+        
+        for(size_t k=0;k<spec.slipSystemIDs.size();++k)
+        {
+            generateSingle(mg,spec.slipSystemIDs[k],spec.loopCenters.row(k),spec.loopRadii[k]/mg.ddBase.poly.b_SI,spec.glideSteps[k]);
+        }
+    }
     
 }
 
+
 double PrismaticLoopGenerator::generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& guessCenter,const double& radius,const double& L)
 {
-    std::pair<bool,const Simplex<dim,dim>*> found(mg.ddBase.mesh.search(guessCenter));
+    std::pair<bool,const Simplex<3,3>*> found(mg.ddBase.mesh.search(guessCenter));
     if(found.first)
     {
         const int grainID(found.second->region->regionID);
@@ -155,7 +222,7 @@ double PrismaticLoopGenerator::generateSingle(MicrostructureGenerator& mg,const 
             
             mg.insertJunctionLoop(sessileLoopNodePos,sessilePlane,
                                   b.cartesian(),sessilePlane->referencePlane->unitNormal,
-                                  center,grain.grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                                  center,grain.grainID,DislocationLoopIO<3>::SESSILELOOP);
             
             
             //Create glissile loops on prism planes
@@ -198,7 +265,7 @@ double PrismaticLoopGenerator::generateSingle(MicrostructureGenerator& mg,const 
                     
                     mg.insertJunctionLoop(loopNodePos,periodicGlidePlane,
                                           b.cartesian(),periodicGlidePlane->referencePlane->unitNormal,
-                                          periodicGlidePlane->referencePlane->P,grain.grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                          periodicGlidePlane->referencePlane->P,grain.grainID,DislocationLoopIO<3>::GLISSILELOOP);
                 }
                 else
                 {
@@ -227,72 +294,72 @@ double PrismaticLoopGenerator::generateSingle(MicrostructureGenerator& mg,const 
     return 0.0;
 }
 
-void PrismaticLoopGenerator::generateDensity(MicrostructureGenerator& mg)
-{
-    std::cout<<magentaBoldColor<<"Generating prismatic loop density"<<defaultColor<<std::endl;
-    const double targetDensity(this->parser.readScalar<double>("targetDensity",true));
-    if(targetDensity>0.0)
-    {
-        const double radiusDistributionMean(this->parser.readScalar<double>("radiusDistributionMean",true));
-        const double radiusDistributionStd(this->parser.readScalar<double>("radiusDistributionStd",true));
-        std::normal_distribution<double> radiusDistribution(radiusDistributionMean/mg.ddBase.poly.b_SI,radiusDistributionStd/mg.ddBase.poly.b_SI);
-        std::mt19937 generator;
-        double density=0.0;
-        while(density<targetDensity)
-        {
-            const std::pair<LatticeVector<dim>, int> rp(mg.ddBase.poly.randomLatticePointInMesh());
-            const LatticeVector<dim> L0=rp.first;
-            const size_t grainID=rp.second;
-            std::uniform_int_distribution<> ssDist(0,mg.ddBase.poly.grain(grainID).singleCrystal->slipSystems().size()-1);
-            const int rSS(ssDist(generator)); // a random SlipSystem
-            const double radius(radiusDistribution(generator));
-            try
-            {
-                
-                density+=generateSingle(mg,rSS,L0.cartesian(),radius,50.0)/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,2);
-                std::cout<<"prismatic loop density="<<density<<std::endl;
-            }
-            catch(const std::exception& e)
-            {
-                
-            }
-        }
-    }
-}
+//void PrismaticLoopGenerator::generateDensity(MicrostructureGenerator& mg)
+//{
+//    std::cout<<magentaBoldColor<<"Generating prismatic loop density"<<defaultColor<<std::endl;
+//    const double targetDensity(this->parser.readScalar<double>("targetDensity",true));
+//    if(targetDensity>0.0)
+//    {
+//        const double radiusDistributionMean(this->parser.readScalar<double>("radiusDistributionMean",true));
+//        const double radiusDistributionStd(this->parser.readScalar<double>("radiusDistributionStd",true));
+//        std::normal_distribution<double> radiusDistribution(radiusDistributionMean/mg.ddBase.poly.b_SI,radiusDistributionStd/mg.ddBase.poly.b_SI);
+//        std::mt19937 generator;
+//        double density=0.0;
+//        while(density<targetDensity)
+//        {
+//            const std::pair<LatticeVector<3>, int> rp(mg.ddBase.poly.randomLatticePointInMesh());
+//            const LatticeVector<3> L0=rp.first;
+//            const size_t grainID=rp.second;
+//            std::uniform_int_distribution<> ssDist(0,mg.ddBase.poly.grain(grainID).singleCrystal->slipSystems().size()-1);
+//            const int rSS(ssDist(generator)); // a random SlipSystem
+//            const double radius(radiusDistribution(generator));
+//            try
+//            {
+//                
+//                density+=generateSingle(mg,rSS,L0.cartesian(),radius,50.0)/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,2);
+//                std::cout<<"prismatic loop density="<<density<<std::endl;
+//            }
+//            catch(const std::exception& e)
+//            {
+//                
+//            }
+//        }
+//    }
+//}
 
-void PrismaticLoopGenerator::generateIndividual(MicrostructureGenerator& mg)
-{
-    const std::vector<int> prismaticLoopSlipSystemIDs(this->parser.readArray<int>("prismaticLoopSlipSystemIDs",true));
-    
-    if(prismaticLoopSlipSystemIDs.size())
-    {
-        std::cout<<magentaBoldColor<<"Generating individual prismatic loops"<<defaultColor<<std::endl;
-        const std::vector<double> prismaticLoopRadii(this->parser.readArray<double>("prismaticLoopRadii_SI",true));
-        const Eigen::Matrix<double,Eigen::Dynamic,dim> prismaticLoopCenters(this->parser.readMatrix<double>("prismaticLoopCenters",prismaticLoopSlipSystemIDs.size(),dim,true));
-        const std::vector<double> prismaticLoopSteps(this->parser.readArray<double>("prismaticLoopSteps",true));
-
-        //            const std::vector<int> prismaticLoopSides(this->parser.readArray<int>("prismaticLoopSides",true));
-        
-        if(prismaticLoopSlipSystemIDs.size()!=prismaticLoopRadii.size())
-        {
-            throw std::runtime_error("prismaticLoopSlipSystemIDs.size()="+std::to_string(prismaticLoopSlipSystemIDs.size())+" NOT EQUAL TO prismaticLoopRadii.size()="+std::to_string(prismaticLoopRadii.size()));
-        }
-        if(int(prismaticLoopSlipSystemIDs.size())!=prismaticLoopCenters.rows())
-        {
-            throw std::runtime_error("prismaticLoopSlipSystemIDs.size()="+std::to_string(prismaticLoopSlipSystemIDs.size())+" NOT EQUAL TO prismaticLoopCenters.rows()="+std::to_string(prismaticLoopCenters.rows()));
-        }
-        if(prismaticLoopSlipSystemIDs.size()!=prismaticLoopSteps.size())
-        {
-            throw std::runtime_error("prismaticLoopSlipSystemIDs.size()="+std::to_string(prismaticLoopSlipSystemIDs.size())+" NOT EQUAL TO prismaticLoopSteps.size()="+std::to_string(prismaticLoopSteps.size()));
-        }
-        
-        for(size_t k=0;k<prismaticLoopSlipSystemIDs.size();++k)
-        {
-            generateSingle(mg,prismaticLoopSlipSystemIDs[k],prismaticLoopCenters.row(k),prismaticLoopRadii[k]/mg.ddBase.poly.b_SI,prismaticLoopSteps[k]);
-        }
-    }
-    
-}
+//void PrismaticLoopGenerator::generateIndividual(MicrostructureGenerator& mg)
+//{
+//    const std::vector<int> prismaticLoopSlipSystemIDs(this->parser.readArray<int>("prismaticLoopSlipSystemIDs",true));
+//    
+//    if(spec.slipSystemIDs.size())
+//    {
+//        std::cout<<magentaBoldColor<<"Generating individual prismatic loops"<<defaultColor<<std::endl;
+//        const std::vector<double> prismaticLoopRadii(this->parser.readArray<double>("prismaticLoopRadii_SI",true));
+//        const Eigen::Matrix<double,Eigen::Dynamic,3> prismaticLoopCenters(this->parser.readMatrix<double>("prismaticLoopCenters",spec.slipSystemIDs.size(),dim,true));
+//        const std::vector<double> prismaticLoopSteps(this->parser.readArray<double>("prismaticLoopSteps",true));
+//
+//        //            const std::vector<int> prismaticLoopSides(this->parser.readArray<int>("prismaticLoopSides",true));
+//        
+//        if(spec.slipSystemIDs.size()!=spec.loopRadii.size())
+//        {
+//            throw std::runtime_error("spec.slipSystemIDs.size()="+std::to_string(spec.slipSystemIDs.size())+" NOT EQUAL TO spec.loopRadii.size()="+std::to_string(spec.loopRadii.size()));
+//        }
+//        if(int(spec.slipSystemIDs.size())!=spec.loopCenters.rows())
+//        {
+//            throw std::runtime_error("spec.slipSystemIDs.size()="+std::to_string(spec.slipSystemIDs.size())+" NOT EQUAL TO spec.loopCenters.rows()="+std::to_string(spec.loopCenters.rows()));
+//        }
+//        if(spec.slipSystemIDs.size()!=spec.glideSteps.size())
+//        {
+//            throw std::runtime_error("spec.slipSystemIDs.size()="+std::to_string(spec.slipSystemIDs.size())+" NOT EQUAL TO spec.glideSteps.size()="+std::to_string(spec.glideSteps.size()));
+//        }
+//        
+//        for(size_t k=0;k<spec.slipSystemIDs.size();++k)
+//        {
+//            generateSingle(mg,prismaticLoopSlipSystemIDs[k],spec.loopCenters.row(k),prismaticLoopRadii[k]/mg.ddBase.poly.b_SI,prismaticLoopSteps[k]);
+//        }
+//    }
+//    
+//}
 
 }
 #endif

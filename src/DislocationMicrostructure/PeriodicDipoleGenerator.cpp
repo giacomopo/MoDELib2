@@ -49,89 +49,159 @@
 namespace model
 {
 
-    PeriodicDipoleGenerator::PeriodicDipoleGenerator(const std::string& fileName) :
-    /* init */ MicrostructureGeneratorBase(fileName)
-    {
-        
-    }
+//    PeriodicDipoleGenerator::PeriodicDipoleGenerator(const std::string& fileName) :
+//    /* init */ MicrostructureGeneratorBase(fileName)
+//    {
+//        
+//    }
 
-    void PeriodicDipoleGenerator::generateDensity(MicrostructureGenerator& mg)
+PeriodicDipoleGenerator::PeriodicDipoleGenerator(const PeriodicDipoleIndividualSpecification& spec,MicrostructureGenerator& mg)
+{
+//    const std::vector<int> slipSystemIDs(this->parser.readArray<int>("slipSystemIDs",true));
+    std::cout<<magentaBoldColor<<"Generating individual periodic dipoles"<<defaultColor<<std::endl;
+    if(spec.slipSystemIDs.size())
     {
-        std::cout<<magentaBoldColor<<"Generating periodic dipole density"<<defaultColor<<std::endl;
-        const double targetPeriodicDipoleDensity(this->parser.readScalar<double>("targetPeriodicDipoleDensity",true));
-        if(targetPeriodicDipoleDensity>0.0)
+        if(spec.slipSystemIDs.size()!=spec.exitFaceIDs.size())
         {
-            std::mt19937 generator;
-            double density=0.0;
-            while(density<targetPeriodicDipoleDensity)
-            {
-                const std::pair<LatticeVector<dim>, int> rp(mg.ddBase.poly.randomLatticePointInMesh());
-                const LatticeVector<dim> L0=rp.first;
-                const size_t grainID=rp.second;
-                std::uniform_int_distribution<> ssDist(0,mg.ddBase.poly.grain(grainID).singleCrystal->slipSystems().size()-1);
-                const int rSS(ssDist(generator)); // a random SlipSystem
+            throw std::runtime_error("slipSystemIDs.size()="+std::to_string(spec.slipSystemIDs.size())+" NOT EQUAL TO exitFaceIDs.size()="+std::to_string(spec.exitFaceIDs.size()));
+        }
+        if(int(spec.slipSystemIDs.size())!=spec.dipoleCenters.rows())
+        {
+            throw std::runtime_error("slipSystemIDs.size()="+std::to_string(spec.slipSystemIDs.size())+" NOT EQUAL TO dipoleCenters.rows()="+std::to_string(spec.dipoleCenters.rows()));
+        }
+        if(spec.slipSystemIDs.size()!=spec.dipoleHeights.size())
+        {
+            throw std::runtime_error("slipSystemIDs.size()="+std::to_string(spec.slipSystemIDs.size())+" NOT EQUAL TO dipoleHeights.size()="+std::to_string(spec.dipoleHeights.size()));
+        }
+        if(spec.slipSystemIDs.size()!=spec.nodesPerLine.size())
+        {
+            throw std::runtime_error("slipSystemIDs.size()="+std::to_string(spec.slipSystemIDs.size())+" NOT EQUAL TO nodesPerLine.size()="+std::to_string(spec.nodesPerLine.size()));
+        }
+        if(spec.slipSystemIDs.size()!=spec.glideSteps.size())
+        {
+            throw std::runtime_error("slipSystemIDs.size()="+std::to_string(spec.slipSystemIDs.size())+" NOT EQUAL TO periodicDipoleGlideSteps.size()="+std::to_string(spec.glideSteps.size()));
+        }
+        
+        for(size_t k=0;k<spec.slipSystemIDs.size();++k)
+        {
+            generateSingle(mg,spec.slipSystemIDs[k],spec.dipoleCenters.row(k),spec.exitFaceIDs[k],spec.dipoleHeights[k],spec.nodesPerLine[k],spec.glideSteps[k]);
+        }
+    }
+    
+}
+
+PeriodicDipoleGenerator::PeriodicDipoleGenerator(const PeriodicDipoleDensitySpecification& spec,MicrostructureGenerator& mg)
+{
+    std::cout<<magentaBoldColor<<"Generating periodic dipole density"<<defaultColor<<std::endl;
+//    const double targetDensity(this->parser.readScalar<double>("targetDensity",true));
+    if(spec.targetDensity>0.0)
+    {
+        std::mt19937 generator;
+        double density=0.0;
+        while(density<spec.targetDensity)
+        {
+            const std::pair<LatticeVector<3>, int> rp(mg.ddBase.poly.randomLatticePointInMesh());
+            const LatticeVector<3> L0=rp.first;
+            const size_t grainID=rp.second;
+            std::uniform_int_distribution<> ssDist(0,mg.ddBase.poly.grain(grainID).singleCrystal->slipSystems().size()-1);
+            const int rSS(ssDist(generator)); // a random SlipSystem
 //                const auto& slipSystem(*poly.grain(grainID).singleCrystal->slipSystems()[rSS]);
-                std::uniform_int_distribution<> fDist(0,mg.ddBase.poly.grain(grainID).region.faces().size()-1);
-                const int rF(fDist(generator)); // a random face
-                auto faceIter(mg.ddBase.poly.grain(grainID).region.faces().begin());
-                std::advance(faceIter,rF);
+            std::uniform_int_distribution<> fDist(0,mg.ddBase.poly.grain(grainID).region.faces().size()-1);
+            const int rF(fDist(generator)); // a random face
+            auto faceIter(mg.ddBase.poly.grain(grainID).region.faces().begin());
+            std::advance(faceIter,rF);
 
-                try
-                {
-                    generateSingle(mg,rSS,L0.cartesian(),faceIter->first,100,0,20.0);
-                    density+=2.0*faceIter->second->periodicFacePair.first.norm()/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,2);
-                    std::cout<<"periodic dipole density="<<density<<std::endl;
-                }
-                catch(const std::exception& e)
-                {
-                    
-                }
+            try
+            {
+                generateSingle(mg,rSS,L0.cartesian(),faceIter->first,100,0,20.0);
+                density+=2.0*faceIter->second->periodicFacePair.first.norm()/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,2);
+                std::cout<<"periodic dipole density="<<density<<std::endl;
+            }
+            catch(const std::exception& e)
+            {
+                
             }
         }
     }
+}
 
-    void PeriodicDipoleGenerator::generateIndividual(MicrostructureGenerator& mg)
-    {
-        const std::vector<int> periodicDipoleSlipSystemIDs(this->parser.readArray<int>("periodicDipoleSlipSystemIDs",true));
-        
-        if(periodicDipoleSlipSystemIDs.size())
-        {
-            std::cout<<magentaBoldColor<<"Generating individual periodic dipole"<<defaultColor<<std::endl;
-            const std::vector<int> periodicDipoleExitFaceIDs(this->parser.readArray<int>("periodicDipoleExitFaceIDs",true));
-            const Eigen::Matrix<double,Eigen::Dynamic,dim> periodicDipolePoints(this->parser.readMatrix<double>("periodicDipolePoints",periodicDipoleSlipSystemIDs.size(),dim,true));
-            const std::vector<double> periodicDipoleHeights(this->parser.readArray<double>("periodicDipoleHeights",true));
-            const std::vector<int> periodicDipoleNodes(this->parser.readArray<int>("periodicDipoleNodes",true));
-            const std::vector<double> periodicDipoleGlideSteps(this->parser.readArray<double>("periodicDipoleGlideSteps",true));
-            
-            
-            if(periodicDipoleSlipSystemIDs.size()!=periodicDipoleExitFaceIDs.size())
-            {
-                throw std::runtime_error("periodicDipoleSlipSystemIDs.size()="+std::to_string(periodicDipoleSlipSystemIDs.size())+" NOT EQUAL TO periodicDipoleExitFaceIDs.size()="+std::to_string(periodicDipoleExitFaceIDs.size()));
-            }
-            if(int(periodicDipoleSlipSystemIDs.size())!=periodicDipolePoints.rows())
-            {
-                throw std::runtime_error("periodicDipoleSlipSystemIDs.size()="+std::to_string(periodicDipoleSlipSystemIDs.size())+" NOT EQUAL TO periodicDipolePoints.size()="+std::to_string(periodicDipolePoints.size()));
-            }
-            if(periodicDipoleSlipSystemIDs.size()!=periodicDipoleHeights.size())
-            {
-                throw std::runtime_error("periodicDipoleSlipSystemIDs.size()="+std::to_string(periodicDipoleSlipSystemIDs.size())+" NOT EQUAL TO periodicDipoleHeights.size()="+std::to_string(periodicDipoleHeights.size()));
-            }
-            if(periodicDipoleSlipSystemIDs.size()!=periodicDipoleNodes.size())
-            {
-                throw std::runtime_error("periodicDipoleSlipSystemIDs.size()="+std::to_string(periodicDipoleSlipSystemIDs.size())+" NOT EQUAL TO periodicDipoleNodes.size()="+std::to_string(periodicDipoleNodes.size()));
-            }
-            if(periodicDipoleSlipSystemIDs.size()!=periodicDipoleGlideSteps.size())
-            {
-                throw std::runtime_error("periodicDipoleSlipSystemIDs.size()="+std::to_string(periodicDipoleSlipSystemIDs.size())+" NOT EQUAL TO periodicDipoleGlideSteps.size()="+std::to_string(periodicDipoleGlideSteps.size()));
-            }
-            
-            for(size_t k=0;k<periodicDipoleSlipSystemIDs.size();++k)
-            {
-                generateSingle(mg,periodicDipoleSlipSystemIDs[k],periodicDipolePoints.row(k),periodicDipoleExitFaceIDs[k],periodicDipoleHeights[k],periodicDipoleNodes[k],periodicDipoleGlideSteps[k]);
-            }
-        }
-        
-    }
+//    void PeriodicDipoleGenerator::generateDensity(MicrostructureGenerator& mg)
+//    {
+//        std::cout<<magentaBoldColor<<"Generating periodic dipole density"<<defaultColor<<std::endl;
+//        const double targetDensity(this->parser.readScalar<double>("targetDensity",true));
+//        if(targetDensity>0.0)
+//        {
+//            std::mt19937 generator;
+//            double density=0.0;
+//            while(density<targetDensity)
+//            {
+//                const std::pair<LatticeVector<3>, int> rp(mg.ddBase.poly.randomLatticePointInMesh());
+//                const LatticeVector<3> L0=rp.first;
+//                const size_t grainID=rp.second;
+//                std::uniform_int_distribution<> ssDist(0,mg.ddBase.poly.grain(grainID).singleCrystal->slipSystems().size()-1);
+//                const int rSS(ssDist(generator)); // a random SlipSystem
+////                const auto& slipSystem(*poly.grain(grainID).singleCrystal->slipSystems()[rSS]);
+//                std::uniform_int_distribution<> fDist(0,mg.ddBase.poly.grain(grainID).region.faces().size()-1);
+//                const int rF(fDist(generator)); // a random face
+//                auto faceIter(mg.ddBase.poly.grain(grainID).region.faces().begin());
+//                std::advance(faceIter,rF);
+//
+//                try
+//                {
+//                    generateSingle(mg,rSS,L0.cartesian(),faceIter->first,100,0,20.0);
+//                    density+=2.0*faceIter->second->periodicFacePair.first.norm()/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,2);
+//                    std::cout<<"periodic dipole density="<<density<<std::endl;
+//                }
+//                catch(const std::exception& e)
+//                {
+//                    
+//                }
+//            }
+//        }
+//    }
+
+//    void PeriodicDipoleGenerator::generateIndividual(MicrostructureGenerator& mg)
+//    {
+//        const std::vector<int> slipSystemIDs(this->parser.readArray<int>("slipSystemIDs",true));
+//        
+//        if(slipSystemIDs.size())
+//        {
+//            std::cout<<magentaBoldColor<<"Generating individual periodic dipole"<<defaultColor<<std::endl;
+//            const std::vector<int> spec.exitFaceIDs(this->parser.readArray<int>("spec.exitFaceIDs",true));
+//            const Eigen::Matrix<double,Eigen::Dynamic,3> periodicDipolePoints(this->parser.readMatrix<double>("periodicDipolePoints",slipSystemIDs.size(),dim,true));
+//            const std::vector<double> periodicDipoleHeights(this->parser.readArray<double>("periodicDipoleHeights",true));
+//            const std::vector<int> periodicDipoleNodes(this->parser.readArray<int>("periodicDipoleNodes",true));
+//            const std::vector<double> periodicDipoleGlideSteps(this->parser.readArray<double>("periodicDipoleGlideSteps",true));
+//            
+//            
+//            if(slipSystemIDs.size()!=spec.exitFaceIDs.size())
+//            {
+//                throw std::runtime_error("slipSystemIDs.size()="+std::to_string(slipSystemIDs.size())+" NOT EQUAL TO spec.exitFaceIDs.size()="+std::to_string(spec.exitFaceIDs.size()));
+//            }
+//            if(int(slipSystemIDs.size())!=periodicDipolePoints.rows())
+//            {
+//                throw std::runtime_error("slipSystemIDs.size()="+std::to_string(slipSystemIDs.size())+" NOT EQUAL TO periodicDipolePoints.size()="+std::to_string(periodicDipolePoints.size()));
+//            }
+//            if(slipSystemIDs.size()!=periodicDipoledipoleHeights.size())
+//            {
+//                throw std::runtime_error("slipSystemIDs.size()="+std::to_string(slipSystemIDs.size())+" NOT EQUAL TO periodicDipoledipoleHeights.size()="+std::to_string(periodicDipoledipoleHeights.size()));
+//            }
+//            if(slipSystemIDs.size()!=periodicDipoleNodes.size())
+//            {
+//                throw std::runtime_error("slipSystemIDs.size()="+std::to_string(slipSystemIDs.size())+" NOT EQUAL TO periodicDipoleNodes.size()="+std::to_string(periodicDipoleNodes.size()));
+//            }
+//            if(slipSystemIDs.size()!=periodicDipoleGlideSteps.size())
+//            {
+//                throw std::runtime_error("slipSystemIDs.size()="+std::to_string(slipSystemIDs.size())+" NOT EQUAL TO periodicDipoleGlideSteps.size()="+std::to_string(periodicDipoleGlideSteps.size()));
+//            }
+//            
+//            for(size_t k=0;k<slipSystemIDs.size();++k)
+//            {
+//                generateSingle(mg,slipSystemIDs[k],periodicDipolePoints.row(k),spec.exitFaceIDs[k],periodicDipoleHeights[k],periodicDipoleNodes[k],periodicDipoleGlideSteps[k]);
+//            }
+//        }
+//        
+//    }
 
     void PeriodicDipoleGenerator::generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& dipolePoint,const int& exitFaceID,const int& dipoleHeight,const int& dipoleNodes, double glideStep)
     {
@@ -139,7 +209,7 @@ namespace model
         
         if(rSS>=0)
         {
-            std::pair<bool,const Simplex<dim,dim>*> found(mg.ddBase.mesh.search(dipolePoint));
+            std::pair<bool,const Simplex<3,3>*> found(mg.ddBase.mesh.search(dipolePoint));
             if(!found.first)
             {
                 std::cout<<"Point "<<dipolePoint.transpose()<<" is outside mesh. EXITING."<<std::endl;
@@ -197,7 +267,7 @@ namespace model
                                     {
 
                                         
-                                        std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>> uniqueNetworkNodeMap; // networkNodePosition->networkNodeID
+                                        std::map<VectorDimD,size_t,CompareVectorsByComponent<double,3,float>> uniqueNetworkNodeMap; // networkNodePosition->networkNodeID
                                         // The prismatic loop
                                         const int nShift(2);
                                         const VectorDimD lShift(nShift*AB);
@@ -214,7 +284,7 @@ namespace model
                                         
                                         mg.insertJunctionLoop(prismaticNodePos,prismaticGlidePlane,
                                                            slipSystem.s.cartesian(),prismaticGlidePlane->referencePlane->unitNormal,
-                                                           P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                                                           P0,grainID,DislocationLoopIO<3>::SESSILELOOP);
                                         
                                         
                                         
@@ -249,10 +319,10 @@ namespace model
                                                                                 
                                         mg.insertJunctionLoop(firstNodePos,glidePlane,
                                                            -slipSystem.s.cartesian(),glidePlane->referencePlane->unitNormal,
-                                                           P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                                           P0,grainID,DislocationLoopIO<3>::GLISSILELOOP);
 
 
-                                        FiniteLineSegment<dim> mirrowLine(lineP0,lineP1);
+                                        FiniteLineSegment<3> mirrowLine(lineP0,lineP1);
                                         
                                         // Second glide loop
                                         std::vector<VectorDimD> secondNodePos;
@@ -266,7 +336,7 @@ namespace model
                                         
                                         mg.insertJunctionLoop(secondNodePos,parallelglidePlane,
                                                            slipSystem.s.cartesian(),parallelglidePlane->referencePlane->unitNormal,
-                                                           parallelglidePlane->referencePlane->snapToPlane(P0),grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                                           parallelglidePlane->referencePlane->snapToPlane(P0),grainID,DislocationLoopIO<3>::GLISSILELOOP);
                                     }
                                     else
                                     {

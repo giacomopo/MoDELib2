@@ -64,9 +64,7 @@ namespace model
 //            }
 //            return temp;
 //        }
-        
-        
-        
+                
         template<typename MicrostructureType>
         std::set<std::shared_ptr<MicrostructureType>> getTypedMicrostructures() const
         {

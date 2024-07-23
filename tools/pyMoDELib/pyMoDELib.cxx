@@ -17,6 +17,7 @@
 #include <pybind11/functional.h>
 #include <pybind11/chrono.h>
 #include <pybind11/stl_bind.h>
+#include <pybind11/numpy.h>
 #endif
 
 #include <Eigen/Dense>
@@ -34,6 +35,7 @@
 #include <MicrostructureContainer.h>
 #include <DislocationDynamicsBase.h>
 #include <DefectiveCrystal.h>
+#include <MicrostructureGenerator.h>
 
 
 using namespace model;
@@ -201,9 +203,113 @@ PYBIND11_MODULE(pyMoDELib,m)
     /*      */,MicrostructureContainer<3>
     /*      */>(m,"DefectiveCrystal")
         .def(py::init<DislocationDynamicsBase<3>&>())
+        .def("initializeConfiguration", static_cast<void (DefectiveCrystal<3>::*)(const DDconfigIO<3>&)>(&DefectiveCrystal<3>::initializeConfiguration))
         .def("dislocationNetwork", &DefectiveCrystal<3>::dislocationNetwork,pybind11::return_value_policy::reference)
     ;
 
+    py::class_<DDconfigIO<3>
+    /*      */>(m,"DDconfigIO")
+        .def(py::init<const std::string&>())
+    ;
+    
+    py::class_<MicrostructureGenerator
+    /*      */>(m,"MicrostructureGenerator")
+        .def(py::init<DislocationDynamicsBase<3>&>())
+        .def_readonly("configIO", &MicrostructureGenerator::configIO)
+        .def("addShearLoopDensity", &MicrostructureGenerator::addShearLoopDensity)
+        .def("addShearLoopIndividual", &MicrostructureGenerator::addShearLoopIndividual)
+        .def("addPeriodicDipoleDensity", &MicrostructureGenerator::addPeriodicDipoleDensity)
+        .def("addPeriodicDipoleIndividual", &MicrostructureGenerator::addPeriodicDipoleIndividual)
+        .def("addPrismaticLoopDensity", &MicrostructureGenerator::addPrismaticLoopDensity)
+        .def("addPrismaticLoopIndividual", &MicrostructureGenerator::addPrismaticLoopIndividual)
+        .def("writeConfigFiles", &MicrostructureGenerator::writeConfigFiles)
+    ;
+    
+    py::class_<ShearLoopDensitySpecification
+    /*      */>(m,"ShearLoopDensitySpecification")
+        .def(py::init<>())
+        .def(py::init<const std::string&>())
+        .def_readwrite("targetDensity", &ShearLoopDensitySpecification::targetDensity)
+        .def_readwrite("numberOfSides", &ShearLoopDensitySpecification::numberOfSides)
+        .def_readwrite("radiusDistributionMean", &ShearLoopDensitySpecification::radiusDistributionMean)
+        .def_readwrite("radiusDistributionStd", &ShearLoopDensitySpecification::radiusDistributionStd)
+    ;
+
+    py::class_<ShearLoopIndividualSpecification
+    /*      */>(m,"ShearLoopIndividualSpecification")
+        .def(py::init<>())
+        .def(py::init<const std::string&>())
+        .def_readwrite("slipSystemIDs", &ShearLoopIndividualSpecification::slipSystemIDs)
+        .def_readwrite("loopRadii", &ShearLoopIndividualSpecification::loopRadii)
+        .def_property( "loopCenters",
+                    [](const ShearLoopIndividualSpecification& self )
+                    {// Getter
+                        return self.loopCenters;
+                    },
+                    []( ShearLoopIndividualSpecification& self, const Eigen::Ref<const Eigen::Matrix<double,Eigen::Dynamic,3>>& val )
+                    {// Setter
+                        self.loopCenters = val;
+                    }
+                )
+        .def_readwrite("loopSides", &ShearLoopIndividualSpecification::loopSides)
+    ;
+    
+    py::class_<PeriodicDipoleDensitySpecification
+    /*      */>(m,"PeriodicDipoleDensitySpecification")
+        .def(py::init<>())
+        .def(py::init<const std::string&>())
+        .def_readwrite("targetDensity", &PeriodicDipoleDensitySpecification::targetDensity)
+    ;
+    
+    py::class_<PeriodicDipoleIndividualSpecification
+    /*      */>(m,"PeriodicDipoleIndividualSpecification")
+        .def(py::init<>())
+        .def(py::init<const std::string&>())
+        .def_readwrite("slipSystemIDs", &PeriodicDipoleIndividualSpecification::slipSystemIDs)
+        .def_readwrite("exitFaceIDs", &PeriodicDipoleIndividualSpecification::exitFaceIDs)
+        .def_property( "dipoleCenters",
+                    [](const PeriodicDipoleIndividualSpecification& self )
+                    {// Getter
+                        return self.dipoleCenters;
+                    },
+                    []( PeriodicDipoleIndividualSpecification& self, const Eigen::Ref<const Eigen::Matrix<double,Eigen::Dynamic,3>>& val )
+                    {// Setter
+                        self.dipoleCenters = val;
+                    }
+                )
+        .def_readwrite("dipoleHeights", &PeriodicDipoleIndividualSpecification::dipoleHeights)
+        .def_readwrite("nodesPerLine", &PeriodicDipoleIndividualSpecification::nodesPerLine)
+        .def_readwrite("glideSteps", &PeriodicDipoleIndividualSpecification::glideSteps)
+    ;
+    
+    py::class_<PrismaticLoopDensitySpecification
+    /*      */>(m,"PrismaticLoopDensitySpecification")
+        .def(py::init<>())
+        .def(py::init<const std::string&>())
+        .def_readwrite("targetDensity", &PrismaticLoopDensitySpecification::targetDensity)
+        .def_readwrite("radiusDistributionMean", &PrismaticLoopDensitySpecification::radiusDistributionMean)
+        .def_readwrite("radiusDistributionStd", &PrismaticLoopDensitySpecification::radiusDistributionStd)
+    ;
+    
+    py::class_<PrismaticLoopIndividualSpecification
+    /*      */>(m,"PrismaticLoopIndividualSpecification")
+        .def(py::init<>())
+        .def(py::init<const std::string&>())
+        .def_readwrite("slipSystemIDs", &PrismaticLoopIndividualSpecification::slipSystemIDs)
+        .def_readwrite("loopRadii", &PrismaticLoopIndividualSpecification::loopRadii)
+        .def_property( "loopCenters",
+                    [](const PrismaticLoopIndividualSpecification& self )
+                    {// Getter
+                        return self.loopCenters;
+                    },
+                    []( PrismaticLoopIndividualSpecification& self, const Eigen::Ref<const Eigen::Matrix<double,Eigen::Dynamic,3>>& val )
+                    {// Setter
+                        self.loopCenters = val;
+                    }
+                )
+        .def_readwrite("glideSteps", &PrismaticLoopIndividualSpecification::glideSteps)
+    ;
+    
 }
 #endif
 

@@ -14,8 +14,6 @@
 #endif
 
 #include <ElasticDeformation.h>
-//#include <ExternalLoadControllerBase.h>
-//#include <UniformExternalLoadController.h>
 #include <FEMfaceEvaluation.h>
 #include <LinearWeakList.h>
 
@@ -66,16 +64,71 @@ namespace model
     template<int dim>
     ElasticDeformation<dim>::ElasticDeformation(MicrostructureContainerType& mc) :
     /* init */ MicrostructureBase<dim>("ElasticDeformation",mc)
-//    /* init */,ElasticDeformationBase<dim>(this->microstructures.ddBase)
-//    /* init */,voigtTraits(TextFileParser(this->microstructures.ddBase.simulationParameters.traitsIO.inputFilesFolder+"/ElasticDeformation.txt").readMatrix<size_t,SymmetricVoigtTraits<dim>::voigtSize,2>("voigtOrder",true))
     /* init */,useElasticDeformationFEM(this->microstructures.ddBase.fe? bool(TextFileParser(this->microstructures.ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("useElasticDeformationFEM",true)) : false )
     /* init */,elasticDeformationFEM(useElasticDeformationFEM?  new ElasticDeformationFEM<dim>(this->microstructures.ddBase) : nullptr)
     /* init */,uniformLoadController(useElasticDeformationFEM? std::unique_ptr<UniformControllerType>(nullptr) : getUniformEDcontroller(this->microstructures.ddBase))
     /* init */,inertiaReliefPenaltyFactor(uniformLoadController? 0.0 : TextFileParser(this->microstructures.ddBase.simulationParameters.traitsIO.ddFile).readScalar<double>("inertiaReliefPenaltyFactor",true))
     /* init */,ndA(this->microstructures.ddBase.fe? this->microstructures.ddBase.fe->template boundary<ExternalBoundary,imageTractionIntegrationOrder,GaussLegendre>() : TractionIntegrationDomainType())
     /* init */,tractionList(ndA.template integrationList<FEMfaceEvaluation<ElementType,dim,dim>>())
-    {
+    /* init */,solverInitialized(false)
+{
         
+    }
+
+    template<int dim>
+    void ElasticDeformation<dim>::initializeSolver()
+    {
+        std::cout<<" gSize="<<elasticDeformationFEM->u.gSize()<<std::flush;
+        elasticDeformationFEM->A.resize(elasticDeformationFEM->u.gSize(),elasticDeformationFEM->u.gSize());
+        std::vector<Eigen::Triplet<double> > globalTriplets(elasticDeformationFEM->bWF.globalTriplets());
+        if(inertiaReliefPenaltyFactor>0.0)
+        {
+            //                std::cout<<"Adding inertia relief triplets"<<std::endl;
+            for(const auto& elePair : this->microstructures.ddBase.fe->elements())
+            {
+                const auto& ele(elePair.second);
+                const auto C(elasticDeformationFEM->elementMomentumMatrix(ele));
+                
+                const auto Ct(C.block(  0,0,dim,dim*ElementType::nodesPerElement)); // rigid translation contraint
+                const auto Cr(C.block(dim,0,dim,dim*ElementType::nodesPerElement)); // rigid rotation contraint
+                
+                //                    const auto CTC((C.transpose()*C).eval());
+                const auto CTC((Ct.transpose()*Ct+Cr.transpose()*Cr).eval());
+                
+                for(int i=0;i<dim*ElementType::nodesPerElement;++i)
+                {
+                    for(int j=0;j<dim*ElementType::nodesPerElement;++j)
+                    {
+                        if(CTC(i,j)!=0.0)
+                        {
+                            const size_t  nodeID_I(i/dim);
+                            const size_t nodeDof_I(i%dim);
+                            const size_t gI= ele.node(nodeID_I).gID*dim+nodeDof_I;
+                            
+                            const size_t  nodeID_J(j/dim);
+                            const size_t nodeDof_J(j%dim);
+                            const size_t gJ=ele.node(nodeID_J).gID*dim+nodeDof_J;
+                            
+                            globalTriplets.emplace_back(gI,gJ,inertiaReliefPenaltyFactor*CTC(i,j));
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            throw std::runtime_error("inertiaReliefPenaltyFactor<=0.0");
+        }
+        std::cout<<", assembling"<<std::flush;
+        elasticDeformationFEM->A.setFromTriplets(globalTriplets.begin(),globalTriplets.end());
+        //            elasticDeformationFEM->A.prune(elasticDeformationFEM->A.norm()/elasticDeformationFEM->A.nonZeros(),FLT_EPSILON);
+        std::cout<<", decomposing"<<std::flush;
+        directSolver.compute(elasticDeformationFEM->A);
+        if(directSolver.info()!=Eigen::Success)
+        {
+            throw std::runtime_error("Decomposing global stiffness matrix FAILED.");
+        }
+        solverInitialized=true;
     }
 
     template<int dim>
@@ -105,56 +158,6 @@ namespace model
                     throw std::runtime_error("ElasticDeformation: TrialFunction u initializatoin size mismatch");
                 }
             }
-            std::cout<<" gSize="<<elasticDeformationFEM->u.gSize()<<std::flush;
-            elasticDeformationFEM->A.resize(elasticDeformationFEM->u.gSize(),elasticDeformationFEM->u.gSize());
-            std::vector<Eigen::Triplet<double> > globalTriplets(elasticDeformationFEM->bWF.globalTriplets());
-            if(inertiaReliefPenaltyFactor>0.0)
-            {
-                //                std::cout<<"Adding inertia relief triplets"<<std::endl;
-                for(const auto& elePair : this->microstructures.ddBase.fe->elements())
-                {
-                    const auto& ele(elePair.second);
-                    const auto C(elasticDeformationFEM->elementMomentumMatrix(ele));
-                    
-                    const auto Ct(C.block(  0,0,dim,dim*ElementType::nodesPerElement));
-                    const auto Cr(C.block(dim,0,dim,dim*ElementType::nodesPerElement));
-                    
-                    //                    const auto CTC((C.transpose()*C).eval());
-                    const auto CTC((Ct.transpose()*Ct+Cr.transpose()*Cr).eval());
-                    
-                    for(int i=0;i<dim*ElementType::nodesPerElement;++i)
-                    {
-                        for(int j=0;j<dim*ElementType::nodesPerElement;++j)
-                        {
-                            if(CTC(i,j)!=0.0)
-                            {
-                                const size_t  nodeID_I(i/dim);
-                                const size_t nodeDof_I(i%dim);
-                                const size_t gI= ele.node(nodeID_I).gID*dim+nodeDof_I;
-                                
-                                const size_t  nodeID_J(j/dim);
-                                const size_t nodeDof_J(j%dim);
-                                const size_t gJ=ele.node(nodeID_J).gID*dim+nodeDof_J;
-                                
-                                globalTriplets.emplace_back(gI,gJ,inertiaReliefPenaltyFactor*CTC(i,j));
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                throw std::runtime_error("inertiaReliefPenaltyFactor<=0.0");
-            }
-            std::cout<<", assembling"<<std::flush;
-            elasticDeformationFEM->A.setFromTriplets(globalTriplets.begin(),globalTriplets.end());
-            //            elasticDeformationFEM->A.prune(elasticDeformationFEM->A.norm()/elasticDeformationFEM->A.nonZeros(),FLT_EPSILON);
-            std::cout<<", decomposing"<<std::flush;
-            directSolver.compute(elasticDeformationFEM->A);
-            if(directSolver.info()!=Eigen::Success)
-            {
-                throw std::runtime_error("Decomposing global stiffness matrix FAILED.");
-            }
         }
     }
 
@@ -165,11 +168,15 @@ namespace model
         {
             const MatrixDim apd(this->microstructures.averagePlasticDistortion());
             const MatrixDim aps(0.5*(apd+apd.transpose()));
-            //            externalLoadController->update(aps);
             uniformLoadController->gs=this->microstructures.ddBase.voigtTraits.m2v(aps,true);
         }
         else
         {
+            if(!solverInitialized)
+            {
+                initializeSolver();
+                
+            }
             //            elasticDeformationFEM->u.clearDirichletConditions();
             
             //
@@ -252,14 +259,11 @@ namespace model
     {
         if(uniformLoadController)
         {
-            //            externalLoadController->output(f_file,F_labels);
             const auto epsil(uniformLoadController->grad(this->microstructures.ddBase.simulationParameters.totalTime));
             const auto sigma(uniformLoadController->flux(this->microstructures.ddBase.simulationParameters.totalTime));
             
             f_file<<epsil.transpose()<<" "<<sigma.transpose()<<" ";
-            
-            //            f_file<<this->ExternalStrain.row(0)<<" "<<this->ExternalStrain.row(1)<<" "<<this->ExternalStrain.row(2)<<" "<<this->ExternalStress.row(0)<<" "<<this->ExternalStress.row(1)<<" "<<this->ExternalStress.row(2)<<" ";
-            
+                        
             if(this->microstructures.ddBase.simulationParameters.runID==0)
             {
                 for(int k=0;k<SymmetricVoigtTraits<dim>::voigtSize;++k)
@@ -277,24 +281,6 @@ namespace model
                     F_labels<<lab<<"\n";
                 }
                 F_labels<<std::endl;
-                //                F_labels<<"e_11\n";
-                //                F_labels<<"e_12\n";
-                //                F_labels<<"e_13\n";
-                //                F_labels<<"e_21\n";
-                //                F_labels<<"e_22\n";
-                //                F_labels<<"e_23\n";
-                //                F_labels<<"e_31\n";
-                //                F_labels<<"e_32\n";
-                //                F_labels<<"e_33\n";
-                //                F_labels<<"s_11 [mu]\n";
-                //                F_labels<<"s_12 [mu]\n";
-                //                F_labels<<"s_13 [mu]\n";
-                //                F_labels<<"s_21 [mu]\n";
-                //                F_labels<<"s_22 [mu]\n";
-                //                F_labels<<"s_23 [mu]\n";
-                //                F_labels<<"s_31 [mu]\n";
-                //                F_labels<<"s_32 [mu]\n";
-                //                F_labels<<"s_33 [mu]"<<std::endl;
             }
         }
         else

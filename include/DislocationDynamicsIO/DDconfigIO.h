@@ -63,8 +63,9 @@ namespace model
 
     public:
         
-        DDconfigIO(const std::string& folderName,const std::string& suffix="");
-        
+//        DDconfigIO(const std::string& folderName,const std::string& suffix="");
+        DDconfigIO(const std::string& folderName);
+
         void clear();
         const std::vector<DislocationNodeIO<dim> >& nodes() const;
         std::vector<DislocationNodeIO<dim> >& nodes();

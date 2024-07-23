@@ -29,7 +29,7 @@ namespace model
 template<int dim>
 struct ClusterDynamicsParameters
 {
-    static constexpr int mSize=4;     // e.g. Cv, Ci, C2i, C3i
+    static constexpr int mSize=1;     // e.g. Cv, Ci, C2i, C3i
     static constexpr int iSize=0;  // e.g. Nc, Na1, Na2, Na3, cv, ca1, ca2, ca3
 
     typedef Eigen::Matrix<double,dim,1> VectorDim;
@@ -53,7 +53,9 @@ struct ClusterDynamicsParameters
     const std::map<size_t,Eigen::Array<double,mSize,1>> detD;
     const Eigen::Matrix<double,1,mSize> msCascadeFractions;
     const double msSurvivingEfficiency; // Surviving effciency
-    const Eigen::Matrix<double,1,mSize> G; // dpa/s, Effective dose rate
+//    const Eigen::Matrix<double,1,mSize> G; // dpa/s, Effective dose rate
+    const Eigen::Matrix<double,mSize,1> G; // dpa/s, Effective dose rate
+
     // First-order reaction
     const Eigen::Array<double,1,mSize> otherSinks;
 //    const Eigen::Array<double,1,iSize/2> dislocationSinks;

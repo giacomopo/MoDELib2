@@ -52,69 +52,15 @@ namespace model
         typedef NetworkBase<Derived,size_t> NetworkBaseType;
         typedef std::tuple<Derived* const ,NetworkLinkType* const>                NeighborType;
         typedef std::map<size_t,NeighborType>                            NeighborContainerType;
-
-//        typedef NetworkComponent<NodeType,LinkType> NetworkComponentType;
-
-        
-    private:
-        
-//        NEED TO ADD NEXT/PREV
-
-//        NodeObserverType* const loopNetwork;
-//        std::shared_ptr<NetworkComponentType> psn;
-
-//        /**********************************************************************/
-//        void resetPSN()
-//        {
-//            //! 1- Removes this from the current NetworkComponent
-//            this->psn->remove(this->p_derived());
-//            //! 2- Creates a new NetworkComponent containing this
-//            this->psn.reset(new NetworkComponentType(this->p_derived()));
-//            //! 3- Transmits 'formNetworkComponent' to the neighbors
-//            typedef void (Derived::*node_member_function_pointer_type)(const std::shared_ptr<NetworkComponentType>&);
-//            node_member_function_pointer_type Nmfp(&Derived::formNetworkComponent);
-//            //            Nmfp=&Derived::formNetworkComponent;
-//            typedef void (LinkType::*link_member_function_pointer_type)(const std::shared_ptr<NetworkComponentType>&);
-//            link_member_function_pointer_type Lmfp(&LinkType::formNetworkComponent);
-//            //            Lmfp=&LinkType::formNetworkComponent;
-//            depthFirstExecute(Nmfp,Lmfp,this->psn);
-//        }
-        
-//        /**********************************************************************/
-//        void formNetworkComponent(const std::shared_ptr<NetworkComponentType> & psnOther)
-//        {/*!@param[in] psnOther a shared_ptr to another NetworkComponent
-//          *
-//          * If the shared_ptr to the NetworkComponent of *this is different from
-//          * psnOther, the former is reset (this may destroy the NetworkComponent)
-//          * and reassigned to psnOther.
-//          */
-//            if (psn!=psnOther)
-//            {
-//                psn->remove(this->p_derived());
-//                psn=psnOther;        // redirect psn to the new NetworkComponent
-//                psn->add(this->p_derived());    // add this in the new NetworkComponent
-//            }
-//        }
         
     public:
 
-        
         static int verboseLevel;
-        
-        
-        
-    
-        /**********************************************************************/
+
         NetworkNode(LoopNetworkType* const loopNetwork_in) :
         /* init */ NetworkBaseType(loopNetwork_in,&loopNetwork_in->networkNodes(),this->sID)
-//        /* init list */,psn(network().commonNetworkComponent? network().commonNetworkComponent : std::shared_ptr<NetworkComponentType>(new NetworkComponentType(this->p_derived())))
         {
             VerboseNetworkNode(1,"Constructing NetworkNode "<<tag()<<std::endl);
-
-//            if(network().commonNetworkComponent)
-//            {
-//                psn->add(this->p_derived());
-//            }
         }
         
         /**********************************************************************/
@@ -122,15 +68,8 @@ namespace model
         {
             VerboseNetworkNode(1,"Destroying NetworkNode "<<tag()<<std::endl);
             assert(neighbors().empty());
-            
-//            this->psn->remove(this->p_derived());
-            
         }
         
-//        size_t networkID() const
-//        {
-//            return std::distance(this->network().networkNodes().begin(),this->network().networkNodes().find(this->key));
-//        }
          LoopLinkContainerType outLoopLinks() const
         {
             LoopLinkContainerType temp;
@@ -204,7 +143,6 @@ namespace model
             {
                 throw std::runtime_error("LoopNode could not be erased");
             }
-//            assert(erased==1 && "LoopNode could not be erased");
         }
         
         bool isContractableTo(const std::shared_ptr<Derived>&) const
@@ -212,15 +150,6 @@ namespace model
             return true;
         }
         
-//        /**********************************************************************/
-//        size_t snID() const
-//        {/*!\returns The NetworkComponent::snID() of the component
-//          * containing this.
-//          */
-//            return psn->snID(this->p_derived());
-//        }
-        
-        /**********************************************************************/
         size_t gID() const
         {/*!\returns The NetworkComponent::snID() of the component
           * containing this.
@@ -244,26 +173,16 @@ namespace model
 //            return this->network().globalNodeID(this->sID);
         }
         
-        /**********************************************************************/
         const NeighborContainerType& neighbors() const
         {
             return *this;
         }
 
-        /**********************************************************************/
         NeighborContainerType& neighbors()
         {
             return *this;
         }
         
-//        /**********************************************************************/
-//        bool isSimple() const
-//        {/*!\returns true if neighbors().size()==2
-//          */
-//            return neighbors().size()==2;
-//        }
-        
-        /**********************************************************************/
         void addToNeighborhood(NetworkLinkType* const pL)
         {/*!@param[in] pL a pointer to a LinkType edge
           */
@@ -322,108 +241,21 @@ namespace model
                 {
                     throw std::runtime_error("CANNOT REMOVE FROM NEIGHBORHOOD.");
                 }
-//                assert(success==1);
             }
             else
             {
                 throw std::runtime_error("CANNOT REMOVE FROM NEIGHBORHOOD.");
-//
-//                assert(0 && "CANNOT REMOVE FROM NEIGHBORS");
             }
         }
-        
-        
-        
-//        /**********************************************************************/
-//        const std::shared_ptr<NetworkComponentType> & pSN() const
-//        {/*!\returns A const reference to the shared-pointer to the
-//          * NetworkComponent containing this.
-//          */
-//            return psn;
-//        }
-        
-        /**********************************************************************/
+                
         std::string tag() const
         {/*!\returns the string "i" where i is this->sID
           */
             return std::to_string(this->sID) ;
         }
-        
-//        /**********************************************************************/
-//        template <typename T>
-//        void depthFirstExecute(void (Derived::*Nfptr)(const T&),void (LinkType::*Lfptr)(const T&), const T & input, const size_t& N = ULONG_MAX)
-//        {
-//            std::set<size_t> searchedNodes;
-//            std::set<std::pair<size_t,size_t> > searchedLinks;
-//            depthFirstExecute(searchedNodes,searchedLinks,Nfptr,Lfptr,input, N);
-//        }
-//
-//        /**********************************************************************/
-//        template <typename T>
-//        void depthFirstExecute(std::set<size_t>& searchedNodes,
-//                               std::set<std::pair<size_t,size_t> >& searchedLinks,
-//                               void (Derived::*Nfptr)(const T&),void (LinkType::*Lfptr)(const T&),
-//                               const T & input,
-//                               const size_t& N = ULONG_MAX)
-//        {
-//            (this->p_derived()->*Nfptr)(input); // execute Nfptr on this node
-//            if (N!=0)
-//            {
-//                assert(searchedNodes.insert(this->sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
-//                for (const auto& neighborIter : neighbors())
-//                {
-////                    if (!std::get<2>(neighborIter.second)==0)
-////                    {
-//                        if (searchedLinks.find(std::get<1>(neighborIter.second)->nodeIDPair)==searchedLinks.end())
-//                        {  // neighbor not searched
-//                            (std::get<1>(neighborIter.second)->*Lfptr)(input); // execute Lfptr on connecting link
-//                            assert(searchedLinks.insert(std::get<1>(neighborIter.second)->nodeIDPair).second && "CANNOT INSERT CURRENT LINK IN SEARCHED LINKS"); // this node has been searched
-//                        }
-////                    }
-//                    if (searchedNodes.find(std::get<0>(neighborIter.second)->sID)==searchedNodes.end())
-//                    {  // neighbor not searched
-//                        std::get<0>(neighborIter.second)->depthFirstExecute(searchedNodes,searchedLinks,Nfptr,Lfptr,input, N-1); // continue executing on neighbor
-//                    }
-//                }
-//            }
-//        }
-        
-        
-//        /**********************************************************************/
-//        bool depthFirstSearch (const size_t& ID, const size_t& N = ULONG_MAX) const
-//        {
-//            std::set<size_t> searchedNodes;
-//            return depthFirstSearch(searchedNodes,ID,N);
-//        }
-//
-//        /**********************************************************************/
-//        bool depthFirstSearch (std::set<size_t>& searchedNodes, const size_t& ID, const size_t& N = ULONG_MAX) const
-//        {
-//            bool reached(this->sID==ID);
-//            if (N!=0 && !reached)
-//            {
-//                assert(searchedNodes.insert(this->sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
-//                for (const auto& neighborIter : neighbors())
-//                {
-//                    if (searchedNodes.find(std::get<0>(neighborIter.second)->sID)==searchedNodes.end())
-//                    {  // neighbor not searched
-//                        reached=std::get<0>(neighborIter.second)->depthFirstSearch(searchedNodes,ID,N-1); // ask if neighbor can reach
-//                        if (reached)
-//                        {
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//            return reached;
-//        }
-        
     };
     
     template<typename Derived>
     int NetworkNode<Derived>::verboseLevel=0;
-
-    
-    
 }
 #endif

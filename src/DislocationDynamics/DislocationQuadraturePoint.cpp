@@ -259,7 +259,15 @@ namespace model
         }
         if(isClimbStep && parentSegment.network().climbSolver)
         {
-            cCD=eval(parentSegment.network().climbSolver->CD->mobileClusters)(r,parentSegment.source->includingSimplex());
+//            cCD=eval(parentSegment.network().climbSolver->CD->mobileClusters)(r,parentSegment.source->includingSimplex());
+            cCD.setZero();
+            for(const auto& microstructure : parentSegment.network().microstructures)
+            {
+                if(microstructure.get()!=static_cast<const MicrostructureBase<dim>* const>(&parentSegment.network()))
+                {// not the ClusterDynamics physics
+                    cCD += microstructure->mobileConcentration(r,nullptr,nullptr,parentSegment.source->includingSimplex());
+                }
+            }
             cDD=parentSegment.network().climbSolver->CD->cdp.dislocationMobileConcentration(parentSegment.burgers(),rl,pkForce,stress);
         }
     }
