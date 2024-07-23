@@ -37,20 +37,27 @@
 #include <GlidePlaneModule.h>
 #include <MeshModule.h>
 #include <Plane.h>
-#include <MicrostructureGeneratorBase.h>
+//#include <MicrostructureGeneratorBase.h>
+#include <FrankLoopsDensitySpecification.h>
+#include <FrankLoopsIndividualSpecification.h>
 
 
 namespace model
 {
-    class FrankLoopsGenerator : public MicrostructureGeneratorBase
+    class FrankLoopsGenerator //: public MicrostructureGeneratorBase
     {
+        
+        typedef Eigen::Matrix<double,3,1> VectorDimD;
+        
         static void generateSingle(MicrostructureGenerator& mg,const int& pID,const VectorDimD& center,const double& radius,const size_t& sides,const bool& isVacancyLoop);
 
     public:
-        
-        FrankLoopsGenerator(const std::string& fileName);
-        void generateIndividual(MicrostructureGenerator& mg) override;
-        void generateDensity(MicrostructureGenerator& mg) override;
+        FrankLoopsGenerator(const FrankLoopsDensitySpecification&,MicrostructureGenerator&);
+        FrankLoopsGenerator(const FrankLoopsIndividualSpecification&,MicrostructureGenerator&);
+
+//        FrankLoopsGenerator(const std::string& fileName);
+//        void generateIndividual(MicrostructureGenerator& mg) override;
+//        void generateDensity(MicrostructureGenerator& mg) override;
     };
 }
 #endif

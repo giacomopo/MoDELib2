@@ -49,12 +49,29 @@ spec5.slipSystemIDs=[0,7,13]
 spec5.loopRadii=[5e-8,2e-7,2e-8]
 spec5.loopCenters=np.array([[0,0,0],[500,600,500],[500,500,500]])
 spec5.glideSteps=[10.,10.,300.]
-microstructureGenerator.addPrismaticLoopIndividual(spec5)
+#microstructureGenerator.addPrismaticLoopIndividual(spec5)
+
+spec6=pyMoDELib.FrankLoopsDensitySpecification()
+spec6.targetDensity=5.0e12
+spec6.radiusDistributionMean=1.0e-07
+spec6.radiusDistributionStd=0.0e-8
+spec6.numberOfSides=20
+spec6.areVacancyLoops=1
+#microstructureGenerator.addFrankLoopsDensity(spec6)
+
+spec7=pyMoDELib.FrankLoopsIndividualSpecification()
+spec7.planeIDs=[0,-1]
+spec7.loopRadii=[27.0e-8,27.0e-8]
+spec7.loopCenters=np.array([[200.0,0.0,0.0],[0.0,0.0,0.0]])
+spec7.loopSides=[10,10]
+spec7.isVacancyLoop=[1,0]
+microstructureGenerator.addFrankLoopsIndividual(spec7)
+
 
 
 microstructureGenerator.writeConfigFiles(0) # write evel_0.txt (optional)
 
-# Defective Crystal
+# DefectiveCrystal
 defectiveCrystal=pyMoDELib.DefectiveCrystal(ddBase)
 defectiveCrystal.initializeConfiguration(microstructureGenerator.configIO)
 
@@ -63,18 +80,18 @@ points=np.array([[0.0,0.0,0.0],[1.0,0.0,0.0],[2.0,0.0,0.0]])
 disp=defectiveCrystal.displacement(points)
 print(disp)
 
+# DislocationNetwork
+DN=defectiveCrystal.dislocationNetwork()
+print(len(DN.loops()))
+print(len(DN.loopNodes()))
 
-#DN=defectiveCrystal.dislocationNetwork()
-#print(len(DN.loops()))
-#print(len(DN.loopNodes()))
-#
-#meshSize=100
-#for loopID in DN.loops():
-#    loop=DN.loops().getRef(loopID)
-#    meshedLoopVector=loop.meshed(meshSize)
-#    for meshedLoop in meshedLoopVector:
-#        disp=meshedLoop.plasticDisplacement(points)
-#        print(disp)
+meshSize=100
+for loopID in DN.loops():
+    loop=DN.loops().getRef(loopID)
+    meshedLoopVector=loop.meshed(meshSize)
+    for meshedLoop in meshedLoopVector:
+        disp=meshedLoop.plasticDisplacement(points)
+        print(disp)
 #
 #rp=ddBase.poly.grain(1)
 

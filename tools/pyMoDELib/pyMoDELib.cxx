@@ -222,6 +222,8 @@ PYBIND11_MODULE(pyMoDELib,m)
         .def("addPeriodicDipoleIndividual", &MicrostructureGenerator::addPeriodicDipoleIndividual)
         .def("addPrismaticLoopDensity", &MicrostructureGenerator::addPrismaticLoopDensity)
         .def("addPrismaticLoopIndividual", &MicrostructureGenerator::addPrismaticLoopIndividual)
+        .def("addFrankLoopsDensity", &MicrostructureGenerator::addFrankLoopsDensity)
+        .def("addFrankLoopsIndividual", &MicrostructureGenerator::addFrankLoopsIndividual)
         .def("writeConfigFiles", &MicrostructureGenerator::writeConfigFiles)
     ;
     
@@ -308,6 +310,37 @@ PYBIND11_MODULE(pyMoDELib,m)
                     }
                 )
         .def_readwrite("glideSteps", &PrismaticLoopIndividualSpecification::glideSteps)
+    ;
+    
+    py::class_<FrankLoopsDensitySpecification
+    /*      */>(m,"FrankLoopsDensitySpecification")
+        .def(py::init<>())
+        .def(py::init<const std::string&>())
+        .def_readwrite("targetDensity", &FrankLoopsDensitySpecification::targetDensity)
+        .def_readwrite("numberOfSides", &FrankLoopsDensitySpecification::numberOfSides)
+        .def_readwrite("radiusDistributionMean", &FrankLoopsDensitySpecification::radiusDistributionMean)
+        .def_readwrite("radiusDistributionStd", &FrankLoopsDensitySpecification::radiusDistributionStd)
+        .def_readwrite("areVacancyLoops", &FrankLoopsDensitySpecification::areVacancyLoops)
+    ;
+
+    py::class_<FrankLoopsIndividualSpecification
+    /*      */>(m,"FrankLoopsIndividualSpecification")
+        .def(py::init<>())
+        .def(py::init<const std::string&>())
+        .def_readwrite("planeIDs", &FrankLoopsIndividualSpecification::planeIDs)
+        .def_readwrite("loopRadii", &FrankLoopsIndividualSpecification::loopRadii)
+        .def_property( "loopCenters",
+                    [](const FrankLoopsIndividualSpecification& self )
+                    {// Getter
+                        return self.loopCenters;
+                    },
+                    []( FrankLoopsIndividualSpecification& self, const Eigen::Ref<const Eigen::Matrix<double,Eigen::Dynamic,3>>& val )
+                    {// Setter
+                        self.loopCenters = val;
+                    }
+                )
+        .def_readwrite("loopSides", &FrankLoopsIndividualSpecification::loopSides)
+        .def_readwrite("isVacancyLoop", &FrankLoopsIndividualSpecification::isVacancyLoop)
     ;
     
 }

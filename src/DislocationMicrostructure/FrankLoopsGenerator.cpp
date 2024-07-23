@@ -46,15 +46,89 @@
 namespace model
 {
 
-FrankLoopsGenerator::FrankLoopsGenerator(const std::string& fileName) :
-    /* init */ MicrostructureGeneratorBase(fileName)
+//FrankLoopsGenerator::FrankLoopsGenerator(const std::string& fileName) :
+//    /* init */ MicrostructureGeneratorBase(fileName)
+//    {
+//        
+//    }
+
+    FrankLoopsGenerator::FrankLoopsGenerator(const FrankLoopsDensitySpecification& spec,MicrostructureGenerator& mg)
     {
+        std::cout<<magentaBoldColor<<"Generating Frank loop density"<<defaultColor<<std::endl;
+//        const double targetDensity(this->parser.readScalar<double>("targetDensity",true));
+        if(spec.targetDensity>0.0)
+        {
+//            const int numberOfSides(this->parser.readScalar<int>("numberOfSides",true));
+//            const double radiusDistributionMean(this->parser.readScalar<double>("radiusDistributionMean",true));
+//            const double radiusDistributionStd(this->parser.readScalar<double>("radiusDistributionStd",true));
+//            const int areVacancyLoops(this->parser.readScalar<int>("areVacancyLoops",true));
+
+            std::normal_distribution<double> radiusDistribution(spec.radiusDistributionMean/mg.ddBase.poly.b_SI,spec.radiusDistributionStd/mg.ddBase.poly.b_SI);
+            std::mt19937 generator;
+            double density=0.0;
+            while(density<spec.targetDensity)
+            {
+                const std::pair<LatticeVector<3>, int> rp(mg.ddBase.poly.randomLatticePointInMesh());
+                const LatticeVector<3> L0=rp.first;
+                const size_t grainID=rp.second;
+                std::uniform_int_distribution<> ssDist(0,mg.ddBase.poly.grain(grainID).singleCrystal->planeNormals().size()-1);
+                const int pID(ssDist(generator)); // a random SlipSystem
+                const double radius(radiusDistribution(generator));
+                try
+                {
+                    const bool isVL(spec.areVacancyLoops>0);
+                    generateSingle(mg,pID,L0.cartesian(),radius,spec.numberOfSides,isVL);
+                    density+=2.0*std::numbers::pi*radius/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,2);
+                    std::cout<<"Frank loop density="<<density<<std::endl;
+                }
+                catch(const std::exception& e)
+                {
+                    
+                }
+            }
+        }
+    }
+
+FrankLoopsGenerator::FrankLoopsGenerator(const FrankLoopsIndividualSpecification& spec,MicrostructureGenerator& mg)
+    {
+//        const std::vector<int> planeIDs(this->parser.readArray<int>("planeIDs",true));
+        std::cout<<magentaBoldColor<<"Generating individual Frank loops"<<defaultColor<<std::endl;
+        if(spec.planeIDs.size())
+        {
+//            const std::vector<double> loopRadii(this->parser.readArray<double>("loopRadii_SI",true));
+//            const Eigen::Matrix<double,Eigen::Dynamic,3> loopCenters(this->parser.readMatrix<double>("loopCenters",spec.planeIDs.size(),dim,true));
+//            const std::vector<int> numberOfSides(this->parser.readArray<int>("numberOfSides",true));
+//            const std::vector<int> isVacancyLoop(this->parser.readArray<int>("isVacancyLoop",true));
+
+            if(spec.planeIDs.size()!=spec.loopRadii.size())
+            {
+                throw std::runtime_error("spec.planeIDs.size()="+std::to_string(spec.planeIDs.size())+" NOT EQUAL TO spec.spec.spec.loopRadii.size()="+std::to_string(spec.loopRadii.size()));
+            }
+            if(int(spec.planeIDs.size())!=spec.loopCenters.rows())
+            {
+                throw std::runtime_error("spec.planeIDs.size()="+std::to_string(spec.planeIDs.size())+" NOT EQUAL TO spec.loopCenters.rows()="+std::to_string(spec.loopCenters.rows()));
+            }
+            if(spec.planeIDs.size()!=spec.loopSides.size())
+            {
+                throw std::runtime_error("spec.planeIDs.size()="+std::to_string(spec.planeIDs.size())+" NOT EQUAL TO spec.loopSides.size()="+std::to_string(spec.loopSides.size()));
+            }
+            if(spec.planeIDs.size()!=spec.isVacancyLoop.size())
+            {
+                throw std::runtime_error("spec.planeIDs.size()="+std::to_string(spec.planeIDs.size())+" NOT EQUAL TO spec.isVacancyLoop.size()="+std::to_string(spec.isVacancyLoop.size()));
+            }
+            for(size_t k=0;k<spec.planeIDs.size();++k)
+            {
+                
+                const bool isVL(spec.isVacancyLoop[k]>0);
+                generateSingle(mg,spec.planeIDs[k],spec.loopCenters.row(k),spec.loopRadii[k]/mg.ddBase.poly.b_SI,spec.loopSides[k],isVL);
+            }
+        }
         
     }
 
     void FrankLoopsGenerator::generateSingle(MicrostructureGenerator& mg,const int& pID,const VectorDimD& center,const double& radius,const size_t& sides,const bool& isVacancyLoop)
     {
-        std::pair<bool,const Simplex<dim,dim>*> found(mg.ddBase.mesh.search(center));
+        std::pair<bool,const Simplex<3,3>*> found(mg.ddBase.mesh.search(center));
         if(!found.first)
         {
             std::cout<<"Point "<<center.transpose()<<" is outside mesh. EXITING."<<std::endl;
@@ -87,7 +161,7 @@ FrankLoopsGenerator::FrankLoopsGenerator(const std::string& fileName) :
             const VectorDimD b(isVacancyLoop? (rp.cartesian().normalized()*rp.planeSpacing()).eval() : (-1.0*rp.cartesian().normalized()*rp.planeSpacing()).eval());
             mg.insertJunctionLoop(loopNodePos,glidePlane,
                                b,glidePlane->referencePlane->unitNormal,
-                                  P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                                  P0,grainID,DislocationLoopIO<3>::SESSILELOOP);
         }
         else
         {
@@ -102,80 +176,80 @@ FrankLoopsGenerator::FrankLoopsGenerator(const std::string& fileName) :
         }
     }
 
-    void FrankLoopsGenerator::generateDensity(MicrostructureGenerator& mg)
-    {
-        std::cout<<magentaBoldColor<<"Generating Frank loop density"<<defaultColor<<std::endl;
-        const double targetDensity(this->parser.readScalar<double>("targetDensity",true));
-        if(targetDensity>0.0)
-        {
-            const int numberOfSides(this->parser.readScalar<int>("numberOfSides",true));
-            const double radiusDistributionMean(this->parser.readScalar<double>("radiusDistributionMean",true));
-            const double radiusDistributionStd(this->parser.readScalar<double>("radiusDistributionStd",true));
-            const int areVacancyLoops(this->parser.readScalar<int>("areVacancyLoops",true));
+//    void FrankLoopsGenerator::generateDensity(MicrostructureGenerator& mg)
+//    {
+//        std::cout<<magentaBoldColor<<"Generating Frank loop density"<<defaultColor<<std::endl;
+//        const double targetDensity(this->parser.readScalar<double>("targetDensity",true));
+//        if(targetDensity>0.0)
+//        {
+//            const int numberOfSides(this->parser.readScalar<int>("numberOfSides",true));
+//            const double radiusDistributionMean(this->parser.readScalar<double>("radiusDistributionMean",true));
+//            const double radiusDistributionStd(this->parser.readScalar<double>("radiusDistributionStd",true));
+//            const int areVacancyLoops(this->parser.readScalar<int>("areVacancyLoops",true));
+//
+//            std::normal_distribution<double> radiusDistribution(radiusDistributionMean/mg.ddBase.poly.b_SI,radiusDistributionStd/mg.ddBase.poly.b_SI);
+//            std::mt19937 generator;
+//            double density=0.0;
+//            while(density<targetDensity)
+//            {
+//                const std::pair<LatticeVector<3>, int> rp(mg.ddBase.poly.randomLatticePointInMesh());
+//                const LatticeVector<3> L0=rp.first;
+//                const size_t grainID=rp.second;
+//                std::uniform_int_distribution<> ssDist(0,mg.ddBase.poly.grain(grainID).singleCrystal->planeNormals().size()-1);
+//                const int pID(ssDist(generator)); // a random SlipSystem
+//                const double radius(radiusDistribution(generator));
+//                try
+//                {
+//                    const bool isVL(areVacancyLoops>0);
+//                    generateSingle(mg,pID,L0.cartesian(),radius,numberOfSides,isVL);
+//                    density+=2.0*std::numbers::pi*radius/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,2);
+//                    std::cout<<"Frank loop density="<<density<<std::endl;
+//                }
+//                catch(const std::exception& e)
+//                {
+//                    
+//                }
+//            }
+//        }
+//    }
 
-            std::normal_distribution<double> radiusDistribution(radiusDistributionMean/mg.ddBase.poly.b_SI,radiusDistributionStd/mg.ddBase.poly.b_SI);
-            std::mt19937 generator;
-            double density=0.0;
-            while(density<targetDensity)
-            {
-                const std::pair<LatticeVector<dim>, int> rp(mg.ddBase.poly.randomLatticePointInMesh());
-                const LatticeVector<dim> L0=rp.first;
-                const size_t grainID=rp.second;
-                std::uniform_int_distribution<> ssDist(0,mg.ddBase.poly.grain(grainID).singleCrystal->planeNormals().size()-1);
-                const int pID(ssDist(generator)); // a random SlipSystem
-                const double radius(radiusDistribution(generator));
-                try
-                {
-                    const bool isVL(areVacancyLoops>0);
-                    generateSingle(mg,pID,L0.cartesian(),radius,numberOfSides,isVL);
-                    density+=2.0*std::numbers::pi*radius/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,2);
-                    std::cout<<"Frank loop density="<<density<<std::endl;
-                }
-                catch(const std::exception& e)
-                {
-                    
-                }
-            }
-        }
-    }
-
-    void FrankLoopsGenerator::generateIndividual(MicrostructureGenerator& mg)
-    {
-        const std::vector<int> planeIDs(this->parser.readArray<int>("planeIDs",true));
-        
-        if(planeIDs.size())
-        {
-            std::cout<<magentaBoldColor<<"Generating individual Frank loops"<<defaultColor<<std::endl;
-            const std::vector<double> loopRadii(this->parser.readArray<double>("loopRadii_SI",true));
-            const Eigen::Matrix<double,Eigen::Dynamic,dim> loopCenters(this->parser.readMatrix<double>("loopCenters",planeIDs.size(),dim,true));
-            const std::vector<int> numberOfSides(this->parser.readArray<int>("numberOfSides",true));
-            const std::vector<int> isVacancyLoop(this->parser.readArray<int>("isVacancyLoop",true));
-
-            if(planeIDs.size()!=loopRadii.size())
-            {
-                throw std::runtime_error("planeIDs.size()="+std::to_string(planeIDs.size())+" NOT EQUAL TO loopRadii.size()="+std::to_string(loopRadii.size()));
-            }
-            if(int(planeIDs.size())!=loopCenters.rows())
-            {
-                throw std::runtime_error("planeIDs.size()="+std::to_string(planeIDs.size())+" NOT EQUAL TO loopCenters.rows()="+std::to_string(loopCenters.rows()));
-            }
-            if(planeIDs.size()!=numberOfSides.size())
-            {
-                throw std::runtime_error("planeIDs.size()="+std::to_string(planeIDs.size())+" NOT EQUAL TO numberOfSides.size()="+std::to_string(numberOfSides.size()));
-            }
-            if(planeIDs.size()!=isVacancyLoop.size())
-            {
-                throw std::runtime_error("planeIDs.size()="+std::to_string(planeIDs.size())+" NOT EQUAL TO isVacancyLoop.size()="+std::to_string(isVacancyLoop.size()));
-            }
-            for(size_t k=0;k<planeIDs.size();++k)
-            {
-                
-                const bool isVL(isVacancyLoop[k]>0);
-                generateSingle(mg,planeIDs[k],loopCenters.row(k),loopRadii[k]/mg.ddBase.poly.b_SI,numberOfSides[k],isVL);
-            }
-        }
-        
-    }
+//    void FrankLoopsGenerator::generateIndividual(MicrostructureGenerator& mg)
+//    {
+//        const std::vector<int> planeIDs(this->parser.readArray<int>("planeIDs",true));
+//        
+//        if(spec.planeIDs.size())
+//        {
+//            std::cout<<magentaBoldColor<<"Generating individual Frank loops"<<defaultColor<<std::endl;
+//            const std::vector<double> loopRadii(this->parser.readArray<double>("loopRadii_SI",true));
+//            const Eigen::Matrix<double,Eigen::Dynamic,3> loopCenters(this->parser.readMatrix<double>("loopCenters",spec.planeIDs.size(),dim,true));
+//            const std::vector<int> numberOfSides(this->parser.readArray<int>("numberOfSides",true));
+//            const std::vector<int> isVacancyLoop(this->parser.readArray<int>("isVacancyLoop",true));
+//
+//            if(spec.planeIDs.size()!=spec.spec.spec.loopRadii.size())
+//            {
+//                throw std::runtime_error("spec.planeIDs.size()="+std::to_string(spec.planeIDs.size())+" NOT EQUAL TO spec.spec.spec.loopRadii.size()="+std::to_string(spec.spec.spec.loopRadii.size()));
+//            }
+//            if(int(spec.planeIDs.size())!=spec.loopCenters.rows())
+//            {
+//                throw std::runtime_error("spec.planeIDs.size()="+std::to_string(spec.planeIDs.size())+" NOT EQUAL TO spec.loopCenters.rows()="+std::to_string(spec.loopCenters.rows()));
+//            }
+//            if(spec.planeIDs.size()!=spec.loopSides.size())
+//            {
+//                throw std::runtime_error("spec.planeIDs.size()="+std::to_string(spec.planeIDs.size())+" NOT EQUAL TO spec.loopSides.size()="+std::to_string(spec.loopSides.size()));
+//            }
+//            if(spec.planeIDs.size()!=spec.isVacancyLoop.size())
+//            {
+//                throw std::runtime_error("spec.planeIDs.size()="+std::to_string(spec.planeIDs.size())+" NOT EQUAL TO spec.isVacancyLoop.size()="+std::to_string(spec.isVacancyLoop.size()));
+//            }
+//            for(size_t k=0;k<spec.planeIDs.size();++k)
+//            {
+//                
+//                const bool isVL(isVacancyLoop[k]>0);
+//                generateSingle(mg,planeIDs[k],spec.loopCenters.row(k),loopRadii[k]/mg.ddBase.poly.b_SI,numberOfSides[k],isVL);
+//            }
+//        }
+//        
+//    }
 
 }
 #endif

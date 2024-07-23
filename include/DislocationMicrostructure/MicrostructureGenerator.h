@@ -46,23 +46,19 @@
 #include <PeriodicDipoleIndividualSpecification.h>
 #include <PrismaticLoopDensitySpecification.h>
 #include <PrismaticLoopIndividualSpecification.h>
+#include <FrankLoopsDensitySpecification.h>
+#include <FrankLoopsIndividualSpecification.h>
 
 namespace model
 {
-    class MicrostructureGenerator //: public std::map<std::string,MicrostructureGeneratorBase* const>
+    class MicrostructureGenerator
     {
         constexpr static int dim=MicrostructureGeneratorBase::dim;
         typedef typename  MicrostructureGeneratorBase::VectorDimD VectorDimD;
-//        typedef typename  MicrostructureGeneratorBase::VectorDimI VectorDimI;
         typedef typename  MicrostructureGeneratorBase::DislocationLoopType DislocationLoopType;
-
-
-//        DDtraitsIO traitsIO;
-
 
     public:
         
-//        const TextFileParser parser;
         DislocationDynamicsBase<3>& ddBase;
         DDconfigIO<3> configIO;
         DDauxIO<3> auxIO;
@@ -81,9 +77,11 @@ namespace model
         void addPeriodicDipoleIndividual(const PeriodicDipoleIndividualSpecification& spec);
         void addPrismaticLoopDensity(const PrismaticLoopDensitySpecification& spec);
         void addPrismaticLoopIndividual(const PrismaticLoopIndividualSpecification& spec);
+        void addFrankLoopsDensity(const FrankLoopsDensitySpecification& spec);
+        void addFrankLoopsIndividual(const FrankLoopsIndividualSpecification& spec);
 
-//        void generateMicrostructure();
-
+        
+        
         const DDtraitsIO& traits() const;
         const DDconfigIO<3>& config() const;
         const DDauxIO<3>& aux() const;
