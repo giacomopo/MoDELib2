@@ -14,10 +14,12 @@ target_sources(${PROJECT_NAME} PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/FrankLoopsDensitySpecification.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/FrankLoopsIndividualSpecification.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/FrankLoopsGenerator.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/StackingFaultTetrahedraDensitySpecification.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/StackingFaultTetrahedraIndividualSpecification.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/StackingFaultTetrahedraGenerator.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/PlanarLoopGenerator.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/SphericalInclusionsGenerator.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/PolyhedronInclusionsGenerator.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/StackingFaultTetrahedraGenerator.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/VTKGenerator.cpp
 			)
 

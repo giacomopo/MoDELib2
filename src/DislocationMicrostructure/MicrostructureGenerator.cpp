@@ -89,6 +89,16 @@ namespace model
         FrankLoopsGenerator gen(spec,*this);
     }
 
+    void MicrostructureGenerator::addStackingFaultTetrahedraDensity(const StackingFaultTetrahedraDensitySpecification& spec)
+    {
+        StackingFaultTetrahedraGenerator gen(spec,*this);
+    }
+
+    void MicrostructureGenerator::addStackingFaultTetrahedraIndividual(const StackingFaultTetrahedraIndividualSpecification& spec)
+    {
+        StackingFaultTetrahedraGenerator gen(spec,*this);
+    }
+
     void MicrostructureGenerator::readMicrostructureFile()
     {
         configIO.clear();
@@ -172,6 +182,25 @@ namespace model
                     throw std::runtime_error("Unkown style "+style+" for "+type);
                 }
             }
+            else if(type=="StackingFaultTetrahedra" || type=="StackingFaultTetrahedron")
+            {
+                if(style=="Density" || style=="density")
+                {
+                    StackingFaultTetrahedraDensitySpecification spec(microstructureFileName);
+                    addStackingFaultTetrahedraDensity(spec);
+                }
+                else if(style=="Individual" || style=="individual")
+                {
+                    StackingFaultTetrahedraIndividualSpecification spec(microstructureFileName);
+                    addStackingFaultTetrahedraIndividual(spec);
+                }
+                else
+                {
+                    throw std::runtime_error("Unkown style "+style+" for "+type);
+                }
+//                success=this->emplace(tag,new StackingFaultTetrahedraGenerator(microstructureFileName)).second;
+            }
+
             //        else if(microstructureType=="PlanarLoop")
             //        {
             //            success=this->emplace(tag,new PlanarLoopGenerator(microstructureFileName)).second;
@@ -183,10 +212,6 @@ namespace model
             //        else if(microstructureType=="PolyhedronInclusions")
             //        {
             //            success=this->emplace(tag,new PolyhedronInclusionsGenerator(microstructureFileName)).second;
-            //        }
-            //        else if(microstructureType=="StackingFaultTetrahedra")
-            //        {
-            //            success=this->emplace(tag,new StackingFaultTetrahedraGenerator(microstructureFileName)).second;
             //        }
             //        else if(microstructureType=="VTK")
             //        {
@@ -345,13 +370,11 @@ namespace model
                 }
             }
         }
-        
         return inclusionID;
     }
 
     void MicrostructureGenerator::writeConfigFiles(const size_t& fileID)
     {
-        
         if(outputBinary)
         {
             std::cout<<greenBoldColor<<"Writing configuration to "<<configIO.getBinFilename(fileID)<<defaultColor<<std::endl;
@@ -364,7 +387,6 @@ namespace model
             configIO.writeTxt(fileID);
             auxIO.writeTxt(fileID);
         }
-        
     }
 
     bool MicrostructureGenerator::allPointsInGrain(const std::vector<VectorDimD>& points,const int& grainID)

@@ -224,9 +224,11 @@ PYBIND11_MODULE(pyMoDELib,m)
         .def("addPrismaticLoopIndividual", &MicrostructureGenerator::addPrismaticLoopIndividual)
         .def("addFrankLoopsDensity", &MicrostructureGenerator::addFrankLoopsDensity)
         .def("addFrankLoopsIndividual", &MicrostructureGenerator::addFrankLoopsIndividual)
+        .def("addStackingFaultTetrahedraDensity", &MicrostructureGenerator::addStackingFaultTetrahedraDensity)
+        .def("addStackingFaultTetrahedraIndividual", &MicrostructureGenerator::addStackingFaultTetrahedraIndividual)
         .def("writeConfigFiles", &MicrostructureGenerator::writeConfigFiles)
     ;
-    
+        
     py::class_<ShearLoopDensitySpecification
     /*      */>(m,"ShearLoopDensitySpecification")
         .def(py::init<>())
@@ -341,6 +343,34 @@ PYBIND11_MODULE(pyMoDELib,m)
                 )
         .def_readwrite("loopSides", &FrankLoopsIndividualSpecification::loopSides)
         .def_readwrite("isVacancyLoop", &FrankLoopsIndividualSpecification::isVacancyLoop)
+    ;
+    
+    py::class_<StackingFaultTetrahedraDensitySpecification
+    /*      */>(m,"StackingFaultTetrahedraDensitySpecification")
+        .def(py::init<>())
+        .def(py::init<const std::string&>())
+        .def_readwrite("targetDensity", &StackingFaultTetrahedraDensitySpecification::targetDensity)
+        .def_readwrite("sizeDistributionMean", &StackingFaultTetrahedraDensitySpecification::sizeDistributionMean)
+        .def_readwrite("sizeDistributionStd", &StackingFaultTetrahedraDensitySpecification::sizeDistributionStd)
+    ;
+
+    py::class_<StackingFaultTetrahedraIndividualSpecification
+    /*      */>(m,"StackingFaultTetrahedraIndividualSpecification")
+        .def(py::init<>())
+        .def(py::init<const std::string&>())
+        .def_readwrite("planeIDs", &StackingFaultTetrahedraIndividualSpecification::planeIDs)
+        .def_readwrite("areInverted", &StackingFaultTetrahedraIndividualSpecification::areInverted)
+        .def_readwrite("sizes", &StackingFaultTetrahedraIndividualSpecification::sizes)
+        .def_property( "basePoints",
+                    [](const StackingFaultTetrahedraIndividualSpecification& self )
+                    {// Getter
+                        return self.basePoints;
+                    },
+                    []( StackingFaultTetrahedraIndividualSpecification& self, const Eigen::Ref<const Eigen::Matrix<double,Eigen::Dynamic,3>>& val )
+                    {// Setter
+                        self.basePoints = val;
+                    }
+                )
     ;
     
 }

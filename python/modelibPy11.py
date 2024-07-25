@@ -65,8 +65,20 @@ spec7.loopRadii=[27.0e-8,27.0e-8]
 spec7.loopCenters=np.array([[200.0,0.0,0.0],[0.0,0.0,0.0]])
 spec7.loopSides=[10,10]
 spec7.isVacancyLoop=[1,0]
-microstructureGenerator.addFrankLoopsIndividual(spec7)
+#microstructureGenerator.addFrankLoopsIndividual(spec7)
 
+spec8=pyMoDELib.StackingFaultTetrahedraDensitySpecification()
+spec8.targetDensity=1.0e21
+spec8.sizeDistributionMean=2.5e-08
+spec8.sizeDistributionStd=1.0e-9
+#microstructureGenerator.addStackingFaultTetrahedraDensity(spec8)
+
+spec9=pyMoDELib.StackingFaultTetrahedraIndividualSpecification()
+spec9.planeIDs=[0,1]
+spec9.areInverted=[0,0]
+spec9.sizes=[2.5e-08,2.5e-08]
+spec9.basePoints=np.array([[0.0,0.0,0.0],[100.0,0.0,0.0]])
+microstructureGenerator.addStackingFaultTetrahedraIndividual(spec9)
 
 
 microstructureGenerator.writeConfigFiles(0) # write evel_0.txt (optional)

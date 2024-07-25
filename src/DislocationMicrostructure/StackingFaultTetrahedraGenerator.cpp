@@ -46,42 +46,66 @@
 namespace model
 {
 
-    StackingFaultTetrahedraGenerator::StackingFaultTetrahedraGenerator(const std::string& fileName) :
-    /* init */ MicrostructureGeneratorBase(fileName)
+//    StackingFaultTetrahedraGenerator::StackingFaultTetrahedraGenerator(const std::string& fileName) :
+//    /* init */ MicrostructureGeneratorBase(fileName)
+//    {
+//        
+//    }
+
+StackingFaultTetrahedraGenerator::StackingFaultTetrahedraGenerator(const StackingFaultTetrahedraDensitySpecification& spec,MicrostructureGenerator& mg)
+{
+    if(mg.ddBase.poly.crystalStructure=="FCC")
     {
-        
+        generateDensityFCC(spec,mg);
     }
+    else
+    {
+        throw std::runtime_error("StackingFaultTetrahedraGenerator requires FCC crystal structure");
+    }
+}
+
+StackingFaultTetrahedraGenerator::StackingFaultTetrahedraGenerator(const StackingFaultTetrahedraIndividualSpecification& spec,MicrostructureGenerator& mg)
+{
+    if(mg.ddBase.poly.crystalStructure=="FCC")
+    {
+        generateIndividualFCC(spec,mg);
+    }
+    else
+    {
+        throw std::runtime_error("StackingFaultTetrahedraGenerator requires FCC crystal structure");
+    }
+}
 
 
-    void StackingFaultTetrahedraGenerator::generateDensity(MicrostructureGenerator& mg)
-    {
-        if(mg.ddBase.poly.crystalStructure=="FCC")
-        {
-            generateDensityFCC(mg);
-        }
-        else
-        {
-            throw std::runtime_error("StackingFaultTetrahedraGenerator requires FCC crystal structure");
-        }
-    }
+//    void StackingFaultTetrahedraGenerator::generateDensity(MicrostructureGenerator& mg)
+//    {
+//        if(mg.ddBase.poly.crystalStructure=="FCC")
+//        {
+//            generateDensityFCC(mg);
+//        }
+//        else
+//        {
+//            throw std::runtime_error("StackingFaultTetrahedraGenerator requires FCC crystal structure");
+//        }
+//    }
 
-    void StackingFaultTetrahedraGenerator::generateIndividual(MicrostructureGenerator& mg)
-    {
-        if(mg.ddBase.poly.crystalStructure=="FCC")
-        {
-            generateIndividualFCC(mg);
-        }
-        else
-        {
-            throw std::runtime_error("StackingFaultTetrahedraGenerator requires FCC crystal structure");
-        }
-    }
+//    void StackingFaultTetrahedraGenerator::generateIndividual(MicrostructureGenerator& mg)
+//    {
+//        if(mg.ddBase.poly.crystalStructure=="FCC")
+//        {
+//            generateIndividualFCC(mg);
+//        }
+//        else
+//        {
+//            throw std::runtime_error("StackingFaultTetrahedraGenerator requires FCC crystal structure");
+//        }
+//    }
 
 bool StackingFaultTetrahedraGenerator::generateSingleSFT(MicrostructureGenerator& mg,const int& planeID,const VectorDimD& basePoint,const bool& inverted,const int& sftSize)
 {
     if(sftSize>1.0)
     {
-        std::pair<bool,const Simplex<dim,dim>*> found=mg.ddBase.mesh.search(basePoint);
+        std::pair<bool,const Simplex<3,3>*> found=mg.ddBase.mesh.search(basePoint);
         if(found.first)
         {
             const int grainID=found.second->region->regionID;
@@ -139,7 +163,7 @@ bool StackingFaultTetrahedraGenerator::generateSingleSFT(MicrostructureGenerator
                         std::shared_ptr<PeriodicGlidePlane<3>> glidePlane012(mg.ddBase.periodicGlidePlaneFactory.get(basePlaneKey012));
                         mg.insertJunctionLoop(facePos012, glidePlane012,
                                               b012,n012.cartesian().normalized(),
-                                              nodePos[0],grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                                              nodePos[0],grainID,DislocationLoopIO<3>::SESSILELOOP);
                     }
 
                     if(true)
@@ -159,7 +183,7 @@ bool StackingFaultTetrahedraGenerator::generateSingleSFT(MicrostructureGenerator
                         std::shared_ptr<PeriodicGlidePlane<3>> glidePlane230(mg.ddBase.periodicGlidePlaneFactory.get(basePlaneKey230));
                         mg.insertJunctionLoop(facePos230, glidePlane230,
                                               b230,n230.cartesian().normalized(),
-                                              nodePos[2],grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                              nodePos[2],grainID,DislocationLoopIO<3>::GLISSILELOOP);
                     }
                     
                     if(true)
@@ -179,7 +203,7 @@ bool StackingFaultTetrahedraGenerator::generateSingleSFT(MicrostructureGenerator
                         std::shared_ptr<PeriodicGlidePlane<3>> glidePlane031(mg.ddBase.periodicGlidePlaneFactory.get(basePlaneKey031));
                         mg.insertJunctionLoop(facePos031, glidePlane031,
                                               b031,n031.cartesian().normalized(),
-                                              nodePos[0],grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                              nodePos[0],grainID,DislocationLoopIO<3>::GLISSILELOOP);
                     }
                     
                     if(true)
@@ -199,7 +223,7 @@ bool StackingFaultTetrahedraGenerator::generateSingleSFT(MicrostructureGenerator
                         std::shared_ptr<PeriodicGlidePlane<3>> glidePlane132(mg.ddBase.periodicGlidePlaneFactory.get(basePlaneKey132));
                         mg.insertJunctionLoop(facePos132, glidePlane132,
                                               b132,n132.cartesian().normalized(),
-                                              nodePos[1],grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                              nodePos[1],grainID,DislocationLoopIO<3>::GLISSILELOOP);
                     }
                     return true;
                 }
@@ -230,65 +254,67 @@ bool StackingFaultTetrahedraGenerator::generateSingleSFT(MicrostructureGenerator
 }
 
 
-void StackingFaultTetrahedraGenerator::generateIndividualFCC(MicrostructureGenerator& mg)
+void StackingFaultTetrahedraGenerator::generateIndividualFCC(const StackingFaultTetrahedraIndividualSpecification& spec,MicrostructureGenerator& mg)
 {
         std::cout<<magentaBoldColor<<"Generating individual SFTs"<<defaultColor<<std::endl;
-        const std::vector<int> sftPlaneIDs(this->parser.readArray<int>("sftPlaneIDs",true));
-        const std::vector<int> sftIsInverted(this->parser.readArray<int>("sftIsInverted",true));
-        const std::vector<double> sftSizes(this->parser.readArray<double>("sftSizes",true));
-        const Eigen::Matrix<double,Eigen::Dynamic,dim> sftBasePoints(this->parser.readMatrix<double>("sftBasePoints",sftPlaneIDs.size(),dim,true));
-
-        if(int(sftPlaneIDs.size())!=sftBasePoints.rows())
-        {
-            std::cout<<"sftPlaneIDs.size()="<<sftPlaneIDs.size()<<std::endl;
-            std::cout<<"sftBasePoints.rows()="<<sftBasePoints.rows()<<std::endl;
-            throw std::runtime_error("You must provide one point for each SFT. Each point is a row of the matrix sftBasePoints.");
-        }
-        
-        if(sftPlaneIDs.size()!=sftSizes.size())
-        {
-            std::cout<<"sftPlaneIDs.size()="<<sftPlaneIDs.size()<<std::endl;
-            std::cout<<"sftSizes.size()="<<sftSizes.size()<<std::endl;
-            throw std::runtime_error("You must provide one size for each SFT. Each size is an element of the vector sftSizes.");
-        }
-        
-        if(sftPlaneIDs.size()!=sftIsInverted.size())
-        {
-            std::cout<<"sftPlaneIDs.size()="<<sftPlaneIDs.size()<<std::endl;
-            std::cout<<"sftIsInverted()="<<sftSizes.size()<<std::endl;
-            throw std::runtime_error("You must provide one boolean value of sftIsInverted for each SFT. Each value is an element of the vector sftIsInverted.");
-        }
+//        const std::vector<int> sftPlaneIDs(this->parser.readArray<int>("sftPlaneIDs",true));
+//        const std::vector<int> sftIsInverted(this->parser.readArray<int>("sftIsInverted",true));
+//        const std::vector<double> sftSizes(this->parser.readArray<double>("sftSizes",true));
+//        const Eigen::Matrix<double,Eigen::Dynamic,3> sftBasePoints(this->parser.readMatrix<double>("sftBasePoints",sftPlaneIDs.size(),dim,true));
+//
+//        if(int(sftPlaneIDs.size())!=sftBasePoints.rows())
+//        {
+//            std::cout<<"sftPlaneIDs.size()="<<sftPlaneIDs.size()<<std::endl;
+//            std::cout<<"sftBasePoints.rows()="<<sftBasePoints.rows()<<std::endl;
+//            throw std::runtime_error("You must provide one point for each SFT. Each point is a row of the matrix sftBasePoints.");
+//        }
+//        
+//        if(sftPlaneIDs.size()!=sftSizes.size())
+//        {
+//            std::cout<<"sftPlaneIDs.size()="<<sftPlaneIDs.size()<<std::endl;
+//            std::cout<<"sftSizes.size()="<<sftSizes.size()<<std::endl;
+//            throw std::runtime_error("You must provide one size for each SFT. Each size is an element of the vector sftSizes.");
+//        }
+//        
+//        if(sftPlaneIDs.size()!=sftIsInverted.size())
+//        {
+//            std::cout<<"sftPlaneIDs.size()="<<sftPlaneIDs.size()<<std::endl;
+//            std::cout<<"sftIsInverted()="<<sftSizes.size()<<std::endl;
+//            throw std::runtime_error("You must provide one boolean value of sftIsInverted for each SFT. Each value is an element of the vector sftIsInverted.");
+//        }
         
         size_t ndefects=0;
-        for(size_t k=0;k<sftPlaneIDs.size();++k)
+        for(size_t k=0;k<spec.planeIDs.size();++k)
         {
-            const int& planeID(sftPlaneIDs[k]);
-            const VectorDimD basePoint(sftBasePoints.row(k));
-            const bool inverted(sftIsInverted[k]);
-            const int sftSize(std::round(sftSizes[k]/mg.ddBase.poly.b_SI));
+            const int& planeID(spec.planeIDs[k]);
+            const VectorDimD basePoint(spec.basePoints.row(k));
+            const bool inverted(spec.areInverted[k]);
+            const int sftSize(std::round(spec.sizes[k]/mg.ddBase.poly.b_SI));
             ndefects+=generateSingleSFT(mg,planeID,basePoint,inverted,sftSize);
         }
         std::cout<<"Generated "<<ndefects<<" STFs"<<std::endl;
     
 }
 
-void StackingFaultTetrahedraGenerator::generateDensityFCC(MicrostructureGenerator& mg)
+void StackingFaultTetrahedraGenerator::generateDensityFCC(const StackingFaultTetrahedraDensitySpecification& spec,MicrostructureGenerator& mg)
 {
         std::cout<<magentaBoldColor<<"Generating SFT density"<<defaultColor<<std::endl;
-        const double targetSFTdensity(this->parser.readScalar<double>("targetSFTdensity",true));
-        const double sftSizeMean(this->parser.readScalar<double>("sftSizeMean",true));
-        const double sftSizeStd(this->parser.readScalar<double>("sftSizeStd",true));
+//        const double targetSFTdensity(this->parser.readScalar<double>("targetSFTdensity",true));
+//        const double sftSizeMean(this->parser.readScalar<double>("sftSizeMean",true));
+//        const double sftSizeStd(this->parser.readScalar<double>("sftSizeStd",true));
         
-        std::mt19937 generator;
-        std::uniform_int_distribution<> planeNormalDistribution(0,3);
-        std::uniform_int_distribution<> invertedThompsonTetrahedronDistribution(0,1);
-        std::normal_distribution<double> sftSizeDistribution(sftSizeMean,sftSizeStd);
         
-        if(targetSFTdensity>0.0)
+        if(spec.targetDensity>0.0)
         {
+            std::mt19937 generator;
+            std::uniform_int_distribution<> planeNormalDistribution(0,3);
+            std::uniform_int_distribution<> invertedThompsonTetrahedronDistribution(0,1);
+            std::normal_distribution<double> sftSizeDistribution(spec.sizeDistributionMean,spec.sizeDistributionStd);
+
+            
             size_t ndefects=0;
             double defectsDensity=ndefects/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,3);
-            while(defectsDensity<targetSFTdensity)
+            while(defectsDensity<spec.targetDensity)
             {
                 const int sftSize(std::round(sftSizeDistribution(generator)/mg.ddBase.poly.b_SI));
                 ndefects+=generateSingleSFT(mg,planeNormalDistribution(generator),mg.ddBase.poly.randomPoint(),invertedThompsonTetrahedronDistribution(generator),sftSize);

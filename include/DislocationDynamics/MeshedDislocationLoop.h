@@ -19,6 +19,7 @@
 #define VerboseMeshedDislocationLoop(N,x)
 #endif
 
+#include <deque>
 #include <vector>
 #include <Plane.h>
 

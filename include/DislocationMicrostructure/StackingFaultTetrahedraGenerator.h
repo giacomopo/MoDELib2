@@ -40,23 +40,31 @@
 #include <GlidePlaneModule.h>
 #include <MeshModule.h>
 #include <Plane.h>
-#include <MicrostructureGeneratorBase.h>
-
+//#include <MicrostructureGeneratorBase.h>
+#include <StackingFaultTetrahedraDensitySpecification.h>
+#include <StackingFaultTetrahedraIndividualSpecification.h>
 
 namespace model
 {
 
-    class StackingFaultTetrahedraGenerator : public MicrostructureGeneratorBase
+    class StackingFaultTetrahedraGenerator //: public MicrostructureGeneratorBase
     {
+        typedef Eigen::Matrix<double,3,1> VectorDimD;
+        
         static bool generateSingleSFT(MicrostructureGenerator& mg,const int& planeID,const VectorDimD& basePoint,const bool& inverted,const int& sftSize);
-        void generateIndividualFCC(MicrostructureGenerator& mg);
-        void generateDensityFCC(MicrostructureGenerator& mg);
+        void generateIndividualFCC(const StackingFaultTetrahedraIndividualSpecification&,MicrostructureGenerator& mg);
+        void generateDensityFCC(const StackingFaultTetrahedraDensitySpecification&,MicrostructureGenerator& mg);
 
     public:
         
-        StackingFaultTetrahedraGenerator(const std::string& fileName);
-        void generateIndividual(MicrostructureGenerator& mg) override;
-        void generateDensity(MicrostructureGenerator& mg) override;
+//        StackingFaultTetrahedraGenerator(const std::string& fileName);
+        StackingFaultTetrahedraGenerator(const StackingFaultTetrahedraDensitySpecification&,MicrostructureGenerator& mg);
+        StackingFaultTetrahedraGenerator(const StackingFaultTetrahedraIndividualSpecification&,MicrostructureGenerator& mg);
+
+        
+        
+//        void generateIndividual(MicrostructureGenerator& mg) override;
+//        void generateDensity(MicrostructureGenerator& mg) override;
     };
 
 }

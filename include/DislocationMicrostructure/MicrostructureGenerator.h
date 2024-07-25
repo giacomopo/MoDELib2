@@ -48,6 +48,8 @@
 #include <PrismaticLoopIndividualSpecification.h>
 #include <FrankLoopsDensitySpecification.h>
 #include <FrankLoopsIndividualSpecification.h>
+#include <StackingFaultTetrahedraDensitySpecification.h>
+#include <StackingFaultTetrahedraIndividualSpecification.h>
 
 namespace model
 {
@@ -66,11 +68,14 @@ namespace model
         const double minSize;
         const double maxSize;
         std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>> uniqueNetworkNodeMap;
-        
+        const DDtraitsIO& traits() const;
+        const DDconfigIO<3>& config() const;
+        const DDauxIO<3>& aux() const;
+        DDconfigIO<3>& config();
+        DDauxIO<3>& aux();
+
         MicrostructureGenerator(DislocationDynamicsBase<3>& ddBase_in);
-        
         void readMicrostructureFile();
-        
         void addShearLoopDensity(const ShearLoopDensitySpecification& spec);
         void addShearLoopIndividual(const ShearLoopIndividualSpecification& spec);
         void addPeriodicDipoleDensity(const PeriodicDipoleDensitySpecification& spec);
@@ -79,26 +84,16 @@ namespace model
         void addPrismaticLoopIndividual(const PrismaticLoopIndividualSpecification& spec);
         void addFrankLoopsDensity(const FrankLoopsDensitySpecification& spec);
         void addFrankLoopsIndividual(const FrankLoopsIndividualSpecification& spec);
-
+        void addStackingFaultTetrahedraDensity(const StackingFaultTetrahedraDensitySpecification& spec);
+        void addStackingFaultTetrahedraIndividual(const StackingFaultTetrahedraIndividualSpecification& spec);
         
-        
-        const DDtraitsIO& traits() const;
-        const DDconfigIO<3>& config() const;
-        const DDauxIO<3>& aux() const;
-        DDconfigIO<3>& config();
-        DDauxIO<3>& aux();
-
         size_t insertLoop(const VectorDimD& b,const VectorDimD& unitNormal,const VectorDimD& P0,const size_t& grainID,const DislocationLoopType& loopType);
         size_t insertLoopNode(const size_t& loopID,const VectorDimD& loopNodePos,const size_t& networkNodeID,const VectorDimD& loopNodeShift,const std::pair<short int,short int>& periodicEdgeIDs);
         std::vector<size_t> insertLoopLinks(const size_t& loopID,const std::vector<size_t>& loopNodeIDs);
         size_t insertNetworkNode(const VectorDimD& networkNodePos);
         size_t insertInclusion(const VectorDimD& pos,const double& R, const Eigen::Matrix<double,dim,dim>& eT, const double& vrc,const int&type);
-
         size_t insertInclusion(const std::map<size_t,Eigen::Vector3d>& nodes,const std::map<size_t,std::vector<size_t>>& faceMap, const Eigen::Matrix<double,dim,dim>& eT, const double& vrc,const int&type);
-
-
         void writeConfigFiles(const size_t& fileID);
-        
         void insertJunctionLoop(const std::vector<VectorDimD>& loopNodePos,
                                 const std::shared_ptr<PeriodicGlidePlane<3>>& periodicPlane,
                                 const VectorDimD& b,
@@ -106,13 +101,7 @@ namespace model
                                 const VectorDimD& P0,
                                 const size_t& grainID,
                                 const DislocationLoopIO<dim>::DislocationLoopType& loopType);
-
         bool allPointsInGrain(const std::vector<VectorDimD>& points,const int& grainID);
-
-
-        
     };
-
-
 }
 #endif

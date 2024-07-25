@@ -6,7 +6,7 @@
 #microstructureFile = ../../../MicrostructureLibrary/prismaticLoopDensity.txt;
 
 #microstructureFile = ../../../MicrostructureLibrary/frankLoopsDensity.txt;
-microstructureFile = ../../../MicrostructureLibrary/frankLoopsIndividual.txt;
+#microstructureFile = ../../../MicrostructureLibrary/frankLoopsIndividual.txt;
 
 #microstructureFile = ../../../MicrostructureLibrary/planarLoop.txt;
 #microstructureFile = ../../../MicrostructureLibrary/sphericalInclusionsDensity.txt;
