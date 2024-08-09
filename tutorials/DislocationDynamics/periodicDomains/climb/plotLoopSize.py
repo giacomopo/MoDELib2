@@ -37,6 +37,7 @@ print('materialFile='+materialFile)
 mu_SI=getValueInFile(materialFile,'mu0_SI');     #[Pa]
 rho_SI=getValueInFile(materialFile,'rho_SI');     #[kg/m^3]
 b_SI=getValueInFile(materialFile,'b_SI');     #[m]
+eF=getValueInFile(materialFile,'mobileSpeciesEnergyFormation_eV');     #[m]
 v_dd2SI=np.sqrt(mu_SI/rho_SI);
 t_dd2SI=b_SI/v_dd2SI;
 
@@ -49,9 +50,9 @@ trBp=getFarray(F,Flabels,'tr(betaP)')
 
 fig1 = plt.figure()
 ax1=plt.subplot(1,1,1)
-ax1.plot(t*t_dd2SI, R*b_SI*1e10,color='b')
+ax1.plot(t*t_dd2SI, R*b_SI*1e10,color='b',label='Ef='+str(eF)+'eV')
 ax1.grid()
-#ax1.legend()
+ax1.legend()
 ax1.set_xlabel('time [sec]')
 ax1.set_ylabel('loop radius [$\AA$]',color='b')
 

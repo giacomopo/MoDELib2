@@ -264,7 +264,7 @@ namespace model
             for(const auto& microstructure : parentSegment.network().microstructures)
             {
                 if(microstructure.get()!=static_cast<const MicrostructureBase<dim>* const>(&parentSegment.network()))
-                {// not the ClusterDynamics physics
+                {// not the DislocationDynamics physics
                     cCD += microstructure->mobileConcentration(r,nullptr,nullptr,parentSegment.source->includingSimplex());
                 }
             }

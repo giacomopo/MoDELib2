@@ -29,7 +29,7 @@ namespace model
 template<int dim>
 struct ClusterDynamicsParameters
 {
-    static constexpr int mSize=1;     // e.g. Cv, Ci, C2i, C3i
+    static constexpr int mSize=4;     // e.g. Cv, Ci, C2i, C3i
     static constexpr int iSize=0;  // e.g. Nc, Na1, Na2, Na3, cv, ca1, ca2, ca3
 
     typedef Eigen::Matrix<double,dim,1> VectorDim;

@@ -199,7 +199,7 @@ namespace model
             //                }
             //            }
             //            const auto t0= std::chrono::system_clock::now();
-            std::cout<<" image traction,"<<std::flush;
+            std::cout<<", image traction"<<std::flush;
             //            auto ndA=this->microstructures.ddBase.fe->template boundary<ExternalBoundary,imageTractionIntegrationOrder,GaussLegendre>();
             //            auto eb_list = ndA.template integrationList<FEMfaceEvaluation<ElementType,dim,dim>>(); // TO DO: make this a member data to be able to output
             
@@ -219,11 +219,11 @@ namespace model
                 }
             }
             auto tractionWF=(test(elasticDeformationFEM->u),tractionList);
-            std::cout<<" directSolver,"<<std::flush;
+            std::cout<<", directSolver"<<std::flush;
             elasticDeformationFEM->u=directSolver.solve(-tractionWF.globalVector());
             
             // Compute zDot
-            std::cout<<" zDot "<<std::flush;
+            std::cout<<", zDot "<<std::flush;
             zDot.setZero(elasticDeformationFEM->z.gSize());
             for(const auto& node : elasticDeformationFEM->z.fe().nodes())
             {

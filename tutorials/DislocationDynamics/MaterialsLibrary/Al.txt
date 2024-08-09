@@ -28,7 +28,7 @@ stackingFaultNoiseMode=0; # 0=no noise
 enabledSecondPhases=;
 
 # ClusterDynamics
-doseRate_dpaPerSec=1.0e-7; 		# [dpa/s] irradiation dose rate
+doseRate_dpaPerSec=0.0e-7; 		# [dpa/s] irradiation dose rate
 mobileSpeciesVector=-1;			# single vacancies
 mobileSpeciesSurvivingEfficiency = 0.01; # Surviving efficiency
 mobileSpeciesRelRelaxVol= 0.405; 	# [-] relative vacancy relaxation volume

@@ -28,9 +28,9 @@ namespace model
     public:
         typedef Eigen::Matrix<Scalar,dim,dim> MatrixDim;
         typedef Eigen::Matrix<Scalar,dim,1>   VectorDim;
-        static constexpr int mSize=ClusterDynamicsParameters<dim>::mSize;
-        typedef Eigen::Matrix<double,mSize,2>   ConcentrationMatrixType;
-        typedef Eigen::Matrix<double,mSize,1>   ConcentrationVectorType;
+//        static constexpr int mSize=ClusterDynamicsParameters<dim>::mSize;
+//        typedef Eigen::Matrix<double,mSize,2>   ConcentrationMatrixType;
+//        typedef Eigen::Matrix<double,mSize,1>   ConcentrationVectorType;
 
     private:
         MatrixDim nonSymmStress_kernel(const VectorDim& r) const;
@@ -53,8 +53,8 @@ namespace model
         MatrixDim nonSymmStress(const VectorDim& x) const;
         MatrixDim stress(const VectorDim& x) const;
         VectorDim displacement(const VectorDim& x) const;
-        ConcentrationMatrixType concentrationMatrices(const VectorDim& x, const size_t& grainID, const VectorDim& sourceDir, const VectorDim& sinkDir, const ClusterDynamicsParameters<dim>& icp) const;
-        ConcentrationVectorType clusterConcentration(const VectorDim& x, const size_t& grainID, const VectorDim& sourceDir, const Eigen::Array<double,1,mSize>& sourceVScalar, const VectorDim& sinkDir, const Eigen::Array<double,1,mSize>& sinkVScalar, const ClusterDynamicsParameters<dim>& icp) const;
+//        ConcentrationMatrixType concentrationMatrices(const VectorDim& x, const size_t& grainID, const VectorDim& sourceDir, const VectorDim& sinkDir, const ClusterDynamicsParameters<dim>& icp) const;
+//        ConcentrationVectorType clusterConcentration(const VectorDim& x, const size_t& grainID, const VectorDim& sourceDir, const Eigen::Array<double,1,mSize>& sourceVScalar, const VectorDim& sinkDir, const Eigen::Array<double,1,mSize>& sinkVScalar, const ClusterDynamicsParameters<dim>& icp) const;
         
 	};
 	

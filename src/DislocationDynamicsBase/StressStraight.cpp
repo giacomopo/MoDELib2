@@ -188,49 +188,49 @@ namespace model
         return displacement_kernel(P1-x)-displacement_kernel(P0-x);
     }
 
-    template <int dim,typename Scalar>
-    typename StressStraight<dim,Scalar>::ConcentrationMatrixType StressStraight<dim,Scalar>::concentrationMatrices(const VectorDim& x, const size_t& grainID, const VectorDim& sourceDir, const VectorDim& sinkDir, const ClusterDynamicsParameters<dim>& icp) const
-    {
-        const auto& Dinv(icp.invD.at(grainID));
-        const auto& Ddet(icp.detD.at(grainID));
-        ConcentrationMatrixType M(ConcentrationMatrixType::Zero());
-        if(length>FLT_EPSILON)
-        {
-            Eigen::Array<double,mSize,1> a(Eigen::Array<double,mSize,1>::Zero());
-            Eigen::Array<double,mSize,1> b(Eigen::Array<double,mSize,1>::Zero());
-            Eigen::Array<double,mSize,1> c(Eigen::Array<double,mSize,1>::Zero());
-            for(size_t k=0; k<mSize; k++)
-            {
-                a(k) = chord.dot( Dinv[k]*chord );
-                b(k) =-2.0*(x-P0).dot( Dinv[k]*chord  );
-                c(k) = (x-P0).dot( Dinv[k]*(x-P0) )+ DislocationFieldBase<dim>::a2/pow(Ddet(k),1.0/3.0);
-            }
-            const Eigen::Array<double,mSize,1> ba(b/a);
-            const Eigen::Array<double,mSize,1> ca(c/a);
-            const Eigen::Array<double,mSize,1> sqbca(sqrt(1.0+ba+ca));
-            const Eigen::Array<double,mSize,1> sqca(sqrt(ca));
-            const Eigen::Array<double,mSize,1> logTerm(log((2.0*sqbca+2.0+ba)/(2.0*sqca+ba)));
-            const double bxtSource(bCt.dot(sourceDir));
-            const double bxtSink  (bCt.dot(sinkDir));
-            const Eigen::Array<double,mSize,1> I0((1.0+0.5*ba)*logTerm-sqbca+sqca);
-            const Eigen::Array<double,mSize,1> I1(     -0.5*ba*logTerm+sqbca-sqca);
-            M.col(0)=bxtSource*length/(4.0*M_PI)*(I0/sqrt(a*Ddet)).matrix();
-            M.col(1)=bxtSink*  length/(4.0*M_PI)*(I1/sqrt(a*Ddet)).matrix();
-        }
-        return M;
-    }
-
-    template <int dim,typename Scalar>
-    typename StressStraight<dim,Scalar>::ConcentrationVectorType StressStraight<dim,Scalar>::clusterConcentration(const VectorDim& x, const size_t& grainID, const VectorDim& sourceDir, const Eigen::Array<double,1,mSize>& sourceVScalar, const VectorDim& sinkDir, const Eigen::Array<double,1,mSize>& sinkVScalar, const ClusterDynamicsParameters<dim>& icp) const
-    {
-        ConcentrationVectorType temp(ConcentrationVectorType::Zero());
-        const ConcentrationMatrixType cM(concentrationMatrices(x, grainID, sourceDir, sinkDir, icp));
-        for(int k=0; k<mSize; k++)
-        {
-            temp(k)=cM.row(k)*(Eigen::Matrix<double,2,1>()<<sourceVScalar(k),sinkVScalar(k)).finished();
-        }
-        return temp;
-    }
+//    template <int dim,typename Scalar>
+//    typename StressStraight<dim,Scalar>::ConcentrationMatrixType StressStraight<dim,Scalar>::concentrationMatrices(const VectorDim& x, const size_t& grainID, const VectorDim& sourceDir, const VectorDim& sinkDir, const ClusterDynamicsParameters<dim>& icp) const
+//    {
+//        const auto& Dinv(icp.invD.at(grainID));
+//        const auto& Ddet(icp.detD.at(grainID));
+//        ConcentrationMatrixType M(ConcentrationMatrixType::Zero());
+//        if(length>FLT_EPSILON)
+//        {
+//            Eigen::Array<double,mSize,1> a(Eigen::Array<double,mSize,1>::Zero());
+//            Eigen::Array<double,mSize,1> b(Eigen::Array<double,mSize,1>::Zero());
+//            Eigen::Array<double,mSize,1> c(Eigen::Array<double,mSize,1>::Zero());
+//            for(size_t k=0; k<mSize; k++)
+//            {
+//                a(k) = chord.dot( Dinv[k]*chord );
+//                b(k) =-2.0*(x-P0).dot( Dinv[k]*chord  );
+//                c(k) = (x-P0).dot( Dinv[k]*(x-P0) )+ DislocationFieldBase<dim>::a2/pow(Ddet(k),1.0/3.0);
+//            }
+//            const Eigen::Array<double,mSize,1> ba(b/a);
+//            const Eigen::Array<double,mSize,1> ca(c/a);
+//            const Eigen::Array<double,mSize,1> sqbca(sqrt(1.0+ba+ca));
+//            const Eigen::Array<double,mSize,1> sqca(sqrt(ca));
+//            const Eigen::Array<double,mSize,1> logTerm(log((2.0*sqbca+2.0+ba)/(2.0*sqca+ba)));
+//            const double bxtSource(bCt.dot(sourceDir));
+//            const double bxtSink  (bCt.dot(sinkDir));
+//            const Eigen::Array<double,mSize,1> I0((1.0+0.5*ba)*logTerm-sqbca+sqca);
+//            const Eigen::Array<double,mSize,1> I1(     -0.5*ba*logTerm+sqbca-sqca);
+//            M.col(0)=bxtSource*length/(4.0*M_PI)*(I0/sqrt(a*Ddet)).matrix();
+//            M.col(1)=bxtSink*  length/(4.0*M_PI)*(I1/sqrt(a*Ddet)).matrix();
+//        }
+//        return M;
+//    }
+//
+//    template <int dim,typename Scalar>
+//    typename StressStraight<dim,Scalar>::ConcentrationVectorType StressStraight<dim,Scalar>::clusterConcentration(const VectorDim& x, const size_t& grainID, const VectorDim& sourceDir, const Eigen::Array<double,1,mSize>& sourceVScalar, const VectorDim& sinkDir, const Eigen::Array<double,1,mSize>& sinkVScalar, const ClusterDynamicsParameters<dim>& icp) const
+//    {
+//        ConcentrationVectorType temp(ConcentrationVectorType::Zero());
+//        const ConcentrationMatrixType cM(concentrationMatrices(x, grainID, sourceDir, sinkDir, icp));
+//        for(int k=0; k<mSize; k++)
+//        {
+//            temp(k)=cM.row(k)*(Eigen::Matrix<double,2,1>()<<sourceVScalar(k),sinkVScalar(k)).finished();
+//        }
+//        return temp;
+//    }
 
     template class StressStraight<3,double>;
 

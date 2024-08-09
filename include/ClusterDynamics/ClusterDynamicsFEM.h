@@ -37,6 +37,22 @@ namespace model
         const MatrixType operator() (const ElementType& elem, const BaryType& bary) const;
     };
 
+    template <int dim>
+    struct InvDscaling : public EvalFunction<InvDscaling<dim>>
+    {
+        typedef typename DislocationDynamicsBase<dim>::ElementType ElementType;
+        typedef Eigen::Matrix<double,dim+1,1> BaryType;
+        constexpr static int mSize=ClusterDynamicsParameters<dim>::mSize;
+        constexpr static int rows=mSize;
+        constexpr static int cols=rows;
+        typedef Eigen::Matrix<double,rows,cols> MatrixType;
+
+        const ClusterDynamicsParameters<dim>& cdp;
+        
+        InvDscaling(const ClusterDynamicsParameters<dim>& cdp_in);
+        const MatrixType operator() (const ElementType& elem, const BaryType& bary) const;
+    };
+
     template<int dim>
     struct ClusterDynamicsFEM
     {
@@ -56,7 +72,12 @@ namespace model
 //        typedef TrialFunction<'z',dim,FiniteElementType> DiffusiveTrialType;
         typedef TrialGrad<MobileTrialType> MobileGradType;
         typedef TrialProd<FluxMatrix<dim>,MobileGradType> MobileFluxType;
-        typedef BilinearForm<MobileGradType,TrialProd<Constant<double,1,1>,MobileFluxType>> MobileBilinearFormType;
+        
+        typedef TrialProd<InvDscaling<dim>,MobileTrialType> MobileTestType;
+        typedef TrialGrad<MobileTestType> MobileTestGradType;
+        typedef BilinearForm<MobileTestGradType,TrialProd<Constant<double,1,1>,MobileFluxType>> MobileBilinearFormType;
+
+//        typedef BilinearForm<MobileGradType,TrialProd<Constant<double,1,1>,MobileFluxType>> MobileBilinearFormType;
         typedef BilinearWeakForm<MobileBilinearFormType,VolumeIntegrationDomainType> MobileBilinearWeakFormType;
 
         typedef TrialFunction<'d',mSize,FiniteElementType> MobileIncrementTrialType;
@@ -79,6 +100,9 @@ namespace model
 
         const DislocationDynamicsBase<dim>& ddBase;
         const ClusterDynamicsParameters<dim>& cdp;
+        const InvDscaling<dim> iDs;
+        
+        const Eigen::Matrix<double,mSize,mSize> invTrD;
         
         MobileTrialType mobileClusters;
         MobileGradType mobileGrad;
@@ -91,15 +115,10 @@ namespace model
         MobileBilinearWeakFormType mBWF;
         MobileIncrementBilinearWeakFormType dmBWF;
 
-//        FixedDirichletSolver<MobileBilinearWeakFormType> mSolver;
         FixedDirichletSolver mSolver;
         bool solverInitialized;
 
         const Eigen::VectorXd cascadeGlobalProduction;
-
-
-
-                
 
 
         ClusterDynamicsFEM(const DislocationDynamicsBase<dim>& ddBase_in,const ClusterDynamicsParameters<dim>& cdp_in);

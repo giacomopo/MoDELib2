@@ -13,6 +13,7 @@
 #include <TypeTraits.h>
 #include <Simplex.h>
 #include <TrialBase.h>
+#include <TrialGrad.h>
 #include <TrialExpressionBase.h>
 #include <Constant.h>
 //#include <EvalExpression.h>
@@ -42,10 +43,6 @@ namespace model
         constexpr static int rows=1;
     };
     
-    
-    
-    /**************************************************************************/
-    /**************************************************************************/
     template <typename T1, typename T2>
     struct TrialProd : //public TrialBase<typename T2::TrialFunctionType>,
     /*             */ public TrialExpressionBase<TrialProd<T1,T2> >
@@ -60,6 +57,7 @@ namespace model
         constexpr static int cols=T2::cols;
         
         typedef Eigen::Matrix<double,rows,dofPerElement> ShapeFunctionMatrixType;
+        typedef Eigen::Matrix<double,rows*dim,dofPerElement> ShapeFunctionGradMatrixType;
         typedef Eigen::Matrix<double,rows,1> EvalMatrixType;
         
         
@@ -68,22 +66,13 @@ namespace model
         
         ExpressionRef<T1> op1;
         ExpressionRef<T2> op2;
-        //        internal::ExpressionRef<T1> op1;
-        //        internal::ExpressionRef<T2> op2;
-        
-        
-        
-        /**********************************************************************/
+
         TrialProd(const T1& x,
                   const T2& y) :
-        //        /* base initialization */ TrialBaseType(y.derived().trial()),
         /* init list           */ op1(x),
         /* init list           */ op2(y)
         {/*!
           */
-//            std::cout<<"TrialProd constructor 1"<<std::endl;
-            //          std::cout<<"op1.c="<<op1.c<<std::endl;
-            
         }
         
         /**********************************************************************/
@@ -94,7 +83,6 @@ namespace model
         /* init list           */ op2(y)
         {/*!
           */
-//            std::cout<<"TrialProd constructor 2"<<std::endl;
         }
         
         /**********************************************************************/
@@ -105,7 +93,6 @@ namespace model
         /* init list           */ op2(std::move(y))
         {/*!
           */
-//            std::cout<<"TrialProd constructor 3"<<std::endl;
         }
         
         /**********************************************************************/
@@ -116,55 +103,35 @@ namespace model
         /* init list           */ op2(std::move(y))
         {/*!
           */
-//            std::cout<<"TrialProd constructor 4"<<std::endl;
         }
-        //
-        //        /**********************************************************************/
-        //        TrialProd(const EvalExpression<T1>& x,
-        //                  TrialExpressionBase<T2>&& y) :
-        //        /* base initialization */ TrialBaseType(y.derived().trial()),
-        //        /* init list           */ op1(std::move(x.derived())),
-        //        /* init list           */ op2(std::move(y.derived()))
-        //        {/*!
-        //          */
-        //                        std::cout<<"TrialProd constructor 3"<<std::endl;
-        //        }
-        //
-        //        /**********************************************************************/
-        //        TrialProd(EvalExpression<T1>&& x,
-        //                  TrialExpressionBase<T2>&& y) :
-        //        /* base initialization */ TrialBaseType(y.derived().trial()),
-        //        /* init list           */ op1(std::move(x.derived())),
-        //        /* init list           */ op2(std::move(y.derived()))
-        //        {/*!
-        //          */
-        //            std::cout<<"TrialProd constructor 4"<<std::endl;
-        //
-        //        }
         
-        
-        /**********************************************************************/
         ShapeFunctionMatrixType sfm(const ElementType& ele,
                                     const BaryType& bary) const
         {
-            //            return op1.c*op2.sfm(ele,bary);
-            //            std::cout<<"op1()="<<std::flush<<op1(ele,bary)<<std::endl;
-            //            std::cout<<"op2.sfm()="<<std::flush<<op2.sfm(ele,bary)<<std::endl;
             return op1()(ele,bary)*op2().sfm(ele,bary);
-            
         }
         
-        //        /**********************************************************************/
-        //        Eigen::Matrix<double,TF::dim,TypeTraits<TF>::dofPerElement> sfmGrad(const typename TF::ElementType& ele, const BaryType& bary) const
-        //        {
-        //              what is the number of rows in this case?
-        //            return op1.c*op2.sfmGrad(ele,bary);
-        //        }
-        
-        
+        ShapeFunctionGradMatrixType sfmGrad(const ElementType& ele,
+                                                                       const BaryType& bary) const
+        {
+            const auto t1(op1()(ele,bary));
+            Eigen::Matrix<double,T1::rows*dim,TrialGrad<T2>::rows> t1Ex(Eigen::Matrix<double,T1::rows*dim,TrialGrad<T2>::rows>::Zero());
+            for(int I=0;I<T1::rows;++I)
+            {
+                for(int J=0;J<T1::cols;++J)
+                {
+                    for(int d=0;d<dim;++d)
+                    {
+                        const int i(I*dim+d);
+                        const int j(J*dim+d);
+                        t1Ex(i,j)=t1(I,J);
+                    }
+                }
+            }
+            return t1Ex*op2().sfmGrad(ele,bary);
+        }
     };
     
-    /**************************************************************************/
     template <typename DerivedEval,typename DerivedTrial>
     TrialProd<DerivedEval,DerivedTrial> operator*(const EvalFunction<DerivedEval>& evalFunc,
                                                   const TrialExpressionBase<DerivedTrial>& trialExp)
@@ -193,7 +160,6 @@ namespace model
         return TrialProd<DerivedEval,DerivedTrial>(std::move(evalFunc.derived()),std::move(trialExp.derived()));
     }
     
-    /**************************************************************************/
     template <typename DerivedTrial>
     TrialProd<Constant<double,1,1>,DerivedTrial> operator*(const double& d,
                                                            const TrialExpressionBase<DerivedTrial>& trialExp)
@@ -208,7 +174,6 @@ namespace model
         return TrialProd<Constant<double,1,1>,DerivedTrial>(make_constant(d),std::move(trialExp.derived()));
     }
     
-    /**************************************************************************/
     template <int rows1, int cols1, typename T2>
     TrialProd<Constant<Eigen::Matrix<double,rows1,cols1>,rows1,cols1>,T2> operator*(const Eigen::Matrix<double,rows1,cols1>& c,
                                                                                     const TrialExpressionBase<T2>& op2)
@@ -227,7 +192,7 @@ namespace model
 #endif
 
 
-//    /**************************************************************************/
+//    
 //    template <typename T1,int rows1, int cols1, typename T2>
 //    TrialProd<Constant<T1,rows1,cols1>,T2> operator*(const Constant<T1,rows1,cols1>& c,
 //                                                     const TrialExpressionBase<T2>& op2)

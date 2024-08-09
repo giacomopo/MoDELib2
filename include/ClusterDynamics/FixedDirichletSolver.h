@@ -50,6 +50,20 @@ namespace model
 
             
             A.resize(gSize,gSize);
+            
+//            const auto bWFT(bWF.globalTriplets());
+//            
+//            double triMin(0.0);
+//            double triMax(0.0);
+//            
+//            for(const auto& tri : bWFT)
+//            {
+//                triMin=std::min(triMin,tri.value());
+//                triMax=std::max(triMin,tri.value());
+//            }
+//            std::cout<<"trimMin="<<triMin<<std::endl;
+//            std::cout<<"triMax="<<triMax<<std::endl;
+            
             const auto aTriplets(bWF.globalTriplets());
             A.setFromTriplets(aTriplets.begin(),aTriplets.end());
             

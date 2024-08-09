@@ -401,12 +401,14 @@ namespace model
                                               std::inserter(intersect, intersect.begin()));
                         if(intersect.size()==1)
                         {
-                            const int grainID((*intersect.begin())->region.regionID);
-                            StressStraight<3> ss(ddBase.poly,segment->source->get_P(),segment->sink->get_P(),segment->burgers(),ddBase.EwaldLength);
-                            for(const auto& shift : ddBase.periodicShifts)
-                            {
-                                temp+=ss.clusterConcentration(x+shift,grainID, segment->source->climbDirection(), segment->source->climbVelocityScalar , segment->sink->climbDirection(), segment->sink->climbVelocityScalar, climbSolver->CD->cdp);
-                            }
+//                            const int grainID((*intersect.begin())->region.regionID);
+//                            StressStraight<3> ss(ddBase.poly,segment->source->get_P(),segment->sink->get_P(),segment->burgers(),ddBase.EwaldLength);
+//                            for(const auto& shift : ddBase.periodicShifts)
+//                            {
+                                temp+=segment->clusterConcentration(x,climbSolver->CD->cdp);
+
+//                                temp+=ss.clusterConcentration(x+shift,grainID, segment->source->climbDirection(), segment->source->climbVelocityScalar , segment->sink->climbDirection(), segment->sink->climbVelocityScalar, climbSolver->CD->cdp);
+//                            }
                         }
                     }
                 }

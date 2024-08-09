@@ -774,6 +774,55 @@ typename DislocationSegment<dim, corder>::VectorDim DislocationSegment<dim, cord
 //        }
     }
 
+template <int dim, short unsigned int corder>
+typename DislocationSegment<dim, corder>::ConcentrationMatrixType DislocationSegment<dim, corder>::concentrationMatrices(const VectorDim& x,const ClusterDynamicsParameters<dim>& icp) const
+{
+    ConcentrationMatrixType M(ConcentrationMatrixType::Zero());
+    if(this->grains().size() == 1 && this->chordLength()>FLT_EPSILON)
+    {
+        const auto& Dinv(icp.invD.at((*this->grains().begin())->grainID));
+        const auto& Ddet(icp.detD.at((*this->grains().begin())->grainID));
+        const VectorDim bCt(burgers().cross(this->unitDirection()));
+        Eigen::Array<double,mSize,1> a(Eigen::Array<double,mSize,1>::Zero());
+        Eigen::Array<double,mSize,1> b(Eigen::Array<double,mSize,1>::Zero());
+        Eigen::Array<double,mSize,1> c(Eigen::Array<double,mSize,1>::Zero());
+        const double bxtSource(bCt.dot(this->source->climbDirection()));
+        const double bxtSink  (bCt.dot(this->sink->climbDirection()));
+
+        for(const auto& shift : this->network().ddBase.periodicShifts)
+        {
+            for(size_t k=0; k<mSize; k++)
+            {
+                a(k) = this->chord().dot( Dinv[k]*this->chord() );
+                b(k) =-2.0*(x+shift-this->source->get_P()).dot( Dinv[k]*this->chord()  );
+                c(k) = (x+shift-this->source->get_P()).dot( Dinv[k]*(x+shift-this->source->get_P()) )+ DislocationFieldBase<dim>::a2/pow(Ddet(k),1.0/3.0);
+            }
+            const Eigen::Array<double,mSize,1> ba(b/a);
+            const Eigen::Array<double,mSize,1> ca(c/a);
+            const Eigen::Array<double,mSize,1> sqbca(sqrt(1.0+ba+ca));
+            const Eigen::Array<double,mSize,1> sqca(sqrt(ca));
+            const Eigen::Array<double,mSize,1> logTerm(log((2.0*sqbca+2.0+ba)/(2.0*sqca+ba)));
+            const Eigen::Array<double,mSize,1> I0((1.0+0.5*ba)*logTerm-sqbca+sqca);
+            const Eigen::Array<double,mSize,1> I1(     -0.5*ba*logTerm+sqbca-sqca);
+            M.col(0)+=bxtSource*this->chordLength()/(4.0*M_PI)*(I0/sqrt(a*Ddet)).matrix();
+            M.col(1)+=bxtSink*  this->chordLength()/(4.0*M_PI)*(I1/sqrt(a*Ddet)).matrix();
+        }
+    }
+    return M;
+}
+
+template <int dim, short unsigned int corder>
+typename DislocationSegment<dim, corder>::ConcentrationVectorType DislocationSegment<dim, corder>::clusterConcentration(const VectorDim& x,const ClusterDynamicsParameters<dim>& icp) const
+{
+    ConcentrationVectorType temp(ConcentrationVectorType::Zero());
+    const ConcentrationMatrixType cM(concentrationMatrices(x,icp));
+    for(int k=0; k<mSize; k++)
+    {
+        temp(k)=cM.row(k)*(Eigen::Matrix<double,2,1>()<<this->source->climbVelocityScalar(k),this->sink->climbVelocityScalar(k)).finished();
+    }
+    return temp;
+}
+
     template <int dim, short unsigned int corder>
     const typename DislocationSegment<dim,corder>::MatrixDim DislocationSegment<dim,corder>::I=DislocationSegment<dim,corder>::MatrixDim::Identity();
     

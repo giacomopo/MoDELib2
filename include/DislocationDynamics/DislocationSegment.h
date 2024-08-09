@@ -66,6 +66,11 @@ namespace model
         typedef std::set<const PlanarMeshFaceType *> PlanarMeshFaceContainerType;
         typedef typename DislocationQuadraturePoint<dim,corder>::QuadratureDynamicType QuadratureDynamicType;
         
+        
+        static constexpr int mSize=ClusterDynamicsParameters<dim>::mSize;
+        typedef Eigen::Matrix<double,mSize,2>   ConcentrationMatrixType;
+        typedef Eigen::Matrix<double,mSize,1>   ConcentrationVectorType;
+
 //        std::map<size_t,
 //        /*    */ std::pair<VectorNcoeff,VectorDim>,
 //        /*    */ std::less<size_t>
@@ -122,6 +127,10 @@ namespace model
         std::vector<std::pair<const GlidePlane<dim> *const, const GlidePlane<dim> *const>> parallelAndCoincidentGlidePlanes(const GlidePlaneContainerType &other) const;
         VectorDim snapToGlidePlanes(const VectorDim &P) const;
         VectorDim climbDirection() const;
+        
+        ConcentrationMatrixType concentrationMatrices(const VectorDim& x,const ClusterDynamicsParameters<dim>& icp) const;
+        ConcentrationVectorType clusterConcentration(const VectorDim& x,const ClusterDynamicsParameters<dim>& icp) const;
+
         
     };
 }
