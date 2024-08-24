@@ -1,8 +1,10 @@
 
 # https://mcilloni.ovh/2021/02/09/cxx-cross-clang/
 #export LDFLAGS=-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib 
-#LDFLAGS="$LDFLAGS -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib/system"
+#export LDFLAGS="$LDFLAGS -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib/system"
+#export DYLD_LIBRARY_PATH ="/opt/local/lib/libgcc"
 
+#https://github.com/scipy/scipy/issues/19387
 
 # cmake .. -DCMAKE_CXX_COMPILER=clang++-mp-18
 
@@ -13,6 +15,8 @@ option(USE_PYBIND11 "enables pybind11" ON)
 option(BUILD_TOOLS "builds tools" ON)
 set(EIGEN3_INCLUDE_DIRS /opt/local/include/eigen3)
 list(APPEND CMAKE_PREFIX_PATH "/Users/Giacomo/Applications/Qt/6.5.2/macos/lib/cmake")
+set(RPATH "/opt/local/lib/libgcc")
+list(APPEND CMAKE_BUILD_RPATH ${RPATH})
 
 cmake_policy(SET CMP0057 NEW)
 set(CMAKE_BUILD_TYPE Release)
@@ -30,6 +34,28 @@ if(Boost_FOUND)
 	include_directories(${Boost_INCLUDE_DIRS})
 else()
 	message(WARNING "Boost not found")
+endif()
+
+### SuiteSparse ### 
+find_package(CHOLMOD)
+if(CHOLMOD_FOUND)
+	message(STATUS "CHOLMOD_VERSION:" ${CHOLMOD_VERSION})
+	message(STATUS "CHOLMOD_INCLUDE_DIR:" ${CHOLMOD_INCLUDE_DIR})
+	message(STATUS "CHOLMOD_LIBRARIES:" ${CHOLMOD_LIBRARIES})
+	include_directories(${CHOLMOD_INCLUDE_DIR})
+	add_definitions(-D MODELIB_CHOLMOD)
+else()
+	message(WARNING "CHOLMOD not found")
+endif()
+find_package(UMFPACK)
+if(UMFPACK_FOUND)
+	message(STATUS "UMFPACK_VERSION:" ${UMFPACK_VERSION})
+	message(STATUS "UMFPACK_INCLUDE_DIR:" ${UMFPACK_INCLUDE_DIR})
+	message(STATUS "UMFPACK_LIBRARIES:" ${UMFPACK_LIBRARIES})
+	include_directories(${UMFPACK_INCLUDE_DIR})
+	add_definitions(-D MODELIB_UMFPACK)
+else()
+	message(WARNING "UMFPACK not found")
 endif()
 
 ### fftw3 ### find_package is currently broken. Workaround using find_library
@@ -95,7 +121,7 @@ include_directories(${MoDELib_INCLUDE_DIR}/InclusionMicrostructure/)
 include_directories(${MoDELib_INCLUDE_DIR}/DislocationDynamics/)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/ src)
-target_link_libraries(MoDELib PUBLIC ${FFTW3_LIBRARIES} ${pybind11_LIBRARIES})
+target_link_libraries(MoDELib PUBLIC ${FFTW3_LIBRARIES} ${pybind11_LIBRARIES} ${CHOLMOD_LIBRARIES} ${UMFPACK_LIBRARIES})
 
 if(BUILD_TOOLS)
 	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tools tools)

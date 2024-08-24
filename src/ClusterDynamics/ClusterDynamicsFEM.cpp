@@ -115,7 +115,7 @@ template struct InvDscaling<3>;
                 std::vector<Eigen::Triplet<double>> globalTripletsR((bWF_R1+bWF_R2).globalTriplets());
                 AcIR.setFromTriplets(globalTripletsR.begin(),globalTripletsR.end());
                 
-                FixedDirichletSolver rSolver(false,FLT_EPSILON);
+                MobileReactionSolverType rSolver(false,FLT_EPSILON);
                 rSolver.compute(dmBWF+bWF_R1+bWF_R2);
                 mobileClustersIncrement=rSolver.solve(cascadeGlobalProduction-mSolver.getA()*mobileClusters.dofVector()+(lWF_R1+lWF_R2).globalVector());
                 

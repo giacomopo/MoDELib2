@@ -692,136 +692,57 @@ typename DislocationSegment<dim, corder>::VectorDim DislocationSegment<dim, cord
         else
         {
             return x;
-//
-//            if(sessileLoops().size()==this->loops().size())
-//            {
-//                return x;
-//            }
-//            else
-//            {
-//                throw std::runtime_error("All loops must be sessile if there are no glide planes.");
-//                return x;
-//            }
         }
-        
-//        GlidePlaneContainerType gps(glidePlanes());
-//        switch (gps.size())
-//        {
-//        case 0:
-//        {
-//            assert(false && "Glide plane size must be larger than 0");
-//            return P;
-//            break;
-//        }
-//        case 1:
-//        {
-//            return (*gps.begin())->snapToPlane(P);
-//            break;
-//        }
-//        case 2:
-//        {
-//            const PlanePlaneIntersection<dim> ppi(**gps.begin(), **gps.rbegin());
-//            assert(ppi.type == PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
-//            return ppi.P + (P - ppi.P).dot(ppi.d) * ppi.d;
-//            break;
-//        }
-//        case 3:
-//        {
-//            const PlanePlaneIntersection<dim> ppi(**gps.begin(), **gps.rbegin());
-//            assert(ppi.type == PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
-//            const auto iterP(++gps.begin());
-//            const PlaneLineIntersection<dim> pli((*iterP)->P, (*iterP)->unitNormal, ppi.P, ppi.d);
-//            assert(pli.type == PlaneLineIntersection<dim>::INCIDENT && "Plane line intersection must be incident");
-//            return pli.P;
-//            break;
-//        }
-//        default:
-//        {
-//            const auto iterPlane1(gps.begin());
-//            const auto iterPlane2(++gps.begin());
-//            auto iterPlane3(++(++gps.begin()));
-//
-//            const PlanePlaneIntersection<dim> ppi(**iterPlane1, **iterPlane2);
-//            assert(ppi.type == PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
-//            const PlaneLineIntersection<dim> pli((*iterPlane3)->P, (*iterPlane3)->unitNormal, ppi.P, ppi.d);
-//            const VectorDim snappedPos(pli.P);
-//            assert(pli.type == PlaneLineIntersection<dim>::INCIDENT && "Plane line intersection must be incident");
-//            // if (pli.type!=PlaneLineIntersection<dim>::INCIDENT)
-//            // {
-//            //     std::cout<<" IterPlane1 "<<(*iterPlane1)->P.transpose()<<"\t"<<(*iterPlane1)->unitNormal.transpose()<<std::endl;
-//            //     std::cout<<" IterPlane2 "<<(*iterPlane2)->P.transpose()<<"\t"<<(*iterPlane2)->unitNormal.transpose()<<std::endl;
-//            //     std::cout<<" IterPlane3 "<<(*iterPlane3)->P.transpose()<<"\t"<<(*iterPlane3)->unitNormal.transpose()<<std::endl;
-//            //     std::cout<<"ppi infor "<<std::endl;
-//            //     std::cout<<ppi.P.transpose()<<"\t"<<ppi.d.transpose()<<std::endl;
-//            //     std::cout<<" glide plane size "<<gps.size()<<" Printing glide planes "<<std::endl;
-//            //     for (const auto& gp : gps)
-//            //     {
-//            //         std::cout<<gp->P.transpose()<<"\t"<<gp->unitNormal.transpose()<<"\t"<<gp->planeIndex<<std::endl;
-//            //     }
-//            //     std::cout<<" intersection type "<<pli.type<<std::endl;
-//            // }
-//            while (++iterPlane3 != gps.end())
-//            {
-//                if (!(*iterPlane3)->contains(snappedPos))
-//                {
-//                    std::cout << " Glide Plane " << (*iterPlane3)->P.transpose() << " " << (*iterPlane3)->unitNormal.transpose() << std::endl;
-//                    assert(false && "Plane must contain the position for glide plane size >=3");
-//                }
-//            }
-//            return snappedPos;
-//            break;
-//        }
-//        }
     }
 
-template <int dim, short unsigned int corder>
-typename DislocationSegment<dim, corder>::ConcentrationMatrixType DislocationSegment<dim, corder>::concentrationMatrices(const VectorDim& x,const ClusterDynamicsParameters<dim>& icp) const
-{
-    ConcentrationMatrixType M(ConcentrationMatrixType::Zero());
-    if(this->grains().size() == 1 && this->chordLength()>FLT_EPSILON)
+    template <int dim, short unsigned int corder>
+    typename DislocationSegment<dim, corder>::ConcentrationMatrixType DislocationSegment<dim, corder>::concentrationMatrices(const VectorDim& x,const ClusterDynamicsParameters<dim>& icp) const
     {
-        const auto& Dinv(icp.invD.at((*this->grains().begin())->grainID));
-        const auto& Ddet(icp.detD.at((*this->grains().begin())->grainID));
-        const VectorDim bCt(burgers().cross(this->unitDirection()));
-        Eigen::Array<double,mSize,1> a(Eigen::Array<double,mSize,1>::Zero());
-        Eigen::Array<double,mSize,1> b(Eigen::Array<double,mSize,1>::Zero());
-        Eigen::Array<double,mSize,1> c(Eigen::Array<double,mSize,1>::Zero());
-        const double bxtSource(bCt.dot(this->source->climbDirection()));
-        const double bxtSink  (bCt.dot(this->sink->climbDirection()));
-
-        for(const auto& shift : this->network().ddBase.periodicShifts)
+        ConcentrationMatrixType M(ConcentrationMatrixType::Zero());
+        if(this->grains().size() == 1 && this->chordLength()>FLT_EPSILON)
         {
-            for(size_t k=0; k<mSize; k++)
-            {
-                a(k) = this->chord().dot( Dinv[k]*this->chord() );
-                b(k) =-2.0*(x+shift-this->source->get_P()).dot( Dinv[k]*this->chord()  );
-                c(k) = (x+shift-this->source->get_P()).dot( Dinv[k]*(x+shift-this->source->get_P()) )+ DislocationFieldBase<dim>::a2/pow(Ddet(k),1.0/3.0);
-            }
-            const Eigen::Array<double,mSize,1> ba(b/a);
-            const Eigen::Array<double,mSize,1> ca(c/a);
-            const Eigen::Array<double,mSize,1> sqbca(sqrt(1.0+ba+ca));
-            const Eigen::Array<double,mSize,1> sqca(sqrt(ca));
-            const Eigen::Array<double,mSize,1> logTerm(log((2.0*sqbca+2.0+ba)/(2.0*sqca+ba)));
-            const Eigen::Array<double,mSize,1> I0((1.0+0.5*ba)*logTerm-sqbca+sqca);
-            const Eigen::Array<double,mSize,1> I1(     -0.5*ba*logTerm+sqbca-sqca);
-            M.col(0)+=bxtSource*this->chordLength()/(4.0*M_PI)*(I0/sqrt(a*Ddet)).matrix();
-            M.col(1)+=bxtSink*  this->chordLength()/(4.0*M_PI)*(I1/sqrt(a*Ddet)).matrix();
-        }
-    }
-    return M;
-}
+            const auto& Dinv(icp.invD.at((*this->grains().begin())->grainID));
+            const auto& Ddet(icp.detD.at((*this->grains().begin())->grainID));
+            const VectorDim bCt(burgers().cross(this->unitDirection()));
+            Eigen::Array<double,mSize,1> a(Eigen::Array<double,mSize,1>::Zero());
+            Eigen::Array<double,mSize,1> b(Eigen::Array<double,mSize,1>::Zero());
+            Eigen::Array<double,mSize,1> c(Eigen::Array<double,mSize,1>::Zero());
+            const double bxtSource(bCt.dot(this->source->climbDirection()));
+            const double bxtSink  (bCt.dot(this->sink->climbDirection()));
 
-template <int dim, short unsigned int corder>
-typename DislocationSegment<dim, corder>::ConcentrationVectorType DislocationSegment<dim, corder>::clusterConcentration(const VectorDim& x,const ClusterDynamicsParameters<dim>& icp) const
-{
-    ConcentrationVectorType temp(ConcentrationVectorType::Zero());
-    const ConcentrationMatrixType cM(concentrationMatrices(x,icp));
-    for(int k=0; k<mSize; k++)
-    {
-        temp(k)=cM.row(k)*(Eigen::Matrix<double,2,1>()<<this->source->climbVelocityScalar(k),this->sink->climbVelocityScalar(k)).finished();
+            for(const auto& shift : this->network().ddBase.periodicShifts)
+            {
+                for(size_t k=0; k<mSize; k++)
+                {
+                    a(k) = this->chord().dot( Dinv[k]*this->chord() );
+                    b(k) =-2.0*(x+shift-this->source->get_P()).dot( Dinv[k]*this->chord()  );
+                    c(k) = (x+shift-this->source->get_P()).dot( Dinv[k]*(x+shift-this->source->get_P()) )+ DislocationFieldBase<dim>::a2/pow(Ddet(k),1.0/3.0);
+                }
+                const Eigen::Array<double,mSize,1> ba(b/a);
+                const Eigen::Array<double,mSize,1> ca(c/a);
+                const Eigen::Array<double,mSize,1> sqbca(sqrt(1.0+ba+ca));
+                const Eigen::Array<double,mSize,1> sqca(sqrt(ca));
+                const Eigen::Array<double,mSize,1> logTerm(log((2.0*sqbca+2.0+ba)/(2.0*sqca+ba)));
+                const Eigen::Array<double,mSize,1> I0((1.0+0.5*ba)*logTerm-sqbca+sqca);
+                const Eigen::Array<double,mSize,1> I1(     -0.5*ba*logTerm+sqbca-sqca);
+                M.col(0)+=bxtSource*this->chordLength()/(4.0*M_PI)*(I0/sqrt(a*Ddet)).matrix();
+                M.col(1)+=bxtSink*  this->chordLength()/(4.0*M_PI)*(I1/sqrt(a*Ddet)).matrix();
+            }
+        }
+        return M;
     }
-    return temp;
-}
+
+    template <int dim, short unsigned int corder>
+    typename DislocationSegment<dim, corder>::ConcentrationVectorType DislocationSegment<dim, corder>::clusterConcentration(const VectorDim& x,const ClusterDynamicsParameters<dim>& icp) const
+    {
+        ConcentrationVectorType temp(ConcentrationVectorType::Zero());
+        const ConcentrationMatrixType cM(concentrationMatrices(x,icp));
+        for(int k=0; k<mSize; k++)
+        {
+            temp(k)=cM.row(k)*(Eigen::Matrix<double,2,1>()<<this->source->climbVelocityScalar(k),this->sink->climbVelocityScalar(k)).finished();
+        }
+        return temp;
+    }
 
     template <int dim, short unsigned int corder>
     const typename DislocationSegment<dim,corder>::MatrixDim DislocationSegment<dim,corder>::I=DislocationSegment<dim,corder>::MatrixDim::Identity();
@@ -831,15 +752,10 @@ typename DislocationSegment<dim, corder>::ConcentrationVectorType DislocationSeg
     
     template <int dim, short unsigned int corder>
     double DislocationSegment<dim,corder>::quadPerLength=0.2;
-    
-    //    template <int dim, short unsigned int corder>
-    //    bool DislocationSegment<Derived>::assembleWithTangentProjection=false;
-    
+        
     template <int dim, short unsigned int corder>
     int DislocationSegment<dim,corder>::verboseDislocationSegment=0;
         
-        
     template class DislocationSegment<3,0>;
-    
 }
 #endif

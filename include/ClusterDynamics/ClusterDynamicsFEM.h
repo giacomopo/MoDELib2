@@ -9,6 +9,13 @@
 #ifndef model_ClusterDynamicsFEM_H_
 #define model_ClusterDynamicsFEM_H_
 
+#ifdef MODELIB_CHOLMOD // SuiteSparse Cholmod module
+#include <Eigen/CholmodSupport>
+#endif
+
+#ifdef MODELIB_UMFPACK // SuiteSparse UMFPACK module
+#include <Eigen/UmfPackSupport>
+#endif
 
 #include <ClusterDynamicsParameters.h>
 #include <DislocationDynamicsBase.h>
@@ -18,6 +25,7 @@
 #include <MicrostructureBase.h>
 #include <SecondOrderReaction.h>
 #include <MicrostructureContainer.h>
+
 namespace model
 {
 
@@ -86,17 +94,34 @@ namespace model
         typedef BilinearForm<MobileIncrementGradType,TrialProd<Constant<double,1,1>,MobileIncrementFluxType>> MobileIncrementBilinearFormType;
         typedef BilinearWeakForm<MobileIncrementBilinearFormType,VolumeIntegrationDomainType> MobileIncrementBilinearWeakFormType;
 
-        typedef Eigen::SparseMatrix<double> SparseMatrixType;
-    #ifdef _MODEL_PARDISO_SOLVER_
-        typedef Eigen::PardisoLLT<SparseMatrixType> DirectSPDSolverType;
-        typedef Eigen::PardisoLU<SparseMatrixType> DirectSquareSolverType;
-    #else
-        typedef Eigen::SimplicialLLT<SparseMatrixType> DirectSPDSolverType;
-        typedef Eigen::SparseLU<SparseMatrixType> DirectSquareSolverType;
-    #endif
-        typedef Eigen::ConjugateGradient<SparseMatrixType> IterativeSPDSolverType;
-        typedef Eigen::BiCGSTAB<SparseMatrixType> IterativeSquareSolverType;
+//        typedef Eigen::SparseMatrix<double> SparseMatrixType;
+//    #ifdef _MODEL_PARDISO_SOLVER_
+//        typedef Eigen::PardisoLLT<SparseMatrixType> DirectSPDSolverType;
+//        typedef Eigen::PardisoLU<SparseMatrixType> DirectSquareSolverType;
+//    #else
+//        typedef Eigen::SimplicialLLT<SparseMatrixType> DirectSPDSolverType;
+//        typedef Eigen::SparseLU<SparseMatrixType> DirectSquareSolverType;
+//    #endif
+//        typedef Eigen::ConjugateGradient<SparseMatrixType> IterativeSPDSolverType;
+//        typedef Eigen::BiCGSTAB<SparseMatrixType> IterativeSquareSolverType;
 
+        typedef Eigen::SparseMatrix<double,Eigen::RowMajor> SparseMatrixType;
+#ifdef CHOLMOD_H // SuiteSparse Cholmod module
+    typedef Eigen::CholmodSupernodalLLT<SparseMatrixType> LltSolverType;
+#else
+    typedef Eigen::SimplicialLLT<SparseMatrixType> LltSolverType;
+#endif
+        
+#ifdef UMFPACK_H // SuiteSparse Cholmod module
+    typedef Eigen::UmfPackLU<SparseMatrixType> LuSolverType;
+#else
+    typedef Eigen::SparseLU<SparseMatrixType> LuSolverType;
+#endif
+        
+//        typedef Eigen::ConjugateGradient<SparseMatrixType> SpdIterativeSolverType;
+        
+        typedef FixedDirichletSolver<LltSolverType,Eigen::ConjugateGradient<SparseMatrixType>> MobileSolverType;
+        typedef FixedDirichletSolver<LuSolverType,Eigen::BiCGSTAB<SparseMatrixType>> MobileReactionSolverType;
 
         const DislocationDynamicsBase<dim>& ddBase;
         const ClusterDynamicsParameters<dim>& cdp;
@@ -115,7 +140,7 @@ namespace model
         MobileBilinearWeakFormType mBWF;
         MobileIncrementBilinearWeakFormType dmBWF;
 
-        FixedDirichletSolver mSolver;
+        MobileSolverType mSolver;
         bool solverInitialized;
 
         const Eigen::VectorXd cascadeGlobalProduction;

@@ -10,6 +10,7 @@
 #define model_DislocationQuadraturePointIO_H_
 
 #include <Eigen/Dense>
+#include <ClusterDynamicsParameters.h>
 
 
 namespace model
@@ -35,6 +36,8 @@ namespace model
         VectorDim velocity;
         double elasticEnergyPerLength;
         double coreEnergyPerLength;
+        Eigen::Matrix<double,1,ClusterDynamicsParameters<dim>::mSize> cCD;
+        Eigen::Matrix<double,1,ClusterDynamicsParameters<dim>::mSize> cDD;
 
         /**********************************************************************/
         DislocationQuadraturePointIO() :
@@ -51,6 +54,8 @@ namespace model
         /* init */,velocity(VectorDim::Zero())
         /* init */,elasticEnergyPerLength(0.0)
         /* init */,coreEnergyPerLength(0.0)
+        /* init */,cCD(Eigen::Matrix<double,1,ClusterDynamicsParameters<dim>::mSize>::Zero())
+        /* init */,cDD(Eigen::Matrix<double,1,ClusterDynamicsParameters<dim>::mSize>::Zero())
         {
         }
         
@@ -70,6 +75,8 @@ namespace model
         /* init */,velocity(qPoint.velocity)
         /* init */,elasticEnergyPerLength(qPoint.elasticEnergyPerLength)
         /* init */,coreEnergyPerLength(qPoint.coreEnergyPerLength)
+        /* init */,cCD(qPoint.cCD)
+        /* init */,cDD(qPoint.cDD)
         {
             
         }
@@ -89,6 +96,8 @@ namespace model
         /* init */,velocity(VectorDim::Zero())
         /* init */,elasticEnergyPerLength(0.0)
         /* init */,coreEnergyPerLength(0.0)
+        /* init */,cCD(Eigen::Matrix<double,1,ClusterDynamicsParameters<dim>::mSize>::Zero())
+        /* init */,cDD(Eigen::Matrix<double,1,ClusterDynamicsParameters<dim>::mSize>::Zero())
         {
             
             ss>>sourceID;
@@ -128,7 +137,14 @@ namespace model
             }
             ss>>elasticEnergyPerLength;
             ss>>coreEnergyPerLength;
-
+            for(int d=0;d<ClusterDynamicsParameters<dim>::mSize;++d)
+            {
+                ss>>cCD(d);
+            }
+            for(int d=0;d<ClusterDynamicsParameters<dim>::mSize;++d)
+            {
+                ss>>cDD(d);
+            }
         }
         
         /**********************************************************************/
@@ -152,7 +168,9 @@ namespace model
             /**/<< ds.lineTensionForce.transpose()<<"\t"
             /**/<< ds.velocity.transpose()<<"\t"
             /**/<< ds.elasticEnergyPerLength<<"\t"
-            /**/<< ds.coreEnergyPerLength;
+            /**/<< ds.coreEnergyPerLength<<"\t"
+            /**/<< ds.cCD.transpose()<<"\t"
+            /**/<< ds.cDD.transpose();
             return os;
         }
         

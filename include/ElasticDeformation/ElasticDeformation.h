@@ -9,6 +9,10 @@
 #ifndef model_ElasticDeformation_H_
 #define model_ElasticDeformation_H_
 
+#ifdef MODELIB_CHOLMOD // SuiteSparse Cholmod module
+#include <Eigen/CholmodSupport>
+#endif
+
 #include <MicrostructureContainer.h>
 #include <ElasticDeformationFEM.h>
 #include <IntegrationDomain.h>
@@ -34,11 +38,18 @@ namespace model
     typedef IntegrationList<1,FEMfaceEvaluation<ElementType,dim,dim>> TractionIntegrationListType;
     typedef UniformController<SymmetricVoigtTraits<dim>::voigtSize> UniformControllerType;
     
+#ifdef CHOLMOD_H // SuiteSparse Cholmod module
+    typedef Eigen::CholmodSupernodalLLT<typename ElasticDeformationFEM<dim>::SparseMatrixType> SPDsolverType;
+#else
+    typedef Eigen::SimplicialLLT<typename ElasticDeformationFEM<dim>::SparseMatrixType> SPDsolverType;
+#endif
+
+    
     const bool useElasticDeformationFEM;
     const std::unique_ptr<ElasticDeformationFEM<dim>> elasticDeformationFEM;
     const std::unique_ptr<UniformControllerType> uniformLoadController;
     const double inertiaReliefPenaltyFactor;
-    Eigen::SimplicialLLT<typename ElasticDeformationFEM<dim>::SparseMatrixType> directSolver;
+    SPDsolverType directSolver;
     TractionIntegrationDomainType ndA;
     TractionIntegrationListType tractionList;
     Eigen::VectorXd zDot;
