@@ -106,20 +106,18 @@ namespace model
 //        typedef Eigen::BiCGSTAB<SparseMatrixType> IterativeSquareSolverType;
 
         typedef Eigen::SparseMatrix<double,Eigen::RowMajor> SparseMatrixType;
-#ifdef CHOLMOD_H // SuiteSparse Cholmod module
+#ifdef CHOLMOD_H // SuiteSparse Cholmod (LLT) module
     typedef Eigen::CholmodSupernodalLLT<SparseMatrixType> LltSolverType;
 #else
     typedef Eigen::SimplicialLLT<SparseMatrixType> LltSolverType;
 #endif
         
-#ifdef UMFPACK_H // SuiteSparse Cholmod module
+#ifdef UMFPACK_H // SuiteSparse Umfpack (LU) module
     typedef Eigen::UmfPackLU<SparseMatrixType> LuSolverType;
 #else
     typedef Eigen::SparseLU<SparseMatrixType> LuSolverType;
 #endif
-        
-//        typedef Eigen::ConjugateGradient<SparseMatrixType> SpdIterativeSolverType;
-        
+                
         typedef FixedDirichletSolver<LltSolverType,Eigen::ConjugateGradient<SparseMatrixType>> MobileSolverType;
         typedef FixedDirichletSolver<LuSolverType,Eigen::BiCGSTAB<SparseMatrixType>> MobileReactionSolverType;
 

@@ -169,8 +169,8 @@ namespace model
             /**/<< ds.velocity.transpose()<<"\t"
             /**/<< ds.elasticEnergyPerLength<<"\t"
             /**/<< ds.coreEnergyPerLength<<"\t"
-            /**/<< ds.cCD.transpose()<<"\t"
-            /**/<< ds.cDD.transpose();
+            /**/<< ds.cCD<<"\t"
+            /**/<< ds.cDD;
             return os;
         }
         

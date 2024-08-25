@@ -2,7 +2,6 @@
 # https://mcilloni.ovh/2021/02/09/cxx-cross-clang/
 #export LDFLAGS=-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib 
 #export LDFLAGS="$LDFLAGS -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib/system"
-#export DYLD_LIBRARY_PATH ="/opt/local/lib/libgcc"
 
 #https://github.com/scipy/scipy/issues/19387
 
