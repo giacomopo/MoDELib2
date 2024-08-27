@@ -41,9 +41,9 @@ namespace model
     /* init */ otherSinks(ddBase.simulationParameters.useClusterDynamics? (TextFileParser(ddBase.poly.materialFile).readMatrix<double,1,mSize>("otherSinks_SI",true)*ddBase.poly.b_SI*ddBase.poly.b_SI).eval() : Eigen::Array<double,1,mSize>::Zero()),
     //    /* init */ dislocationSinks(TextFileParser(ddBase.poly.materialFile).readMatrix<double,1,iSize/2>("dislocationSinks_SI",true)*ddBase.poly.b_SI*ddBase.poly.b_SI),
     //    /* init */ initloopSinks(getInitLoopSinks(TextFileParser(ddBase.poly.materialFile).readMatrix<double,1,iSize>("initloopSinks_SI",true),ddBase.poly.b_SI)),
+    /* init */ reactionMap((ddBase.simulationParameters.useClusterDynamics && mSize>1) ? getMap(TextFileParser(ddBase.poly.materialFile).readMatrix<double,mSize*(mSize+1)/2,3>("reactionPrefactorMap",true)) : std::map<std::pair<int,int>,double>()),
     /* init */ R1(mSize>1 ? getR1() : Eigen::Matrix<double,mSize,mSize>::Zero()),
     /* init */ R1cd(iSize>0 ? msVector.abs().matrix().asDiagonal()*R1*(1.0/msVector.abs()).matrix().asDiagonal() : Eigen::Matrix<double,mSize,mSize>::Zero().eval()),
-    /* init */ reactionMap((ddBase.simulationParameters.useClusterDynamics && mSize>1) ? getMap(TextFileParser(ddBase.poly.materialFile).readMatrix<double,mSize*(mSize+1)/2,3>("reactionPrefactorMap",true)) : std::map<std::pair<int,int>,double>()),
     /* init */ R2(mSize>1 ? getR2() : std::vector<Eigen::Matrix<double,mSize,mSize>>(2,Eigen::Matrix<double,mSize,mSize>::Zero())),
     /* IMMOBILE SPECIES */
     /* init */ immobileSpeciesVector((ddBase.simulationParameters.useClusterDynamics && iSize>0) ? TextFileParser(ddBase.poly.materialFile).readMatrix<int>("immobileSpeciesVector",1,iSize/2,true).array().template cast<double>() : Eigen::Array<double,1,iSize/2>::Zero().eval()),
@@ -131,7 +131,6 @@ namespace model
     template<int dim>
     Eigen::Matrix<double,ClusterDynamicsParameters<dim>::mSize,ClusterDynamicsParameters<dim>::mSize> ClusterDynamicsParameters<dim>::getR1() const
     {
-        
         int vIndex, iIndex;
         for(int k=0;k<mSize;k++)
         {
@@ -167,7 +166,7 @@ namespace model
                 rn(k)=pow(fabs(msVector(k)*this->omega/this->b/M_PI),1.0/2.0);
             }
         }
-        
+                
         Eigen::Array<double,1,mSize> alpha(Eigen::Array<double,1,mSize>::Zero());
         if(vIndex>0)
         { // Dissociation rate for v-clusters [Christien and Barbu 2005 JNM 346]
@@ -180,6 +179,7 @@ namespace model
                 }
             }
         }
+                
         if(mSize-1-iIndex>1)
         { // Dissociation rate for i-clusters
             for(int k=iIndex+1;k<mSize;k++)
@@ -212,6 +212,7 @@ namespace model
             }
             
         }
+        
         return tempR1;
     }
 

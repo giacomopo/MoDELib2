@@ -78,7 +78,7 @@ mobileSpeciesD0_SI=4.9639e-10 0.0 0.0 4.9639e-10 0.0 4.9639e-10
        8.1882e-10 0.0 0.0 8.1882e-10 0.0 8.1882e-10
        8.1882e-10 0.0 0.0 8.1882e-10 0.0 8.1882e-10
        8.1882e-10 0.0 0.0 8.1882e-10 0.0 8.1882e-10; # [m^2/s] anisotropic pre-exponential diffusion coefficients, components [11 12 13 22 23 33]
-computeReactions=0;
+computeReactions=1;
 otherSinks_SI=0.0 0.0 0.0 0.0;
 reactionPrefactorMap= -1 -1 0.0
              -1  1 2.856

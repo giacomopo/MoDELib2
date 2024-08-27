@@ -81,7 +81,7 @@ namespace model
         /**********************************************************************/
         Eigen::Matrix<double,Eigen::Dynamic,1> assemble() const
         {
-            std::cout<<"Assembling LinearWeakForm on domain ("<<lwf.domain.size()<<" elements) ..."<<std::flush;
+//            std::cout<<"Assembling LinearWeakForm on domain ("<<lwf.domain.size()<<" elements) ..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             
 //            std::cout<<"lwf.gSize()="<<lwf.gSize()<<std::endl;
@@ -110,7 +110,7 @@ namespace model
                     _globalVector(gI) += ve(i);
                 }
             }
-            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+//            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 
             return _globalVector;
         }

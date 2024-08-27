@@ -127,15 +127,18 @@ template struct InvDscaling<3>;
                 cNew.resize(mSize,mobileClusters.gSize()/mSize);
                 
                 const Eigen::VectorXd absErr((cNew-cOld).rowwise().norm());
-                const Eigen::VectorXd cNewNorm((cNew.rowwise().norm().array()+1.e-20).matrix());
+                const Eigen::VectorXd cNewNorm((cNew.rowwise().norm().array()+1.e-50).matrix());
                 const Eigen::VectorXd relErr((absErr.array()/cNewNorm.array()).matrix());
                 
                 cError=relErr.maxCoeff();//aError/cInorm;
-                std::cout<<"max values="<<cNew.rowwise().maxCoeff().transpose()<<std::endl;
-                std::cout<<"min values="<<cNew.rowwise().minCoeff().transpose()<<std::endl;
-                std::cout<<"absolute errors="<<absErr.transpose()<<std::endl;
-                std::cout<<"solution norms="<<cNewNorm.transpose()<<std::endl;
-                std::cout<<"relative error="<<relErr.transpose()<<std::endl;
+                if(false)
+                {
+                    std::cout<<"max values="<<cNew.rowwise().maxCoeff().transpose()<<std::endl;
+                    std::cout<<"min values="<<cNew.rowwise().minCoeff().transpose()<<std::endl;
+                    std::cout<<"absolute errors="<<absErr.transpose()<<std::endl;
+                    std::cout<<"solution norms="<<cNewNorm.transpose()<<std::endl;
+                    std::cout<<"relative error="<<relErr.transpose()<<std::endl;
+                }
                 std::cout<<"convergenceError="<<cError<<std::endl;
             }
         }

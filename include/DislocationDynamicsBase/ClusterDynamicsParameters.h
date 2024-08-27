@@ -60,10 +60,10 @@ struct ClusterDynamicsParameters
     const Eigen::Array<double,1,mSize> otherSinks;
 //    const Eigen::Array<double,1,iSize/2> dislocationSinks;
 //    const Eigen::Array<double,1,iSize> initloopSinks;
+    const std::map<std::pair<int,int>,double> reactionMap;
     const Eigen::Matrix<double,mSize,mSize> R1;
     const Eigen::Matrix<double,mSize,mSize> R1cd;
     // Second-order reaction
-    const std::map<std::pair<int,int>,double> reactionMap;
     const std::vector<Eigen::Matrix<double,mSize,mSize>> R2;
 
 
