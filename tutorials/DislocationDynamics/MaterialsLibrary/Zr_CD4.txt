@@ -1,5 +1,6 @@
 materialName=Zr;
 crystalStructure=HEX;
+atomsPerUnitCell=2;
 enabledSlipSystems=fullBasal fullPrismatic; # types of slip systems enabled e.g. enabledSlipSystems=fullBasal ShockleyBasal fullPrismatic fullPyramidal;
 b_SI=0.3233e-9; #0.3615e-9; # [m] 		Burgers vector magnitude 
 mu0_SI=33e9;	# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+mu1*T

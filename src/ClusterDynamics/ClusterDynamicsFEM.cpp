@@ -77,7 +77,7 @@ template struct InvDscaling<3>;
     /* init */,dV(ddBase.fe->template domain<EntireDomain,dVorder,GaussLegendre>())
 //    /* init */,mBWF((test(this->mobileGrad),-ddBase.poly.Omega*this->mobileFlux)*dV)
     /* init */,mBWF((test(grad(iDs*mobileClusters)),-ddBase.poly.Omega*this->mobileFlux)*dV)
-    /* init */,dmBWF((test(grad(mobileClustersIncrement)),-ddBase.poly.Omega*(FluxMatrix<dim>(this->cdp)*grad(mobileClustersIncrement)))*dV)
+    /* init */,dmBWF((test(grad(iDs*mobileClustersIncrement)),-ddBase.poly.Omega*(FluxMatrix<dim>(this->cdp)*grad(mobileClustersIncrement)))*dV)
     /* init */,mSolver(true,FLT_EPSILON)
     /* init */,solverInitialized(false)
 //    /* init */,cascadeGlobalProduction(((test(this->mobileClusters),make_constant(this->cdp.G))*dV).globalVector())
@@ -101,12 +101,12 @@ template struct InvDscaling<3>;
             while(cError>cTol)
             {
                 const auto R1((this->cdp.R1cd).eval());
-                auto bWF_R1((test(mobileClustersIncrement),R1*(-1.0*mobileClustersIncrement))*dV); // THIS SHOULD BE STORED SINCE IT IS ALWAYS THE SAME
-                auto lWF_R1((test(mobileClustersIncrement),eval(R1*mobileClusters))*dV);
+                auto bWF_R1((test(iDs*mobileClustersIncrement),R1*(-1.0*mobileClustersIncrement))*dV); // THIS SHOULD BE STORED SINCE IT IS ALWAYS THE SAME
+                auto lWF_R1((test(iDs*mobileClustersIncrement),eval(R1*mobileClusters))*dV);
                 
                 SecondOrderReaction<MobileTrialType> R2(mobileClusters,this->cdp);
-                auto bWF_R2((test(mobileClustersIncrement),R2*(-1.0*mobileClustersIncrement))*dV);
-                auto lWF_R2((test(mobileClustersIncrement),eval(R2*(0.5*mobileClusters)))*dV);
+                auto bWF_R2((test(iDs*mobileClustersIncrement),R2*(-1.0*mobileClustersIncrement))*dV);
+                auto lWF_R2((test(iDs*mobileClustersIncrement),eval(R2*(0.5*mobileClusters)))*dV);
                 
                 // Missing immobile sinks
                 

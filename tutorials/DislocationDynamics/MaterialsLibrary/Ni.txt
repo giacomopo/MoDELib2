@@ -1,5 +1,6 @@
 materialName=Ni;
 crystalStructure=FCC;
+atomsPerUnitCell=1;
 enabledSlipSystems=full; # types of slip systems enabled e.g. enabledSlipSystems=full Shockley Kear;
 b_SI=0.2482e-9; # [m] 		Burgers vector magnitude 
 mu0_SI=98.8e9;	# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+mu1*T

@@ -30,6 +30,7 @@ namespace model
         /* init */ materialFile(getMaterialFile(fileName))
         /* init */,materialName(TextFileParser(materialFile).readString("materialName",true))
         /* init */,crystalStructure(TextFileParser(materialFile).readString("crystalStructure",true))
+        /* init */,atomsPerUnitCell(TextFileParser(materialFile).readScalar<int>("atomsPerUnitCell",true))
         /* init */,T(absoluteTemperature)
         /* init */,Tm(TextFileParser(materialFile).readScalar<double>("Tm",true))
         /* init */,mu0_SI(TextFileParser(materialFile).readScalar<double>("mu0_SI",true))

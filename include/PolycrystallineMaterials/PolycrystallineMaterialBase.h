@@ -27,6 +27,7 @@ namespace model
         const std::string materialName;
         
         const std::string crystalStructure;
+        const int atomsPerUnitCell;
         
         // Material constants in SI units
         const double T;         // simulation temparature [K]

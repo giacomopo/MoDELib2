@@ -33,6 +33,10 @@ namespace model
         {
             this->emplace_back(new InclusionMicrostructureType(*this));
         }
+        if(this->ddBase.simulationParameters.useElasticDeformation)
+        {
+            this->emplace_back(new ElasticDeformationType(*this));
+        }
         if(this->ddBase.simulationParameters.useClusterDynamics)
         {
             this->emplace_back(new ClusterDynamicsType(*this));
@@ -40,10 +44,6 @@ namespace model
         if(this->ddBase.simulationParameters.useDislocations)
         {
             this->emplace_back(new DislocationNetworkType(*this));
-        }
-        if(this->ddBase.simulationParameters.useElasticDeformation)
-        {
-            this->emplace_back(new ElasticDeformationType(*this));
         }
     }
 

@@ -1,6 +1,5 @@
 materialName=Zr;
 crystalStructure=HEX;
-atomsPerUnitCell=2;
 enabledSlipSystems=fullBasal fullPrismatic; # types of slip systems enabled e.g. enabledSlipSystems=fullBasal ShockleyBasal fullPrismatic fullPyramidal;
 b_SI=0.3233e-9; #0.3615e-9; # [m] 		Burgers vector magnitude 
 mu0_SI=33e9;	# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+mu1*T
@@ -63,11 +62,22 @@ stackingFaultNoiseMode=0; # 0=no noise
 enabledSecondPhases=;
 
 # ClusterDynamics
-doseRate_dpaPerSec=1.0e-7; 		# [dpa/s] irradiation dose rate
-mobileSpeciesVector=-1;			# single vacancies
+doseRate_dpaPerSec= 1e-7; # [dpa/s] irradiation dose rate
+mobileSpeciesVector= -1 +1;	 # single vacancies
+mobileSpeciesCascadeFractions= 1.0 1.0;
 mobileSpeciesSurvivingEfficiency = 0.01; # Surviving efficiency
-mobileSpeciesRelRelaxVol= 0.405; 	# [-] relative vacancy relaxation volume
-mobileSpeciesEnergyFormation_eV=1.5; 	# [eV] vacancy formation energy
-mobileSpeciesEnergyMigration_eV=0.9 0 0 0.9 0 0.9; 	# [eV] anisotropic migration energies, components [11 12 13 22 23 33]
-mobileSpeciesD0_SI=4.9639e-10 0 0 4.9639e-10 0 4.9639e-10; # [m^2/s] anisotropic pre-exponential diffusion coefficients, components [11 12 13 22 23 33]
-otherSinks_SI=0.0;
+mobileSpeciesRelRelaxVol= 0.405 1.2; 	# [-] relative vacancy relaxation volume
+mobileSpeciesEnergyFormation_eV=1.5 3.0; 	# [eV] vacancy formation energy
+mobileSpeciesEnergyMigration_eV=0.9 0 0 0.9 0 0.9
+                                0.09 0 0 0.09 0 0.09; 	# [eV] migration energies, components [11 12 13 22 23 33]
+                                
+mobileSpeciesD0_SI=4.9639e-10 0 0 4.9639e-10 0 4.9639e-10
+                   8.1882e-10 0.0 0.0 8.1882e-10 0.0 8.1882e-10; # [m^2/s] pre-exponential diffusion coefficients, components [11 12 13 22 23 33]
+                   
+computeReactions=0;
+reactionPrefactorMap= -1 -1 0.0
+                      -1  1 0.0
+                       1  1 0.0; # Reaction map between species (species,species,reaction prefactor) 2.856
+elasticBias = 1.0 1.0
+              1.0 1.0; # [-] Bias for interaction between discrete dislocations and mobile species. [vL-v vL-i; iL-v iL-i]
+otherSinks_SI=0.0 0.0;

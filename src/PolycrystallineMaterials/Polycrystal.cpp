@@ -163,7 +163,7 @@ double Polycrystal<dim>::getAtomicVolume() const
         }
     }
     
-    return omg0;
+    return omg0/this->atomsPerUnitCell;
 }
 
 template <int dim>

@@ -1,5 +1,6 @@
 materialName=Cu;
 crystalStructure=FCC;
+atomsPerUnitCell=1;
 enabledSlipSystems=full; # types of slip systems enabled e.g. enabledSlipSystems=full Shockley Kear;
 enablePartials=0;
 b_SI=0.2556e-9; # [m] 		Burgers vector magnitude 

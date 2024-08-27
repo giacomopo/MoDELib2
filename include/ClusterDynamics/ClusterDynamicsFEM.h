@@ -89,9 +89,12 @@ namespace model
         typedef BilinearWeakForm<MobileBilinearFormType,VolumeIntegrationDomainType> MobileBilinearWeakFormType;
 
         typedef TrialFunction<'d',mSize,FiniteElementType> MobileIncrementTrialType;
+        typedef TrialProd<InvDscaling<dim>,MobileIncrementTrialType> MobileIncrementTestType;
+        typedef TrialGrad<MobileIncrementTestType> MobileIncrementTestGradType;
+
         typedef TrialGrad<MobileIncrementTrialType> MobileIncrementGradType;
         typedef TrialProd<FluxMatrix<dim>,MobileIncrementGradType> MobileIncrementFluxType;
-        typedef BilinearForm<MobileIncrementGradType,TrialProd<Constant<double,1,1>,MobileIncrementFluxType>> MobileIncrementBilinearFormType;
+        typedef BilinearForm<MobileIncrementTestGradType,TrialProd<Constant<double,1,1>,MobileIncrementFluxType>> MobileIncrementBilinearFormType;
         typedef BilinearWeakForm<MobileIncrementBilinearFormType,VolumeIntegrationDomainType> MobileIncrementBilinearWeakFormType;
 
 //        typedef Eigen::SparseMatrix<double> SparseMatrixType;
