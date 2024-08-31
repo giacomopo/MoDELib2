@@ -75,7 +75,7 @@ bool Plane<dim>::isBelow(const VectorDim& P0) const
         typename Plane<dim>::VectorLowerDim Plane<dim>::localPosition(const VectorDim& point) const
         {
             const VectorDim pointLocal(L2G.transpose()*(point-P));
-            if(fabs(pointLocal(2))>FLT_EPSILON)
+            if(fabs(pointLocal(dim-1))>FLT_EPSILON)
             {
                 std::cout<<"point="<<point.transpose()<<std::endl;
                 std::cout<<"P="<<P.transpose()<<std::endl;
@@ -83,7 +83,7 @@ bool Plane<dim>::isBelow(const VectorDim& P0) const
                 std::cout<<"pointLocal="<<pointLocal.transpose()<<std::endl;
                 throw std::runtime_error("Local point has non-zero z-coordinate");
             }
-            return pointLocal.template segment<2>(0);
+            return pointLocal.template segment<dim-1>(0);
         }
 
         /**********************************************************************/
@@ -92,6 +92,28 @@ bool Plane<dim>::isBelow(const VectorDim& P0) const
         {// terurns the position on the plane in global goordinates
             return L2G.template block<dim,dim-1>(0,0)*point+P;
         }
+
+/**********************************************************************/
+template <int dim>
+typename Plane<dim>::VectorLowerDim Plane<dim>::localDirection(const VectorDim& dir) const
+{
+    const VectorDim dirLocal(L2G.transpose()*dir);
+    if(fabs(dirLocal(dim-1))>FLT_EPSILON)
+    {
+        std::cout<<"dir="<<dir.transpose()<<std::endl;
+        std::cout<<"L2G=\n"<<L2G<<std::endl;
+        std::cout<<"dirLocal="<<dirLocal.transpose()<<std::endl;
+        throw std::runtime_error("Local point has non-zero z-coordinate");
+    }
+    return dirLocal.template segment<dim-1>(0);
+}
+
+/**********************************************************************/
+template <int dim>
+typename Plane<dim>::VectorDim Plane<dim>::globalDirection(const VectorLowerDim& dir) const
+{// terurns the position on the plane in global goordinates
+    return L2G.template block<dim,dim-1>(0,0)*dir;
+}
 
         /**********************************************************************/
         template <int dim>

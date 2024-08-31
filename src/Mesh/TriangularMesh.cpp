@@ -45,7 +45,8 @@ const std::deque<Eigen::Vector3i>& TriangularMesh::triangles() const
 
 void TriangularMesh::reMesh(const std::deque<Eigen::Matrix<double,2,1>>& boundaryPts,
                             const std::deque<Eigen::Matrix<double,2,1>>& internalPts,
-                            const double& meshSize)
+                            const double& meshSize,
+                            const std::string& flags)
 {// https://userpages.umbc.edu/~rostamia/cbook/mesh.c
     // https://userpages.umbc.edu/~rostamia/cbook/triangle.h
     // https://people.sc.fsu.edu/~jburkardt/data/poly/poly.html
@@ -193,8 +194,10 @@ void TriangularMesh::reMesh(const std::deque<Eigen::Matrix<double,2,1>>& boundar
         //        triangulate("pzAevn", &in, &mid, &vorout); // G.P. use D for Delaunay triangulation, q to enforce angle quality
         //            std::cout<<"Meshing plane..."<<std::flush;
         //            const auto t0= std::chrono::system_clock::now();
-        triangulate("pazq", &in, &mid, (struct triangulateio *) NULL);
-//        triangulate("pz", &in, &mid, (struct triangulateio *) NULL);
+        triangulate(flags.c_str(), &in, &mid, (struct triangulateio *) NULL);
+//        triangulate("pazq", &in, &mid, (struct triangulateio *) NULL);
+
+        ////        triangulate("pz", &in, &mid, (struct triangulateio *) NULL);
 
         //            std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         
@@ -250,7 +253,8 @@ void TriangularMesh::reMesh(const std::deque<Eigen::Matrix<double,2,1>>& boundar
 
 void TriangularMesh::reMesh(const std::vector<Eigen::Matrix<double,2,1>>& points,
                             const std::vector<Eigen::Matrix<int,2,1>>& segments,
-                            const double& meshSize)
+                            const double& meshSize,
+                            const std::string& flags)
 {// https://userpages.umbc.edu/~rostamia/cbook/mesh.c
     // https://userpages.umbc.edu/~rostamia/cbook/triangle.h
     // https://people.sc.fsu.edu/~jburkardt/data/poly/poly.html
@@ -367,8 +371,8 @@ void TriangularMesh::reMesh(const std::vector<Eigen::Matrix<double,2,1>>& points
         //        triangulate("pzAevn", &in, &mid, &vorout); // G.P. use D for Delaunay triangulation, q to enforce angle quality
         //            std::cout<<"Meshing plane..."<<std::flush;
         //            const auto t0= std::chrono::system_clock::now();
-//        triangulate("pazq", &in, &mid, (struct triangulateio *) NULL);
-        triangulate("pz", &in, &mid, (struct triangulateio *) NULL);
+        triangulate(flags.c_str(), &in, &mid, (struct triangulateio *) NULL);
+//        triangulate("pz", &in, &mid, (struct triangulateio *) NULL);
 
         //            std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         

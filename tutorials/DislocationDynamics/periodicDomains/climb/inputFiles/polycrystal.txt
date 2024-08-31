@@ -1,6 +1,6 @@
 materialFile=../../../MaterialsLibrary/Zr_CD4.txt;
 absoluteTemperature=470; # [K] simulation temperature 
-meshFile=../../../MeshLibrary/unitCube8188.msh; # mesh file 
+meshFile=../../../MeshLibrary/unitCube36809.msh; # mesh file 
 C2G1=1.0 0.0 0.0
      0.0 1.0 0.0
      0.0 0.0 1.0; # crystal rotation matrix 

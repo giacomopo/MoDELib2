@@ -55,6 +55,11 @@ namespace model
         /**********************************************************************/
         VectorDim globalPosition(const VectorLowerDim& point) const;
         
+        VectorLowerDim localDirection(const VectorDim& dir) const;
+        
+        /**********************************************************************/
+        VectorDim globalDirection(const VectorLowerDim& dir) const;
+        
         /**********************************************************************/
         static MatrixDim getL2G(VectorDim z);
 

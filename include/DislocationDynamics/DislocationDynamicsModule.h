@@ -97,8 +97,7 @@ namespace model
     template <int dim>
     class DDconfigIO;
 
-    template <int dim>
-    struct DDauxIO;
+    struct MeshedDislocationLoop;
 
 }
 

@@ -98,13 +98,9 @@ namespace model
         /**********************************************************************/
         std::vector<Eigen::Triplet<double> >  globalTriplets() const
         {
-            
-//            std::cout<<"Assembling BilinearWeakForm on domain..."<<std::flush;
-            
             std::vector<Eigen::Triplet<double> > glbtrip;
             glbtrip.reserve(dofPerElement*dofPerElement*TrialBase<TrialFunctionType>::elementSize());
             
-//            const auto t0= std::chrono::system_clock::now();
             for (size_t k=0;k<domain.size();++k)
             {
                 const ElementType& ele(domain.element(k));
@@ -130,8 +126,6 @@ namespace model
                     }
                 }
             }
-            
-//            std::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
             return glbtrip;
         }
         

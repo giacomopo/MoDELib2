@@ -168,6 +168,7 @@ namespace model
     }
 
     template class LineLineIntersection<3>;
+    template class LineLineIntersection<2>;
 
 } /* namespace model */
 #endif

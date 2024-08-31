@@ -96,18 +96,6 @@ namespace model
         typedef TrialProd<FluxMatrix<dim>,MobileIncrementGradType> MobileIncrementFluxType;
         typedef BilinearForm<MobileIncrementTestGradType,TrialProd<Constant<double,1,1>,MobileIncrementFluxType>> MobileIncrementBilinearFormType;
         typedef BilinearWeakForm<MobileIncrementBilinearFormType,VolumeIntegrationDomainType> MobileIncrementBilinearWeakFormType;
-
-//        typedef Eigen::SparseMatrix<double> SparseMatrixType;
-//    #ifdef _MODEL_PARDISO_SOLVER_
-//        typedef Eigen::PardisoLLT<SparseMatrixType> DirectSPDSolverType;
-//        typedef Eigen::PardisoLU<SparseMatrixType> DirectSquareSolverType;
-//    #else
-//        typedef Eigen::SimplicialLLT<SparseMatrixType> DirectSPDSolverType;
-//        typedef Eigen::SparseLU<SparseMatrixType> DirectSquareSolverType;
-//    #endif
-//        typedef Eigen::ConjugateGradient<SparseMatrixType> IterativeSPDSolverType;
-//        typedef Eigen::BiCGSTAB<SparseMatrixType> IterativeSquareSolverType;
-
         typedef Eigen::SparseMatrix<double,Eigen::RowMajor> SparseMatrixType;
 #ifdef CHOLMOD_H // SuiteSparse Cholmod (LLT) module
     typedef Eigen::CholmodSupernodalLLT<SparseMatrixType> LltSolverType;
@@ -145,7 +133,6 @@ namespace model
         bool solverInitialized;
 
         const Eigen::VectorXd cascadeGlobalProduction;
-
 
         ClusterDynamicsFEM(const DislocationDynamicsBase<dim>& ddBase_in,const ClusterDynamicsParameters<dim>& cdp_in);
         void solveMobileClusters();

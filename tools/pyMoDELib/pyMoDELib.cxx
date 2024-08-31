@@ -173,10 +173,10 @@ PYBIND11_MODULE(pyMoDELib,m)
     
     py::class_<MeshedDislocationLoop
     /*      */ >(m,"MeshedDislocationLoop")
-        .def(py::init<const VectorDim&,
-             const std::vector<VectorDim>&,
-             const Plane<3>&,const std::vector<Eigen::Matrix<double,3,1>>&,
-             const double&>())
+//        .def(py::init<const VectorDim&,
+//             const DislocationDynamicsBase<3>&,
+//             const GlidePlane<3>&,const std::vector<Eigen::Matrix<double,3,1>>&,
+//             const double&,const double&>())
         .def("solidAngle",&MeshedDislocationLoop::solidAngle)
         .def("plasticDisplacement",&MeshedDislocationLoop::plasticDisplacement)
         .def("plasticDisplacementKernel",&MeshedDislocationLoop::plasticDisplacementKernel)

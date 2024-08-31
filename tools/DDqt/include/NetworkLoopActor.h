@@ -20,6 +20,7 @@
 #include <QColorDialog>
 #include <QGroupBox>
 #include <QVBoxLayout>
+#include <QLineEdit>
 
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkVersion.h>
@@ -44,7 +45,6 @@
 #include <DDconfigIO.h>
 #include <MeshPlane.h>
 #include <PeriodicGlidePlaneFactory.h>
-//#include <DislocationLoopPatches.h>
 #include <DefectiveCrystal.h>
 
 namespace model
@@ -67,12 +67,10 @@ namespace model
 
         QGroupBox* meshAreaBox;
 
-        
         vtkSmartPointer<vtkPolyData> loopPolyData;
         vtkSmartPointer<vtkPolyDataMapper> loopMapper;
         vtkSmartPointer<vtkActor> loopActor;
 
-        
         vtkSmartPointer<vtkPolyData> areaPolyData;
         vtkSmartPointer<vtkTriangleFilter> areaTriangleFilter; // needed to handle non-convex area polygons
         vtkSmartPointer<vtkPolyDataMapper> areaMapper;
@@ -81,7 +79,8 @@ namespace model
         vtkSmartPointer<vtkPolyData> meshPolydata;
         vtkSmartPointer<vtkPolyDataMapper> meshMapper;
         vtkSmartPointer<vtkActor> meshActor;
-
+        QLineEdit* globalMeshSizeEdit;
+        QLineEdit* localMeshSizeEdit;
 
         
         public:

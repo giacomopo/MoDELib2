@@ -437,7 +437,7 @@ void GlidePlaneActor::updateConfiguration()
             for(auto& pair : singleGlidePlaneMap)
             {
                 TriangularMesh triMesh;
-                triMesh.reMesh(pair.second.points,pair.second.segments,100000.0);
+                triMesh.reMesh(pair.second.points,pair.second.segments,100000.0,"pz");
                 
                 for(const auto& point2d : triMesh.vertices())
                 {

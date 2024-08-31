@@ -9,6 +9,14 @@
 #ifndef model_MicrostructureGenerator_H_
 #define model_MicrostructureGenerator_H_
 
+#ifdef _MODEL_PYBIND11_
+    #undef slots
+    #include <pybind11/embed.h>
+    #include <pybind11/eigen.h>
+    #include <pybind11/stl.h>
+    #define slots Q_SLOTS
+#endif
+
 #include <filesystem>
 #include <chrono>
 #include <random>

@@ -686,7 +686,7 @@ void DDPlaneField::resetPlane()
                         boundaryPts.push_back(plane->localPosition(bndLine->P0));
                         
                     }
-                    this->reMesh(boundaryPts,internalPts,meshSize);
+                    this->reMesh(boundaryPts,internalPts,meshSize,"pazq");
                     
                     dataPnts().clear();
                     vtkSmartPointer<vtkPoints> meshPts(vtkSmartPointer<vtkPoints>::New());

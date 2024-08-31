@@ -34,10 +34,12 @@ namespace model
         const std::deque<Eigen::Vector3i>& triangles() const;
         void reMesh(const std::deque<Eigen::Matrix<double,2,1>>& boundaryPts,
                     const std::deque<Eigen::Matrix<double,2,1>>& internalPts,
-                    const double& meshSize);
+                    const double& meshSize,
+                    const std::string& flags);
         void reMesh(const std::vector<Eigen::Matrix<double,2,1>>& points,
                     const std::vector<Eigen::Matrix<int,2,1>>& segments,
-                    const double& meshSize);
+                    const double& meshSize,
+                    const std::string& flags);
         
         
     };
