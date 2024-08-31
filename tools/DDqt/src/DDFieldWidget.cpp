@@ -22,7 +22,8 @@
 #include <vtkProperty.h>
 #include <vtkTriangle.h>
 #include <vtkCellData.h>
-
+#include <vtkFloatArray.h>
+#include <vtkAxis.h>
 #include <DDFieldWidget.h>
 
 namespace model
@@ -47,6 +48,19 @@ FieldDataPnt::FieldDataPnt(const DefectiveCrystal<3>& defectiveCrystal,const Eig
 {
     
 }
+
+void FieldDataPnt::compute(const DefectiveCrystal<3>& defectiveCrystal)
+{
+    int mID(0);
+    for(const auto& mStruct : defectiveCrystal.microstructures())
+    {
+        displacement[mID]=mStruct->displacement(P,nullptr,ele,nullptr);
+        stress[mID]=mStruct->stress(P,nullptr,ele,nullptr);
+        mobileConcentration[mID]=mStruct->mobileConcentration(P,nullptr,ele,nullptr);
+        mID++;
+    }
+}
+
 
 double FieldDataPnt::value(const int& valID,const std::vector<QCheckBox*>& microstructuresCheck) const
 {
@@ -134,140 +148,7 @@ double FieldDataPnt::value(const int& valID,const std::vector<QCheckBox*>& micro
     {
         return 0.0;
     }
-    
-    //    switch (valID)
-    //    {
-    //        case 0:
-    //            return stressDD(0,0)*useDD+stressIN(0,0)*useIN;
-    //            break;
-    //        case 1:
-    //            return stressDD(0,1)*useDD+stressIN(0,1)*useIN;
-    //            break;
-    //        case 2:
-    //            return stressDD(0,2)*useDD+stressIN(0,2)*useIN;
-    //            break;
-    //        case 3:
-    //            return stressDD(1,1)*useDD+stressIN(1,1)*useIN;
-    //            break;
-    //        case 4:
-    //            return stressDD(1,2)*useDD+stressIN(1,2)*useIN;
-    //            break;
-    //        case 5:
-    //            return stressDD(2,2)*useDD+stressIN(2,2)*useIN;
-    //            break;
-    //        case 6:
-    //            return value(0,useDD,useIN)+value(3,useDD,useIN)+value(5,useDD,useIN);
-    //            break;
-    //        case 7:
-    //        {
-    //            const Eigen::Matrix<double,3,3> stress(stressDD*useDD+stressIN*useIN);
-    //            const Eigen::Matrix<double,3,3> stressDev(stress-stress.trace()/3.0*Eigen::Matrix<double,3,3>::Identity());
-    //            return std::sqrt((stressDev*stressDev).trace()*1.5);
-    //            break;
-    //        }
-    //        case 8:
-    //            return solidAngle;
-    //            break;
-    //        case 9:
-    //        {
-    //            return mobileClusters(0);
-    //            break;
-    //        }
-    //
-    //        default:
-    //            return 0.0;
-    //            break;
-    //    }
 }
-
-//double FieldDataPnt::value(const int& valID,const bool& useDD,const bool& useIN,const bool& useCD,const bool& useED) const
-//{
-//    //    std::cout<<valID<<std::endl;
-//    if(valID<3)
-//    {
-//        return displacementED(valID)*useED;
-//    }
-//    else if(valID<6+3)
-//    {
-//        const int i(voigtTraits.tensorIndex(valID-3,0));
-//        const int j(voigtTraits.tensorIndex(valID-3,1));
-//        return stressDD(i,j)*useDD+stressIN(i,j)*useIN+stressED(i,j)*useED;
-//    }
-//    else if(valID==6+3)
-//    {
-//        return (stressDD*useDD+stressIN*useIN+stressED*useED).trace();
-//    }
-//    else if(valID==7+3)
-//    {
-//        const Eigen::Matrix<double,3,3> stress(stressDD*useDD+stressIN*useIN+stressED*useED);
-//        const Eigen::Matrix<double,3,3> stressDev(stress-stress.trace()/3.0*Eigen::Matrix<double,3,3>::Identity());
-//        return std::sqrt((stressDev*stressDev).trace()*1.5);
-//    }
-////    else if(valID==8+3)
-////    {
-////        return solidAngle*useDD;
-////    }
-//    else if(valID>7+3 && valID<=7+3+mSize)
-//    {
-//        return mobileClustersDD(valID-8-3)*useDD+mobileClusters(valID-8-3)*useCD;
-//    }
-//    else if(valID>7+3+mSize && valID<=7+3+mSize+iSize)
-//    {
-//        return immobileClusters(valID-8-3-mSize);
-//    }
-//    else
-//    {
-//        return 0.0;
-//    }
-//    
-//    //    switch (valID)
-//    //    {
-//    //        case 0:
-//    //            return stressDD(0,0)*useDD+stressIN(0,0)*useIN;
-//    //            break;
-//    //        case 1:
-//    //            return stressDD(0,1)*useDD+stressIN(0,1)*useIN;
-//    //            break;
-//    //        case 2:
-//    //            return stressDD(0,2)*useDD+stressIN(0,2)*useIN;
-//    //            break;
-//    //        case 3:
-//    //            return stressDD(1,1)*useDD+stressIN(1,1)*useIN;
-//    //            break;
-//    //        case 4:
-//    //            return stressDD(1,2)*useDD+stressIN(1,2)*useIN;
-//    //            break;
-//    //        case 5:
-//    //            return stressDD(2,2)*useDD+stressIN(2,2)*useIN;
-//    //            break;
-//    //        case 6:
-//    //            return value(0,useDD,useIN)+value(3,useDD,useIN)+value(5,useDD,useIN);
-//    //            break;
-//    //        case 7:
-//    //        {
-//    //            const Eigen::Matrix<double,3,3> stress(stressDD*useDD+stressIN*useIN);
-//    //            const Eigen::Matrix<double,3,3> stressDev(stress-stress.trace()/3.0*Eigen::Matrix<double,3,3>::Identity());
-//    //            return std::sqrt((stressDev*stressDev).trace()*1.5);
-//    //            break;
-//    //        }
-//    //        case 8:
-//    //            return solidAngle;
-//    //            break;
-//    //        case 9:
-//    //        {
-//    //            return mobileClusters(0);
-//    //            break;
-//    //        }
-//    //
-//    //        default:
-//    //            return 0.0;
-//    //            break;
-//    //    }
-//}
-
-//const SymmetricVoigtTraits<3> FieldDataPnt::voigtTraits=SymmetricVoigtTraits<3>((typename SymmetricVoigtTraits<3>::VoigtSizeMatrixType()<<0,0,1,1,2,2,1,2,0,2,0,1).finished());
-
-
 
 DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
                              vtkRenderer* const renderer_in,
@@ -276,6 +157,9 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
 /* init */,boxLabel(new QLabel(tr("# of planes")))
 /* init */,spinBox(new QSpinBox(this))
 /* init */,groupBox(new QGroupBox(tr("&Planes")))
+/* init */,linesBoxLabel(new QLabel(tr("# of lines")))
+/* init */,linesSpinBox(new QSpinBox(this))
+/* init */,linesGroupBox(new QGroupBox(tr("&Lines")))
 /* init */,computeButton(new QPushButton(tr("Compute")))
 /* init */,fieldComboBox(new QComboBox(this))
 ///* init */,dislocationsCheck(new QCheckBox("dislocations",this))
@@ -295,6 +179,10 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
     
     QVBoxLayout* groupBoxLayout = new QVBoxLayout();
     groupBox->setLayout(groupBoxLayout);
+
+    QVBoxLayout* linesGroupBoxLayout = new QVBoxLayout();
+    linesGroupBox->setLayout(linesGroupBoxLayout);
+
     
     QGridLayout* autoscaleLayout = new QGridLayout();
     customScaleBox->setCheckable(true);
@@ -320,19 +208,8 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
         const int& j(defectiveCrystal.ddBase.voigtTraits.tensorIndex(k,1));
         fieldComboBox->insertItem(k+3,QString::fromStdString("stress_"+std::to_string(i+1)+std::to_string(j+1)));
     }
-//    
-//    fieldComboBox->insertItem(0,"stress_11");
-//    fieldComboBox->insertItem(1,"stress_22");
-//    fieldComboBox->insertItem(2,"stress_33");
-//    fieldComboBox->insertItem(3,"stress_23");
-//    fieldComboBox->insertItem(4,"stress_13");
-//    fieldComboBox->insertItem(5,"stress_12");
-    //    fieldComboBox->insertItem(3,"stress_21");
-    //    fieldComboBox->insertItem(6,"stress_31");
-    //    fieldComboBox->insertItem(7,"stress_32");
     fieldComboBox->insertItem(6+3,"tr(stress)");
     fieldComboBox->insertItem(7+3,"stress_VM");
-//    fieldComboBox->insertItem(8+3,"solid angle");
     for(int k=0;k<ClusterDynamicsParameters<3>::mSize;++k)
     {
         fieldComboBox->insertItem(8+3+k,"v");
@@ -345,13 +222,8 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
         connect(microstructuresCheck.back(),SIGNAL(stateChanged(int)), this, SLOT(plotField()));
     }
     
-//    dislocationsCheck->setChecked(true);
-//    inclusionsCheck->setChecked(true);
-//    cdCheck->setChecked(true);
-//    edCheck->setChecked(true);
-
-    
     connect(spinBox,SIGNAL(valueChanged(int)), this, SLOT(resetPlanes()));
+    connect(linesSpinBox,SIGNAL(valueChanged(int)), this, SLOT(resetLines()));
     connect(computeButton,SIGNAL(released()), this, SLOT(compute()));
     connect(fieldComboBox,SIGNAL(currentIndexChanged(int)), this, SLOT(plotField()));
     connect(minScale,SIGNAL(returnPressed()), this, SLOT(plotField()));
@@ -368,18 +240,23 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
     mainLayout->addWidget(boxLabel,0,0,1,1);
     mainLayout->addWidget(spinBox,0,1,1,1);
     mainLayout->addWidget(groupBox,1,0,1,2);
-    mainLayout->addWidget(computeButton,2,0,1,1);
-    mainLayout->addWidget(fieldComboBox,3,0,1,1);
+    
+    mainLayout->addWidget(linesBoxLabel,2,0,1,1);
+    mainLayout->addWidget(linesSpinBox,2,1,1,1);
+    mainLayout->addWidget(linesGroupBox,3,0,1,2);
+    
+    mainLayout->addWidget(computeButton,4,0,1,1);
+    mainLayout->addWidget(fieldComboBox,5,0,1,1);
     for(size_t k=0;k<microstructuresCheck.size();++k)
     {
-        mainLayout->addWidget(microstructuresCheck[k],2+k,1,1,1);
+        mainLayout->addWidget(microstructuresCheck[k],4+k,1,1,1);
     }
 //    mainLayout->addWidget(dislocationsCheck,2,1,1,1);
 //    mainLayout->addWidget(inclusionsCheck,3,1,1,1);
 //    mainLayout->addWidget(cdCheck,4,1,1,1);
 //    mainLayout->addWidget(edCheck,5,1,1,1);
-    mainLayout->addWidget(customScaleBox,2+microstructuresCheck.size(),0,1,2);
-    mainLayout->addWidget(scaleBarBox,3+microstructuresCheck.size(),0,1,2);
+    mainLayout->addWidget(customScaleBox,4+microstructuresCheck.size(),0,1,2);
+    mainLayout->addWidget(scaleBarBox,5+microstructuresCheck.size(),0,1,2);
 
     this->setLayout(mainLayout);
     
@@ -394,8 +271,6 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
     
     renderer->AddActor2D(scalarBar);
 
-    
-    
 }
 
 void DDFieldWidget::compute()
@@ -418,14 +293,35 @@ void DDFieldWidget::compute()
                 }
             }
         }
-        plotField();
     }
+    
+    if(linesGroupBox)
+    {
+        if(linesGroupBox->layout())
+        {
+            for(int k=0;k<linesGroupBox->layout()->count();++k)
+            {
+                QLayoutItem *item = linesGroupBox->layout()->itemAt(k);
+                QWidget* widget = item->widget();
+                if(widget)
+                {
+                    auto* ddLineField = dynamic_cast<DDLineField*>(widget);
+                    if (ddLineField)
+                    {
+                        ddLineField->compute(defectiveCrystal);
+                    }
+                }
+            }
+        }
+    }
+    
+    plotField();
+
 }
 
 void DDFieldWidget::plotField()
 {
-    if(groupBox->layout())
-    {
+    
 //        std::vector<bool> checkedMicrostructs;
 //        for(const auto& mStruct : microstructuresCheck)
 //        {
@@ -438,28 +334,57 @@ void DDFieldWidget::plotField()
         {// compute range
             double minValue=std::numeric_limits<double>::max();
             double maxValue=-std::numeric_limits<double>::max();
-            for(int k=0;k<groupBox->layout()->count();++k)
+            if(groupBox->layout())
             {
-                QLayoutItem *item = groupBox->layout()->itemAt(k);
-                QWidget* widget = item->widget();
-                if(widget)
+                for(int k=0;k<groupBox->layout()->count();++k)
                 {
-                    auto* ddPlaneField = dynamic_cast<DDPlaneField*>(widget);
-                    if (ddPlaneField)
+                    QLayoutItem *item = groupBox->layout()->itemAt(k);
+                    QWidget* widget = item->widget();
+                    if(widget)
                     {
-                        if(ddPlaneField->groupBox->isChecked())
+                        auto* ddPlaneField = dynamic_cast<DDPlaneField*>(widget);
+                        if (ddPlaneField)
                         {
-                            for(const auto& vtx : ddPlaneField->dataPnts())
+                            if(ddPlaneField->groupBox->isChecked())
                             {
-//                                const double value(vtx.value(valID,dislocationsCheck->isChecked(),inclusionsCheck->isChecked(),cdCheck->isChecked(),edCheck->isChecked()));
-                                const double value(vtx.value(valID,microstructuresCheck));
-                                minValue=std::min(minValue,value);
-                                maxValue=std::max(maxValue,value);
+                                for(const auto& vtx : ddPlaneField->dataPnts())
+                                {
+                                    //                                const double value(vtx.value(valID,dislocationsCheck->isChecked(),inclusionsCheck->isChecked(),cdCheck->isChecked(),edCheck->isChecked()));
+                                    const double value(vtx.value(valID,microstructuresCheck));
+                                    minValue=std::min(minValue,value);
+                                    maxValue=std::max(maxValue,value);
+                                }
                             }
                         }
                     }
                 }
-            }
+        }
+            
+            if(linesGroupBox->layout())
+            {
+                for(int k=0;k<linesGroupBox->layout()->count();++k)
+                {
+                    QLayoutItem *item = linesGroupBox->layout()->itemAt(k);
+                    QWidget* widget = item->widget();
+                    if(widget)
+                    {
+                        auto* ddLineField = dynamic_cast<DDLineField*>(widget);
+                        if (ddLineField)
+                        {
+                            if(ddLineField->groupBox->isChecked())
+                            {
+                                for(const auto& vtx : ddLineField->dataPnts())
+                                {
+                                    const double value(vtx.value(valID,microstructuresCheck));
+                                    minValue=std::min(minValue,value);
+                                    maxValue=std::max(maxValue,value);
+                                }
+                            }
+                        }
+                    }
+                }
+        }
+            
             minScale->setText(QString::fromStdString(to_string_exact(minValue,7)));
             maxScale->setText(QString::fromStdString(to_string_exact(maxValue,7)));
         }
@@ -491,6 +416,24 @@ void DDFieldWidget::plotField()
                         }
                     }
                 }
+                
+                for(int k=0;k<linesGroupBox->layout()->count();++k)
+                {
+                    QLayoutItem *item = linesGroupBox->layout()->itemAt(k);
+                    QWidget* widget = item->widget();
+                    if(widget)
+                    {
+                        auto* ddLineField = dynamic_cast<DDLineField*>(widget);
+                        if (ddLineField)
+                        {
+                            if(ddLineField->groupBox->isChecked())
+                            {
+                                ddLineField->plotField(valID,microstructuresCheck,fieldComboBox);
+                            }
+                        }
+                    }
+                }
+                
                 scalarBar->SetVisibility(scaleBarBox->isChecked());
                 renWin->Render();
             }
@@ -503,7 +446,7 @@ void DDFieldWidget::plotField()
         {
             //            minScale->setStyleSheet("color: red");
         }
-    }
+    
 }
 
 void DDPlaneField::compute(const DefectiveCrystal<3>& defectiveCrystal)
@@ -517,22 +460,7 @@ void DDPlaneField::compute(const DefectiveCrystal<3>& defectiveCrystal)
     for(size_t vtkID=0;vtkID<dataPnts().size();++vtkID)
     {
         auto& vtx(dataPnts()[vtkID]);
-//        vtx.solidAngle=configFields.solidAngle(vtx.P);
-        int mID(0);
-        for(const auto& mStruct : defectiveCrystal.microstructures())
-        {
-            vtx.displacement[mID]=mStruct->displacement(vtx.P,nullptr,vtx.ele,nullptr);
-            vtx.stress[mID]=mStruct->stress(vtx.P,nullptr,vtx.ele,nullptr);
-            vtx.mobileConcentration[mID]=mStruct->mobileConcentration(vtx.P,nullptr,vtx.ele,nullptr);
-            mID++;
-        }
-//        vtx.displacementED=eval(configFields.u)(vtx.P);
-//        vtx.stressED=defectiveCrystal.ddBase.voigtTraits.v2m(eval(configFields.s)(vtx.P),false);
-//        vtx.stressDD=configFields.dislocationStress(vtx.P);
-//        vtx.stressIN=configFields.inclusionStress(vtx.P);
-//        vtx.mobileClustersDD=configFields.dislocationMobileConentrations(vtx.P,gessSimplex);
-//        vtx.mobileClusters=eval(configFields.mobileClusters)(vtx.P);
-//        vtx.immobileClusters=eval(configFields.immobileClusters)(vtx.P);
+        vtx.compute(defectiveCrystal);
     }
     std::cout<<magentaColor<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 }
@@ -567,6 +495,19 @@ void DDFieldWidget::resetPlanes()
     renWin->Render();
 }
 
+void DDFieldWidget::resetLines()
+{
+    clearLayout(linesGroupBox->layout());
+    std::cout<<"Resetting "<<linesSpinBox->value()<<" lines"<<std::endl;
+    for(int k=0;k<linesSpinBox->value();++k)
+    {
+        DDLineField* lineField(new DDLineField(renWin,renderer,defectiveCrystal));
+        lineField->resetLine();
+        linesGroupBox->layout()->addWidget(lineField);
+    }
+    renWin->Render();
+}
+
 void DDPlaneField::plotField(const int& valID,const std::vector<QCheckBox*>& microstructuresCheck,const vtkSmartPointer<vtkLookupTable>& lut)
 {
     vtkSmartPointer<vtkUnsignedCharArray> fieldColors(vtkSmartPointer<vtkUnsignedCharArray>::New());
@@ -586,16 +527,6 @@ void DDPlaneField::plotField(const int& valID,const std::vector<QCheckBox*>& mic
     meshPolydata->GetPointData()->SetScalars(fieldColors);
     meshPolydata->Modified();
     meshMapper->SetScalarModeToUsePointData();
-}
-
-const std::deque<FieldDataPnt>& DDPlaneField::dataPnts() const
-{
-    return *this;
-}
-
-std::deque<FieldDataPnt>& DDPlaneField::dataPnts()
-{
-    return *this;
 }
 
 DDPlaneField::DDPlaneField(vtkGenericOpenGLRenderWindow* const renWin_in,
@@ -647,6 +578,16 @@ DDPlaneField::~DDPlaneField()
     renderer->RemoveActor(meshActor);
 }
 
+const std::deque<FieldDataPnt>& DDPlaneField::dataPnts() const
+{
+    return *this;
+}
+
+std::deque<FieldDataPnt>& DDPlaneField::dataPnts()
+{
+    return *this;
+}
+
 void DDPlaneField::modify()
 {
     meshActor->SetVisibility(groupBox->isChecked());
@@ -667,14 +608,14 @@ void DDPlaneField::resetPlane()
         if(ssP >> P(0) && ssP >> P(1) && ssP >> P(2))
         {
             posEdit->setStyleSheet("background-color: white");
-            std::cout<<"P="<<P.transpose()<<std::endl;
+//            std::cout<<"P="<<P.transpose()<<std::endl;
             
             VectorDim N;
             std::stringstream ssN(normalEdit->text().toStdString());
             if(ssN >> N(0) && ssN >> N(1) && ssN >> N(2))
             {
                 normalEdit->setStyleSheet("background-color: white");
-                std::cout<<"N="<<N.transpose()<<std::endl;
+//                std::cout<<"N="<<N.transpose()<<std::endl;
                 const double nNorm(N.norm());
                 if(nNorm>FLT_EPSILON)
                 {
@@ -748,6 +689,292 @@ void DDPlaneField::resetPlane()
     }
 }
 
+
+DDLineField::DDLineField(vtkGenericOpenGLRenderWindow* const renWin_in,
+                           vtkRenderer* const renderer_in,
+                           const DefectiveCrystal<3>& defectiveCrystal_in):
+/* init */ mainLayout(new QGridLayout(this))
+/* init */,groupBox(new QGroupBox(tr("&Line")))
+/* init */,posEdit(new QLineEdit("0 0 0"))
+/* init */,directionEdit(new QLineEdit("1 0 0"))
+/* init */,numPoinEdit(new QLineEdit("1000"))
+///* init */,clrDialog(new QColorDialog(this))
+///* init */,meshPolydata(vtkSmartPointer<vtkPolyData>::New())
+///* init */,meshMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+///* init */,meshActor(vtkSmartPointer<vtkActor>::New())
+/* init */,renWin(renWin_in)
+/* init */,renderer(renderer_in)
+/* init */,chart(vtkSmartPointer<vtkChartXY>::New())
+/* init */,chartScene(vtkSmartPointer<vtkContextScene>::New())
+/* init */,chartActor(vtkSmartPointer<vtkContextActor>::New())
+/* init */,table(vtkSmartPointer<vtkTable>::New())
+/* init */,colors(vtkSmartPointer<vtkNamedColors>::New())
+/* init */,points(chart->AddPlot(vtkChart::LINE))
+/* init */,lineSource(vtkSmartPointer<vtkLineSource>::New())
+/* init */,lineMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+/* init */,lineActor(vtkSmartPointer<vtkActor>::New())
+/* init */,defectiveCrystal(defectiveCrystal_in)
+{
+    const VectorDim c(0.5*(defectiveCrystal.ddBase.mesh.xMax()+defectiveCrystal.ddBase.mesh.xMin()));
+    posEdit->setText(QString::fromStdString(std::to_string(c(0))+" "+std::to_string(c(1))+" "+std::to_string(c(2))));
+    
+    const VectorDim n(Eigen::Matrix<double,3,1>::Random());
+    directionEdit->setText(QString::fromStdString(std::to_string(n(0))+" "+std::to_string(n(1))+" "+std::to_string(n(2))));
+    
+    QGridLayout* groupBoxLayout = new QGridLayout();
+    groupBoxLayout->addWidget(posEdit,0,0,1,2);
+    groupBoxLayout->addWidget(directionEdit,1,0,1,2);
+    groupBoxLayout->addWidget(numPoinEdit,2,0,1,1);
+//    groupBoxLayout->addWidget(clrDialog,2,1,1,1);
+    groupBox->setLayout(groupBoxLayout);
+    
+    groupBox->setCheckable(true);
+    mainLayout->addWidget(groupBox,0,0,1,1);
+    this->setLayout(mainLayout);
+    
+    connect(posEdit,SIGNAL(returnPressed()), this, SLOT(resetLine()));
+    connect(directionEdit,SIGNAL(returnPressed()), this, SLOT(resetLine()));
+    connect(numPoinEdit,SIGNAL(returnPressed()), this, SLOT(resetLine()));
+    connect(groupBox,SIGNAL(toggled(bool)), this, SLOT(modify()));
+    
+    vtkColor3d color3d1 = colors->GetColor3d("Peacock");
+    points->SetColorF(color3d1.GetRed(), color3d1.GetGreen(), color3d1.GetBlue());
+    points->SetWidth(5.0);
+    
+    chart->GetAxis(0)->SetNumberOfTicks(10);
+    chart->GetAxis(1)->SetNumberOfTicks(10);
+    chart->GetAxis(0)->SetGridVisible(false);
+    chart->GetAxis(1)->SetGridVisible(false);
+
+    
+    chartScene->AddItem(chart);
+    chartActor->SetScene(chartScene);
+    renderer->AddActor(chartActor);
+    chartScene->SetRenderer(renderer);
+
+    lineMapper->SetInputConnection(lineSource->GetOutputPort());
+    lineActor->SetMapper(lineMapper);
+    lineActor->GetProperty()->SetLineWidth(4);
+    lineActor->GetProperty()->SetColor(colors->GetColor3d("Peacock").GetData());
+    renderer->AddActor(lineActor);
+
+//    meshPolydata->Allocate();
+//    meshMapper->SetInputData(meshPolydata);
+//    meshActor->SetMapper ( meshMapper );
+//    meshActor->GetProperty()->SetOpacity(0.8); //Make the mesh have some transparency.
+//    renderer->AddActor(meshActor);
+}
+
+DDLineField::~DDLineField()
+{
+    renderer->RemoveActor(chartActor);
+    renderer->RemoveActor(lineActor);
+
+}
+
+const std::deque<FieldDataPnt>& DDLineField::dataPnts() const
+{
+    return *this;
+}
+
+std::deque<FieldDataPnt>& DDLineField::dataPnts()
+{
+    return *this;
+}
+
+const std::deque<double>& DDLineField::abscissa() const
+{
+    return *this;
+}
+
+std::deque<double>& DDLineField::abscissa()
+{
+    return *this;
+}
+
+void DDLineField::resetLine()
+{
+    
+    int numPoints;
+    std::stringstream ssM(numPoinEdit->text().toStdString());
+    if(ssM >> numPoints)
+    {
+        if(numPoints>2)
+        {
+        numPoinEdit->setStyleSheet("background-color: white");
+        
+        VectorDim P;
+        std::stringstream ssP(posEdit->text().toStdString());
+        if(ssP >> P(0) && ssP >> P(1) && ssP >> P(2))
+        {
+            posEdit->setStyleSheet("background-color: white");
+//            std::cout<<"P="<<P.transpose()<<std::endl;
+            
+            VectorDim N;
+            std::stringstream ssN(directionEdit->text().toStdString());
+            if(ssN >> N(0) && ssN >> N(1) && ssN >> N(2))
+            {
+                directionEdit->setStyleSheet("background-color: white");
+//                std::cout<<"d="<<N.transpose()<<std::endl;
+                const double nNorm(N.norm());
+                if(nNorm>FLT_EPSILON)
+                {
+                    const VectorDim unitDir(N/nNorm);
+                    line.reset(new MeshLine<3>(defectiveCrystal.ddBase.mesh,P,unitDir));
+                    lineSource->SetPoint1(line->P0.data());
+                    lineSource->SetPoint2(line->P1.data());
+                    dataPnts().clear();
+                    abscissa().clear();
+                    const VectorDim chord(line->P1-line->P0);
+                    const VectorDim dP(chord/(numPoints-1));
+                    for(int k=0;k<numPoints;++k)
+                    {
+                        const VectorDim point3d(line->P0+k*dP);
+                        const ElementType* ele(nullptr);
+                        if(defectiveCrystal.ddBase.fe)
+                        {
+                            const auto searchPair(defectiveCrystal.ddBase.mesh.search(point3d));
+                            if(searchPair.first)
+                            {
+                                ele=&defectiveCrystal.ddBase.fe->elements().at(searchPair.second->xID);
+                            }
+                        }
+                        dataPnts().emplace_back(defectiveCrystal,point3d,ele);
+                        abscissa().emplace_back((point3d-P).dot(unitDir));
+
+                    }
+                    
+//                    vtkSmartPointer<vtkPoints> meshPts(vtkSmartPointer<vtkPoints>::New());
+//                    for(const auto& point2d : this->vertices())
+//                    {
+//                        const auto point3d(plane->globalPosition(point2d));
+//                        meshPts->InsertNextPoint(point3d(0),point3d(1),point3d(2));
+//                        const ElementType* ele(nullptr);
+//                        if(defectiveCrystal.ddBase.fe)
+//                        {
+//                            const auto searchPair(defectiveCrystal.ddBase.mesh.search(point3d));
+//                            if(searchPair.first)
+//                            {
+//                                ele=&defectiveCrystal.ddBase.fe->elements().at(searchPair.second->xID);
+//                            }
+//                        }
+//                        dataPnts().emplace_back(defectiveCrystal,point3d,ele);
+//                    }
+                    
+//                    vtkSmartPointer<vtkCellArray> meshTriangles(vtkSmartPointer<vtkCellArray>::New());
+//                    vtkSmartPointer<vtkUnsignedCharArray> meshColors(vtkSmartPointer<vtkUnsignedCharArray>::New());
+//                    meshColors->SetNumberOfComponents(3);
+//                    for(const auto& tri : this->triangles())
+//                    {
+//                        vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
+//                        triangle->GetPointIds()->SetId (0,tri(0));
+//                        triangle->GetPointIds()->SetId (1,tri(1));
+//                        triangle->GetPointIds()->SetId (2,tri(2));
+//                        meshTriangles->InsertNextCell ( triangle );
+//                        const auto triColor(Eigen::Matrix<int,1,3>::Random()*255);
+//                        meshColors->InsertNextTuple3(triColor(0),triColor(1),triColor(2)); // use this to assig color to each vertex
+//                    }
+//                    
+//                    meshPolydata->SetPoints ( meshPts );
+//                    meshPolydata->SetPolys ( meshTriangles );
+//                    meshPolydata->GetCellData()->SetScalars(meshColors);
+//                    meshPolydata->Modified();
+//                    meshMapper->SetScalarModeToUseCellData();
+//                    renWin->Render();
+                }
+                else
+                {
+                    directionEdit->setStyleSheet("background-color: red");
+                }
+            }
+            else
+            {
+                directionEdit->setStyleSheet("background-color: red");
+            }
+        }
+        else
+        {
+            posEdit->setStyleSheet("background-color: red");
+        }
+    }
+    else
+    {
+        numPoinEdit->setStyleSheet("background-color: red");
+    }
+    }
+    else
+    {
+        numPoinEdit->setStyleSheet("background-color: red");
+    }
+    modify();
+}
+
+
+
+void DDLineField::compute(const DefectiveCrystal<3>&)
+{
+    std::cout<<"DDLineField computing "<<dataPnts().size()<<" points..."<<std::flush;
+    const auto t0= std::chrono::system_clock::now();
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for(size_t vtkID=0;vtkID<dataPnts().size();++vtkID)
+    {
+        auto& vtx(dataPnts()[vtkID]);
+        vtx.compute(defectiveCrystal);
+    }
+    std::cout<<magentaColor<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+}
+
+void DDLineField::plotField(const int& valID,const std::vector<QCheckBox*>& microstructuresCheck,const QComboBox* const fieldComboBox)
+{
+    
+    table->Initialize();
+    vtkNew<vtkFloatArray> xArray;
+    xArray->SetName("x");
+    table->AddColumn(xArray);
+    vtkNew<vtkFloatArray> yArray;
+    yArray->SetName(fieldComboBox->itemText(valID).toStdString().c_str());
+    table->AddColumn(yArray);
+
+    for(size_t k=0;k<abscissa().size();++k)
+    {                    
+        const auto row=table->InsertNextBlankRow(2);
+        table->SetValue(row, 0, abscissa()[k]);
+        table->SetValue(row, 1, dataPnts()[k].value(valID,microstructuresCheck));
+    }
+    
+    
+
+    
+    points->SetInputData(table, 0, 1);
+    table->Modified();
+    chart->RecalculateBounds();
+    
+    //    chart->GetAxis(0)->SetTitle(yComboBox->currentText().toStdString());
+        chart->GetAxis(0)->SetTitle(fieldComboBox->itemText(valID).toStdString());
+
+    //    chart->GetAxis(0)->SetLogScale(yAxisLog->isChecked());
+    //    chart->GetAxis(1)->SetLogScale(xAxisLog->isChecked());
+
+
+//        chart->GetAxis(0)->SetNumberOfTicks(10);
+//        chart->GetAxis(1)->SetNumberOfTicks(10);
+
+        chart->GetAxis(0)->GetLabelProperties()->SetFontSize(16);
+        chart->GetAxis(1)->GetLabelProperties()->SetFontSize(16);
+
+        chart->GetAxis(0)->GetTitleProperties()->SetFontSize(16);
+        chart->GetAxis(1)->GetTitleProperties()->SetFontSize(16);
+    
+    chart->Modified();
+}
+
+void DDLineField::modify()
+{
+    renWin->Render();
+
+}
 
 } // namespace model
 #endif

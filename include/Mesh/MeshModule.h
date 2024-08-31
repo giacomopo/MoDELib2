@@ -28,6 +28,9 @@ namespace model
     
     template <int dim>
     struct MeshPlane;
+
+    template <int dim>
+    struct MeshLine;
     
     template<int dim>
     struct MeshRegion;
@@ -85,6 +88,7 @@ namespace model
 #include <GmshReader.h>
 #include <MeshBoundarySegment.h>
 #include <MeshPlane.h>
+#include <MeshLine.h>
 #include <MeshRegion.h>
 #include <MeshRegionBoundary.h>
 #include <MeshRegionObserver.h>

@@ -253,10 +253,6 @@ void NetworkLoopActor::updateConfiguration()
 
             const double meshSize(std::atof(globalMeshSizeEdit->text() .toStdString().c_str()));
             const double localMeshSize(std::atof(localMeshSizeEdit->text() .toStdString().c_str()));
-
-            //const double vScaling(std::atof(velocityScaleEdit->text() .toStdString().c_str()));
-
- //           double localMeshSize(1.0);
             size_t ptsIncrement(0);
             for(const auto& weakloop : dislocationNetwork->loops())
             {
@@ -276,9 +272,10 @@ void NetworkLoopActor::updateConfiguration()
                         meshTriangles->InsertNextCell ( triangle );
                         const auto triColor(Eigen::Matrix<int,1,3>::Random()*255);
                         meshColors->InsertNextTuple3(triColor(0),triColor(1),triColor(2)); // use this to assig color to each vertex
+//                        meshColors->InsertNextTuple3(153,153,255); // use this to assig color to each vertex
+
                     }
                     ptsIncrement+=patchMesh.points.size();
-
                 }
             }
             meshPolydata->SetPoints ( meshPts );

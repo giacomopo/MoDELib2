@@ -23,6 +23,7 @@
 #include <QPushButton>
 #include <QComboBox>
 #include <QCheckBox>
+#include <QColorDialog>
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
@@ -33,7 +34,13 @@
 #include <vtkScalarBarActor.h>
 #include <vtkTextProperty.h>
 #include <vtkPointData.h>
-
+#include <vtkTable.h>
+#include <vtkChartXY.h>
+#include <vtkContextScene.h>
+#include <vtkContextActor.h>
+#include <vtkNamedColors.h>
+#include <vtkPlot.h>
+#include <vtkLineSource.h>
 
 #include <DDtraitsIO.h>
 #include <SimplicialMesh.h>
@@ -42,6 +49,7 @@
 #include <DDconfigIO.h>
 #include <Polycrystal.h>
 #include <DefectiveCrystal.h>
+#include <MeshLine.h>
 
 namespace model
 {
@@ -63,8 +71,67 @@ namespace model
         
         FieldDataPnt(const DefectiveCrystal<3>& defectiveCrystal,const Eigen::Matrix<double,3,1>& Pin,const ElementType* const ele_in);
         double value(const int& valID,const std::vector<QCheckBox*>& microstructuresCheck) const;
+        void compute(const DefectiveCrystal<3>& defectiveCrystal);
     };
 
+    struct DDLineField : public QWidget
+    /*               */, public std::deque<FieldDataPnt>
+    /*               */, public std::deque<double>
+    {
+        Q_OBJECT
+
+        typedef  typename MicrostructureBase<3>::ElementType ElementType;
+        typedef Eigen::Matrix<double,3,1> VectorDim;
+
+        
+//        MeshLine
+        
+        public slots:
+            void resetLine();
+            void modify();
+
+    public:
+        
+        QGridLayout* mainLayout;
+        QGroupBox* groupBox;
+        QLineEdit* posEdit;
+        QLineEdit* directionEdit;
+        QLineEdit* numPoinEdit;
+//        QColorDialog* clrDialog;
+        
+
+        
+        vtkGenericOpenGLRenderWindow* const renWin;
+        vtkRenderer* const renderer;
+        
+        vtkSmartPointer<vtkChartXY> chart;
+        vtkSmartPointer<vtkContextScene> chartScene;
+        vtkSmartPointer<vtkContextActor> chartActor;
+        vtkSmartPointer<vtkTable> table;
+        vtkSmartPointer<vtkNamedColors> colors;
+        vtkPlot* points;
+
+        vtkSmartPointer<vtkLineSource>     lineSource;
+        vtkSmartPointer<vtkPolyDataMapper> lineMapper;
+        vtkSmartPointer<vtkActor>          lineActor;
+        
+        const DefectiveCrystal<3>& defectiveCrystal;
+        std::shared_ptr<MeshLine<3>> line;
+        
+
+
+        
+        DDLineField(vtkGenericOpenGLRenderWindow* const renWin_in,vtkRenderer* const renderer_in,const DefectiveCrystal<3>& defectiveCrystal_in);
+        ~DDLineField();
+        const std::deque<FieldDataPnt>& dataPnts() const;
+        std::deque<FieldDataPnt>& dataPnts();
+        const std::deque<double>& abscissa() const;
+        std::deque<double>& abscissa();
+
+        void compute(const DefectiveCrystal<3>&);
+        void plotField(const int& valID,const std::vector<QCheckBox*>& microstructuresCheck,const QComboBox* const fieldComboBox);
+        
+    };
 
     struct DDPlaneField : public QWidget
     /*                */, public TriangularMesh
@@ -118,6 +185,12 @@ namespace model
         QLabel* boxLabel;
         QSpinBox* spinBox;
         QGroupBox* groupBox;
+
+        QLabel* linesBoxLabel;
+        QSpinBox* linesSpinBox;
+        QGroupBox* linesGroupBox;
+
+
         QPushButton* computeButton;
         QComboBox* fieldComboBox;
         
@@ -138,6 +211,9 @@ namespace model
         void clearLayout(QLayout *layout);
         void resetPlanes();
         void plotField();
+        
+        void resetLines();
+
 
    public slots:
         void compute();
