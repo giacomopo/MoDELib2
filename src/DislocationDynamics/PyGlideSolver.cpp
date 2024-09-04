@@ -13,7 +13,6 @@
 
 #ifndef model_PyGlideSolver_cpp_
 #define model_PyGlideSolver_cpp_
-
 #include <random>
 #include <filesystem>
 #include <PyGlideSolver.h>
@@ -176,11 +175,11 @@ namespace model
         std::string pyModuleDir(pyModulePath.parent_path());
         std::string pyModuleFile(pyModulePath.filename());
         std::cout<<greenBoldColor<<"Creating PyGlideSolver: dir= "<<pyModuleDir<<", file="<<pyModuleFile<<defaultColor<<std::endl;
+        //pybind11::scoped_interpreter guard{};
         pybind11::module sys = pybind11::module::import("sys");
         pybind11::list path = sys.attr("path");
         path.append(pyModuleDir.c_str());
         pyModule=pybind11::module::import(pyModuleFile.c_str());
-
     }
 
     template <typename DislocationNetworkType>
@@ -237,7 +236,7 @@ namespace model
 //        const auto Temperature(this->DN.ddBase.poly.T);
 //        configIO.finalize();
 //        const auto segmentMap(configIO.segments());
-        
+//        
         DDconfigIO<dim> configIO(".");
         DDauxIO<dim> auxIO(".");
         std::ofstream f_file;
@@ -382,27 +381,25 @@ namespace model
         updatedVelocity /= 3.228757859764734e01; //Convert to Velocities
         
 //        pybind11::print(pyModule.attr("PIGNN")().attr("MLmobility")(positionNodes,stressNodes,burgersNodes,connections,Temperature).template cast<Eigen::MatrixXd>());
-        
-        
-        const std::string directory = "/Users/matthewmaron/Documents/MoDELib2-ML/tutorials/DislocationDynamics/periodicDomains/uniformLoadControllerML_500K/evl/";
-        const std::string base = "MLData_";
-        const std::string extension = ".txt";
-        const double runid(this->DN.ddBase.simulationParameters.runID);
-        std::ostringstream oss;
-        oss << directory << base << runid << extension;
-        std::cout << "Writing " << oss.str() << std::endl;
-        std::ofstream myfile;
-        myfile.open(oss.str());
-          myfile << "Temperature:" << " \n" << Temperature << " \n"<< " \n"<<std::endl;
-          myfile << "Positions Nodes + QP:" << " \n" << nodalPositions << " \n"<< " \n"<<std::endl;
-          myfile << "Stress Nodes + QP:" << " \n" << std::setprecision(15) << nodalStresses<< " \n"<< " \n"<<std::endl;
-          myfile << "Burgers Vectors Nodes:" << " \n" << nodalBurgersVector<< " \n"<< " \n"<<std::endl;
-          myfile << "Cell Connections:" << " \n" << std::endl;
-          printNestedListToFile(segmentConnections,myfile);
-          myfile << " \n" << " \n" << std::endl;
-          myfile << "Output Velocity:" << " \n" << nodePythonVelocity << " \n"<< " \n"<<std::endl;
-          myfile.close();
-        
+//        const std::string directory = "/Users/matthewmaron/Documents/MoDELib2-ML/tutorials/DislocationDynamics/periodicDomains/uniformLoadControllerML_500K/evl/";
+//        const std::string base = "MLData_";
+//        const std::string extension = ".txt";
+//        const double runid(this->DN.ddBase.simulationParameters.runID);
+//        std::ostringstream oss;
+//        oss << directory << base << runid << extension;
+//        std::cout << "Writing " << oss.str() << std::endl;
+//        std::ofstream myfile;
+//        myfile.open(oss.str());
+//          myfile << "Temperature:" << " \n" << Temperature << " \n"<< " \n"<<std::endl;
+//          myfile << "Positions Nodes + QP:" << " \n" << nodalPositions << " \n"<< " \n"<<std::endl;
+//          myfile << "Stress Nodes + QP:" << " \n" << std::setprecision(15) << nodalStresses<< " \n"<< " \n"<<std::endl;
+//          myfile << "Burgers Vectors Nodes:" << " \n" << nodalBurgersVector<< " \n"<< " \n"<<std::endl;
+//          myfile << "Cell Connections:" << " \n" << std::endl;
+//          printNestedListToFile(segmentConnections,myfile);
+//          myfile << " \n" << " \n" << std::endl;
+//          myfile << "Output Velocity:" << " \n" << nodePythonVelocity << " \n"<< " \n"<<std::endl;
+//          myfile.close();
+//        
         std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
        
         return updatedVelocity.reshaped<Eigen::RowMajor>();

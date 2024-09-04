@@ -47,11 +47,23 @@
 namespace model
 {
 
-    PlanarLoopGenerator::PlanarLoopGenerator(const std::string& fileName) :
-    /* init */ MicrostructureGeneratorBase(fileName)
-    {
-        
-    }
+    PlanarLoopGenerator::PlanarLoopGenerator(const PlanarLoopIndividualSpecification& spec,MicrostructureGenerator& mg)
+{
+    
+        std::cout<<magentaBoldColor<<"Generating individual planar loop"<<defaultColor<<std::endl;
+        if(spec.loopPoints.rows()>2)
+        {
+//            const Eigen::Matrix<double,Eigen::Dynamic,dim> loopPointsMatrix(this->parser.readMatrixCols<double>("loopNodes",dim,true));
+            std::vector<VectorDimD> loopPoints;
+            for(int i=0;i<spec.loopPoints.rows();++i)
+            {
+                loopPoints.push_back(spec.loopPoints.row(i));
+            }
+            generateSingle(mg,spec.burgers,spec.normal,loopPoints);
+
+        }
+    
+}
 
     void PlanarLoopGenerator::generateSingle(MicrostructureGenerator& mg,const VectorDimD& b,const VectorDimD& n,const std::vector<VectorDimD>& loopPoints)
     {
@@ -91,27 +103,27 @@ namespace model
 
     }
 
-    void PlanarLoopGenerator::generateDensity(MicrostructureGenerator& mg)
-    {
-        throw std::runtime_error("PlanarLoopGenerator::generateDensity not implemented");
-    }
+//    void PlanarLoopGenerator::generateDensity(MicrostructureGenerator& mg)
+//    {
+//        throw std::runtime_error("PlanarLoopGenerator::generateDensity not implemented");
+//    }
 
-    void PlanarLoopGenerator::generateIndividual(MicrostructureGenerator& mg)
-    {
-        
-            std::cout<<magentaBoldColor<<"Generating individual planar loop"<<defaultColor<<std::endl;
-        const Eigen::Matrix<double,Eigen::Dynamic,dim> loopPointsMatrix(this->parser.readMatrixCols<double>("loopNodes",dim,true));
-        std::vector<VectorDimD> loopPoints;
-        for(int i=0;i<loopPointsMatrix.rows();++i)
-        {
-            loopPoints.push_back(loopPointsMatrix.row(i));
-        }
-        generateSingle(mg,
-                       this->parser.readMatrix<double>("loopBurgers",1,dim,true),
-                       this->parser.readMatrix<double>("loopNormal",1,dim,true),
-                       loopPoints);
-        
-    }
+//    void PlanarLoopGenerator::generateIndividual(MicrostructureGenerator& mg)
+//    {
+//        
+//            std::cout<<magentaBoldColor<<"Generating individual planar loop"<<defaultColor<<std::endl;
+//        const Eigen::Matrix<double,Eigen::Dynamic,dim> loopPointsMatrix(this->parser.readMatrixCols<double>("loopNodes",dim,true));
+//        std::vector<VectorDimD> loopPoints;
+//        for(int i=0;i<loopPointsMatrix.rows();++i)
+//        {
+//            loopPoints.push_back(loopPointsMatrix.row(i));
+//        }
+//        generateSingle(mg,
+//                       this->parser.readMatrix<double>("loopBurgers",1,dim,true),
+//                       this->parser.readMatrix<double>("loopNormal",1,dim,true),
+//                       loopPoints);
+//        
+//    }
 
 }
 #endif

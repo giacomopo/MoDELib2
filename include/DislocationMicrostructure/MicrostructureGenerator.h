@@ -46,7 +46,7 @@
 #include <GlidePlaneModule.h>
 #include <MeshModule.h>
 #include <Plane.h>
-#include <MicrostructureGeneratorBase.h>
+//#include <MicrostructureGeneratorBase.h>
 
 #include <ShearLoopDensitySpecification.h>
 #include <ShearLoopIndividualSpecification.h>
@@ -58,14 +58,29 @@
 #include <FrankLoopsIndividualSpecification.h>
 #include <StackingFaultTetrahedraDensitySpecification.h>
 #include <StackingFaultTetrahedraIndividualSpecification.h>
+#include <SphericalInclusionDensitySpecification.h>
+#include <SphericalInclusionIndividualSpecification.h>
+#include <PlanarLoopIndividualSpecification.h>
 
 namespace model
 {
+
+struct PolyPoint
+{
+    
+    std::shared_ptr<PeriodicPlanePatch<3>> periodicPlanePatch() const;
+
+
+
+};
+
     class MicrostructureGenerator
     {
-        constexpr static int dim=MicrostructureGeneratorBase::dim;
-        typedef typename  MicrostructureGeneratorBase::VectorDimD VectorDimD;
-        typedef typename  MicrostructureGeneratorBase::DislocationLoopType DislocationLoopType;
+        constexpr static int dim=3;
+//        typedef typename  MicrostructureGeneratorBase::VectorDimD VectorDimD;
+//        typedef typename  MicrostructureGeneratorBase::DislocationLoopType DislocationLoopType;
+        typedef Eigen::Matrix<double,dim,1> VectorDimD;
+        typedef DislocationLoopIO<dim>::DislocationLoopType DislocationLoopType;
 
     public:
         
@@ -94,7 +109,10 @@ namespace model
         void addFrankLoopsIndividual(const FrankLoopsIndividualSpecification& spec);
         void addStackingFaultTetrahedraDensity(const StackingFaultTetrahedraDensitySpecification& spec);
         void addStackingFaultTetrahedraIndividual(const StackingFaultTetrahedraIndividualSpecification& spec);
-        
+        void addSphericalInclusionDensity(const SphericalInclusionDensitySpecification& spec);
+        void addSphericalInclusionIndividual(const SphericalInclusionIndividualSpecification& spec);
+        void addPlanarLoopIndividual(const PlanarLoopIndividualSpecification& spec);
+
         size_t insertLoop(const VectorDimD& b,const VectorDimD& unitNormal,const VectorDimD& P0,const size_t& grainID,const DislocationLoopType& loopType);
         size_t insertLoopNode(const size_t& loopID,const VectorDimD& loopNodePos,const size_t& networkNodeID,const VectorDimD& loopNodeShift,const std::pair<short int,short int>& periodicEdgeIDs);
         std::vector<size_t> insertLoopLinks(const size_t& loopID,const std::vector<size_t>& loopNodeIDs);

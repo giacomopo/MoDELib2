@@ -24,8 +24,8 @@ namespace model
     PlanarLoopIndividualSpecification::PlanarLoopIndividualSpecification(const std::string& fileName):
     /* init */ MicrostructureSpecificationBase("PlanarLoop","Individual",fileName)
     /* init */,loopPoints(this->parser->readMatrixCols<double>("loopPoints",3,true))
-    /* init */,burgers(this->parser->readMatrix<double>("burgers",1,3,true))
-    /* init */,normal(this->parser->readMatrix<double>("normal",1,3,true))
+    /* init */,burgers(loopPoints.rows()>2? this->parser->readMatrix<double>("burgers",1,3,true) : VectorDim::Zero())
+    /* init */,normal(loopPoints.rows()>2? this->parser->readMatrix<double>("normal",1,3,true) : VectorDim::Zero())
     {
         
     }

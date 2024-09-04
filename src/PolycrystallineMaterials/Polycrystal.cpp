@@ -112,6 +112,8 @@ std::map<size_t,typename Polycrystal<dim>::GrainType> Polycrystal<dim>::getGrain
         
         //                const auto C2G(TextFileParser(polyFolder+"/polyCrystal.txt").readMatrix<double>("C2G"+std::to_string(rIter.second->regionID),dim,dim,true));
         
+//        std::cout<<"StaticID<Lattice<dim>>::get_count()"<<StaticID<Lattice<dim>>::get_count()<<std::endl;
+        
         StaticID<Lattice<dim>>::set_count(rIter.second->regionID);
         temp.emplace(std::piecewise_construct,
                          std::forward_as_tuple(rIter.second->regionID),

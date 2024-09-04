@@ -14,7 +14,7 @@
 namespace model
 {
     ShearLoopDensitySpecification::ShearLoopDensitySpecification():
-    /* init */ MicrostructureSpecificationBase("PeriodicDipole","Density")
+    /* init */ MicrostructureSpecificationBase("ShearLoop","Density")
     /* init */,targetDensity(0.0)
     /* init */,numberOfSides(0)
     /* init */,radiusDistributionMean(0.0)
@@ -24,7 +24,7 @@ namespace model
     }
 
     ShearLoopDensitySpecification::ShearLoopDensitySpecification(const std::string& fileName):
-    /* init */ MicrostructureSpecificationBase("PeriodicDipole","Density",fileName)
+    /* init */ MicrostructureSpecificationBase("ShearLoop","Density",fileName)
     /* init */,targetDensity(this->parser->readScalar<double>("targetDensity",true))
     /* init */,numberOfSides(targetDensity>0.0? this->parser->readScalar<int>("numberOfSides",true) : 0)
     /* init */,radiusDistributionMean(targetDensity>0.0? this->parser->readScalar<double>("radiusDistributionMean",true) : 0.0)

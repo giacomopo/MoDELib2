@@ -1,4 +1,5 @@
 /* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
+ * Written in 2024 by Matthew Maron <mlm335@miami.edu>
  *
  * Copyright (C) 2013 by David Rivera <drivera2@ucla.edu>.
  * Copyright (C) 2013 by Giacomo Po   <gpo@ucla.edu>.
@@ -18,8 +19,11 @@ namespace model
 {
 #ifdef _MODEL_PYBIND11_ // COMPILED WITH PYBIND11
     DislocationMobilityPy::DislocationMobilityPy(const PolycrystallineMaterialBase& material,const std::string& pyModuleName_in) :
-    /* init */ DislocationMobilityBase("Py mobility for "+material.materialName)
+    /* init */ DislocationMobilityBase("Using Py mobility for "+material.materialName)
     /* init */,kB(kB_SI/material.mu_SI/std::pow(material.b_SI,3))
+    /* init */,mu_SI(material.mu_SI)
+    /* init */,Tm(material.Tm)
+    /* init */,cs(material.cs_SI)
     /* init */,pyModuleName(pyModuleName_in)
     {// Set up pyModule
         std::filesystem::path modulePath(pyModuleName);
@@ -42,7 +46,25 @@ namespace model
                         const double& dt,
                         const std::shared_ptr<StochasticForceGenerator>& )
     {
-        return pyModule.attr("velocityPy")(S,b,xi,n,T,dL,dt).cast<double>();
+        Eigen::MatrixXd stress(S*mu_SI*1e-9); // GPa
+        Eigen::VectorXd burgers(b); // Vector Direction
+        Eigen::VectorXd tangent(xi); // Vector Direction
+        Eigen::VectorXd normal(n); // Vector Direction
+        const double temp(T); // K
+        
+        try
+        {
+           pybind11::object mobilitySolver = pyModule.attr("MobilitySolver")();
+           double qpPythonVelocity = mobilitySolver.attr("velocityPy")(stress, burgers, tangent, normal, temp, dL, dt).cast<double>();
+           return qpPythonVelocity*100/cs; //Convert from A/ps to code units
+        }
+        catch (const pybind11::error_already_set& e)
+        {
+           std::cerr << "Python error: " << e.what() << std::endl;
+           std::terminate();
+        }
+        
+
     }
 
 #else // COMPILED WITHOUT PYBIND11

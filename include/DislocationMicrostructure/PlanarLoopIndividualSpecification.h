@@ -26,6 +26,8 @@ namespace model
         Eigen::Matrix<double,Eigen::Dynamic,3> loopPoints;
         VectorDim burgers;
         VectorDim normal;
+        bool allowOutside;
+        bool allowOverlap;
         
         PlanarLoopIndividualSpecification();
         PlanarLoopIndividualSpecification(const std::string& fileName);

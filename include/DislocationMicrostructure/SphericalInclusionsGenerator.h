@@ -40,30 +40,41 @@
 #include <GlidePlaneModule.h>
 #include <MeshModule.h>
 #include <Plane.h>
-#include <MicrostructureGeneratorBase.h>
+#include <SphericalInclusionDensitySpecification.h>
+#include <SphericalInclusionIndividualSpecification.h>
 
 
 namespace model
 {
 
-class SphericalInclusionsGenerator : public MicrostructureGeneratorBase
+class SphericalInclusionsGenerator 
+//: public MicrostructureGeneratorBase
 {
     
-    bool generateSingle(MicrostructureGenerator& mg,const VectorDimD& C,const double& R, const Eigen::Matrix<double,1,dim*dim>& eT, const double& vrc,const int&type);
+    static constexpr int dim=3;
+    typedef Eigen::Matrix<double,dim,1> VectorDimD;
+
+    
+    bool generateSingle(MicrostructureGenerator& mg,const VectorDimD& C,const double& R, const Eigen::Matrix<double,1,dim*dim>& eT, const double& vrc,const int&type, const bool& allowOutside,const bool& allowOverlap);
     
 
     
 public:
     
-    const bool allowOverlap;
-    const bool allowOutside;
+
+//    const bool allowOverlap;
+//    const bool allowOutside;
+
+  
+    SphericalInclusionsGenerator(const SphericalInclusionDensitySpecification& spec,MicrostructureGenerator& mg);
+    SphericalInclusionsGenerator(const SphericalInclusionIndividualSpecification& spec,MicrostructureGenerator& mg);
 
     
-    SphericalInclusionsGenerator(const std::string& fileName);
+//    SphericalInclusionsGenerator(const std::string& fileName);
     
 //    void generate(MicrostructureGenerator& mg) override;
-    void generateIndividual(MicrostructureGenerator& mg) override;
-    void generateDensity(MicrostructureGenerator& mg) override;
+//    void generateIndividual(MicrostructureGenerator& mg) override;
+//    void generateDensity(MicrostructureGenerator& mg) override;
     
     
 };

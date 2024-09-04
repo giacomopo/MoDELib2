@@ -40,14 +40,18 @@
 #include <GlidePlaneModule.h>
 #include <MeshModule.h>
 #include <Plane.h>
-#include <MicrostructureGeneratorBase.h>
-
+//#include <MicrostructureGeneratorBase.h>
+#include <PlanarLoopIndividualSpecification.h>
 
 namespace model
 {
 
-    class PlanarLoopGenerator : public MicrostructureGeneratorBase
+    class PlanarLoopGenerator 
+//: public MicrostructureGeneratorBase
     {
+        static constexpr int dim=3;
+        typedef Eigen::Matrix<double,dim,1> VectorDimD;
+
         
         static void generateSingle(MicrostructureGenerator& mg,const VectorDimD& b,const VectorDimD& n,const std::vector<VectorDimD>& loopPoints);
 
@@ -63,11 +67,12 @@ namespace model
         
     public:
         
-        PlanarLoopGenerator(const std::string& fileName);
+//        PlanarLoopGenerator(const PlanarLoopIndividualSpecification& spec,const std::string& fileName);
+        PlanarLoopGenerator(const PlanarLoopIndividualSpecification& spec,MicrostructureGenerator& mg);
 
 //        void generate(MicrostructureGenerator& mg) override;
-        void generateIndividual(MicrostructureGenerator& mg) override;
-        void generateDensity(MicrostructureGenerator& mg) override;
+//        void generateIndividual(MicrostructureGenerator& mg) override;
+//        void generateDensity(MicrostructureGenerator& mg) override;
 
     };
 

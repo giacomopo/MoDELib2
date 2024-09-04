@@ -49,6 +49,9 @@ namespace model
         
         static constexpr double kB_SI=1.38064852e-23; // [J/K]
         const double kB;
+        const double mu_SI;
+        const double Tm;
+        const double cs;
         const std::string pyModuleName;
 
 #ifdef _MODEL_PYBIND11_

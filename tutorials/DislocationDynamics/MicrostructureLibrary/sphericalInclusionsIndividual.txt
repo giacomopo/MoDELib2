@@ -1,10 +1,9 @@
 type=SphericalInclusions;
 style=individual;
-tag=incl0;
 allowOverlap=0;
-allowOutside=1;
-inclusionRadii_SI=3e-8;
-inclusionsCenters=50 300 300;
-inclusionsEigenDistortions=0.03 0 0 0 0.03 0 0 0 0.03;
-inclusionVelocityReductionFactors=1;
+allowOutside=0;
+radii_SI=3e-8;
+centers=50 300 300;
+eigenDistortions=0.03 0 0 0 0.03 0 0 0 0.03;
+velocityReductionFactors=1;
 phaseIDs=0; # ID of secondPhase 
