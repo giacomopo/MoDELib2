@@ -1,0 +1,12 @@
+
+ExternalStress0 = 0.0 0.0 0.1 0.0 0.0 1e-6;
+ExternalStressRate = 0.0 0.0 0.0 0.0 0.0 1e-9;
+ExternalStrain0 = 0.0 0.0 0.0 0.0 0.0 1e-6;
+ExternalStrainRate = 0.0 0.0 0.0 0.0 0.0 1e-9;
+stiffnessRatio =0.0 0.0 0.0 0.0 0.0 0.0;
+
+# Voigt order is 11,22,33,12,23,13
+# stiffnessRatio =0 means pure stress control,  
+# stiffnessRatio =infinity (such as 1e20) means pure strain control
+
+

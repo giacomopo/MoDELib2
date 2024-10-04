@@ -1,4 +1,4 @@
-ExternalStress0 = 0.0 0.0 0.1 0.0 0.0 1e-3;
+ExternalStress0 = 0.0 0.0 0.0 0.0 0.0 1e-3;
 ExternalStressRate = 0.0 0.0 0.0 0.0 0.0 0.0;
 ExternalStrain0 = 0.0 0.0 0.0 0.0 0.0 0.0;
 ExternalStrainRate = 0.0 0.0 0.0 0.0 0.0 0.;

@@ -74,7 +74,7 @@ namespace model
             LatticeVectorType a1((VectorDimI()<<1,0,0).finished(),*this);
             LatticeVectorType a2((VectorDimI()<<0,1,0).finished(),*this);
             LatticeVectorType a3((VectorDimI()<<0,0,1).finished(),*this);
-            LatticeVectorType  y((VectorDimI()<<1,1,1).finished(),*this);
+            LatticeVectorType  y((VectorDimI()<<-1,-1,-1).finished(),*this);
 
             std::vector<std::shared_ptr<GlidePlaneBase>> temp;
             temp.emplace_back(new GlidePlaneBase(a3,a1,nullptr));
@@ -120,12 +120,18 @@ namespace model
                     
                     std::vector<RationalLatticeDirection<3>> slipDirs;
                     
-                    if(material.enabledSlipSystems.find("full")!=material.enabledSlipSystems.end())
+                    if(material.enabledSlipSystems.find("full<111>{110}")!=material.enabledSlipSystems.end())
                     {
                         slipDirs.emplace_back(Rational( 1,1),a1);
                         slipDirs.emplace_back(Rational(-1,1),a1);
                         slipDirs.emplace_back(Rational( 1,1),a3);
                         slipDirs.emplace_back(Rational(-1,1),a3);
+                    }
+                    
+                    if(material.enabledSlipSystems.find("full<100>{110}")!=material.enabledSlipSystems.end())
+                    {
+                        slipDirs.emplace_back(Rational( 1,1),a1+a3);
+                        slipDirs.emplace_back(Rational(-1,1),a1+a3);
                     }
                     
 //                    temp.emplace_back(new SlipSystem(*planeBase, a1,mobility110,nullptr,planeNoise));

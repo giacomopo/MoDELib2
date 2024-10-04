@@ -2,13 +2,10 @@
 # https://mcilloni.ovh/2021/02/09/cxx-cross-clang/
 #export LDFLAGS=-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib 
 #export LDFLAGS="$LDFLAGS -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib/system"
-
-#https://github.com/scipy/scipy/issues/19387
-
 # cmake .. -DCMAKE_CXX_COMPILER=clang++-mp-18
 
 cmake_minimum_required(VERSION 3.1.0)
-project(MoDELib VERSION 2.0.0 LANGUAGES CXX)
+project(MoDELib VERSION 2.0.0 LANGUAGES C CXX)
 
 option(USE_PYBIND11 "enables pybind11" ON)
 option(BUILD_TOOLS "builds tools" ON)

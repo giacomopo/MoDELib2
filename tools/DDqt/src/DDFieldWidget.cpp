@@ -972,6 +972,8 @@ void DDLineField::plotField(const int& valID,const std::vector<QCheckBox*>& micr
 
 void DDLineField::modify()
 {
+    lineActor->SetVisibility(groupBox->isChecked());
+    chartActor->SetVisibility(groupBox->isChecked());
     renWin->Render();
 
 }

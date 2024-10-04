@@ -159,9 +159,59 @@ namespace model
         
         for(const auto& v : triMesh.vertices())
         {
-            points.push_back(plane.globalPosition(v));
+            points.push_back(plane.globalPosition(v)); // initialize points
+            displacements.push_back(VectorDim::Zero()); // initialize displacements
         }
+        
+        for(const auto& tri : triMesh.triangles())
+        {
+            const auto& v0(points[tri(0)]);
+            const auto& v1(points[tri(1)]);
+            const auto& v2(points[tri(2)]);
+            const auto c(1.0/3.0*(v0+v1+v2));
+            const auto h(c+(v1-v0).cross(v2-v1));
+            
+            MatrixDim vertexMatrix(MatrixDim::Zero());
+            vertexMatrix.col(0)=v0-h;
+            vertexMatrix.col(1)=v1-h;
+            vertexMatrix.col(2)=v2-h;
+            
+            heightPoints.push_back(h); // initialize points
+            invVertexMatrix.push_back(vertexMatrix.inverse());
+            heightDisplacements.push_back(VectorDim::Zero()); // initialize displacements
+        }
+        
+        defGradients.resize(triangles.size(),MatrixDim::Identity());
     }
+
+void MeshedDislocationLoop::update()
+{
+    for(size_t k=0;k<points.size();++k)
+    {
+        points[k]+=displacements[k];
+    }
+    
+    for(size_t k=0;k<heightPoints.size();++k)
+    {
+        heightPoints[k]+=heightDisplacements[k];
+    }
+    
+    MatrixDim vertexMatrix(MatrixDim::Zero());
+    for(size_t k=0;k<triangles.size();++k)
+    {
+        const auto& tri(triangles[k]);
+                
+        const auto& v0(points[tri(0)]);
+        const auto& v1(points[tri(1)]);
+        const auto& v2(points[tri(2)]);
+        const auto h(heightPoints[k]);
+        vertexMatrix.col(0)=v0-h;
+        vertexMatrix.col(1)=v1-h;
+        vertexMatrix.col(2)=v2-h;
+        defGradients[k]=vertexMatrix*invVertexMatrix[k];
+    }
+}
+
 
     typename MeshedDislocationLoop::VectorDim MeshedDislocationLoop::triangleAreaVector(const Eigen::Vector3i& tri) const
     {
@@ -177,13 +227,15 @@ namespace model
         return nA;
     }
 
-    double MeshedDislocationLoop::solidAngle(const VectorDim& x) const
+    double MeshedDislocationLoop::solidAngle(const VectorDim& x,const size_t& triID) const
     {
         const double a2(1.0e-2);
         const double oneA2=sqrt(1.0+a2);
         double temp(0.0);
-        for(const auto& tri : triangles)
-        {
+        //for(const auto& tri : triangles)
+//        for(size_t triID=0;triID<triangles.size();++triID)
+//        {
+            const auto& tri(triangles[triID]);
             const auto nA(triangleAreaVector(tri));
             const double triangleArea(nA.norm());
             if(triangleArea>FLT_EPSILON)
@@ -226,7 +278,7 @@ namespace model
                     }
                 }
             }
-        }
+//        }
         return temp;
     }
 
@@ -234,9 +286,26 @@ namespace model
     typename MeshedDislocationLoop::VectorDim MeshedDislocationLoop::plasticDisplacementKernel(const Eigen::Ref<const VectorDim>& x) const
     {
         VectorDim temp(VectorDim::Zero());
-        for(const auto& shift : periodicShifts)
+        const bool applyDefGradient(true);
+        if(applyDefGradient)
         {
-            temp-=solidAngle(x+shift)/4.0/std::numbers::pi*burgers;
+            for(const auto& shift : periodicShifts)
+            {
+                for(size_t triID=0;triID<triangles.size();++triID)
+                {
+                    temp-=solidAngle(x+shift,triID)/4.0/std::numbers::pi*defGradients[applyDefGradient]*burgers;
+                }
+            }
+        }
+        else
+        {
+            for(const auto& shift : periodicShifts)
+            {
+                for(size_t triID=0;triID<triangles.size();++triID)
+                {
+                    temp-=solidAngle(x+shift,triID)/4.0/std::numbers::pi*burgers;
+                }
+            }
         }
         return temp;
     }

@@ -4,11 +4,11 @@ useFEM=0; # enables/disables FEM throughout MoDELib
 useElasticDeformation=1;
 useElasticDeformationFEM=1;
 useDislocations=1;
-useInclusions=0;
+useInclusions=1;
 useClusterDynamics=0;
 useClusterDynamicsFEM=0;
 useCracks=0;
-Nsteps=250;		# total number of simulation steps
+Nsteps=100000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 
 ######################################
@@ -31,10 +31,10 @@ inertiaReliefPenaltyFactor=1e-3;
 
 ######################################
 # TIME STEPPING
-timeSteppingMethod=1; # can be "fixed" or "1". dt=dtMax if timeIntegrationMethod=fixed. dt=min(dxMax/vMax,dtMax) if timeIntegrationMethod=1
+timeSteppingMethod=adaptive; # can be "fixed" or "adaptive". dt=dtMax if timeIntegrationMethod=fixed. dt=min(dxMax/vMax,dtMax) if timeIntegrationMethod=adaptive
 dtMax=1.0e25; # max DD time step 
 dxMax=1; # max nodal displacement in adaptive stepping
-use_velocityFilter=0;
+use_velocityFilter=1;
 velocityReductionFactor=0.75;
 use_stochasticForce=0;
 stochasticForceSeed=-1;
@@ -43,7 +43,7 @@ subcyclingBins=1 2 5 10 50 100;
 
 ######################################
 # GLIDE
-glideSolverType=none; # type of glide solver (Galerkin or pybind11 or none)
+glideSolverType=Galerkin; # type of glide solver (Galerkin or pybind11 or Galerkin)
 pyModuleName=../../../../../python/MLglideSolver.py; # relative path to Python module
 
 
@@ -57,13 +57,13 @@ glideEquilibriumRate=1e-12; # climb rate threshold below which climb steps are t
 # DISLOCATION ELASTIC FIELDS
 quadPerLength=0.1; # number of quadrature points per unit length (in Burgers vector units)
 coreSize=2.0; # The dislocation core width, used in the non-singular expression of the dislocation stress field
-alphaLineTension=0.1; # dimensionless scale factor in for line tension forces
+alphaLineTension=1.0; # dimensionless scale factor in for line tension forces
 
 ######################################
 # NETWORK REMESHING
 remeshFrequency=1; # Enable/disable node redistribution 
-Lmin=5; # min segment length (in Burgers vector units)
-Lmax=20; # max segment length (in Burgers vector units)
+Lmin=25; # min segment length (in Burgers vector units)
+Lmax=100; # max segment length (in Burgers vector units)
 relativeAreaThreshold=0.001;
 
 ######################################
@@ -82,7 +82,7 @@ grainBoundaryTransmissionModel=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=1;
+outputFrequency=10;
 outputBinary=0;
 computeElasticEnergyPerLength=0;
 outputMeshDisplacement=0;

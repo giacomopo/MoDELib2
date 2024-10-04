@@ -1,0 +1,9 @@
+type=SphericalInclusions;
+style=individual;
+allowOverlap=0;
+allowOutside=0;
+radii_SI=4.3e-09; # inclusion radius
+centers=0 0 0; # center of the inclusion
+eigenDistortions=0.03 0.0 0.0 0.0 0.03 0.0 0.0 0.0 0.03; # 1 is for edge, 0 for screw
+velocityReductionFactors=1;
+phaseIDs=1; # number of extra nodes on each dipole

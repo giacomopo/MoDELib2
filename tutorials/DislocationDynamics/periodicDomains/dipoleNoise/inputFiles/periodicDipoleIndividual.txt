@@ -1,0 +1,9 @@
+type=PeriodicDipole;
+style=individual;
+slipSystemIDs=0 1; # slip system IDs for each dipole
+exitFaceIDs=4 4; # 4 is for edge, 2 for screw
+nodesPerLine=10 10; # number of extra nodes on each dipole
+dipoleCenters=0.0 0.0 0.0
+0.0 0.0 0.0;
+dipoleHeights=200 200; # height of each dipole, in number of planes
+glideSteps=10.0 30.0; # step of each dipole in the glide plane

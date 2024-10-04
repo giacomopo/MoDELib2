@@ -1,14 +1,14 @@
 ######################################
 # GENERAL SETTINGS
-useFEM=1; # enables/disables FEM throughout MoDELib
+useFEM=0; # enables/disables FEM throughout MoDELib
 useElasticDeformation=1;
 useElasticDeformationFEM=1;
 useDislocations=1;
 useClusterDynamics=0;
-useInclusions=1;
+useInclusions=0;
 useClusterDynamicsFEM=1;
 useCracks=0;
-Nsteps=250;		# total number of simulation steps
+Nsteps=100000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 
 ######################################
@@ -33,12 +33,12 @@ inertiaReliefPenaltyFactor=1e-3;
 # TIME STEPPING
 timeSteppingMethod=adaptive; # can be "fixed" or "adaptive". dt=dtMax if timeIntegrationMethod=fixed. dt=min(dxMax/vMax,dtMax) if timeIntegrationMethod=adaptive
 dtMax=1.0e25; # max DD time step 
-dxMax=1; # max nodal displacement in adaptive stepping
+dxMax=10; # max nodal displacement in adaptive stepping
 use_velocityFilter=1;
 velocityReductionFactor=0.75;
 use_stochasticForce=0;
 stochasticForceSeed=-1;
-useSubCycling=0;
+useSubCycling=1;
 subcyclingBins=1 2 5 10 50 100;
 
 ######################################
@@ -55,7 +55,7 @@ glideEquilibriumRate=1e-12; # climb rate threshold below which climb steps are t
 
 ######################################
 # DISLOCATION ELASTIC FIELDS
-quadPerLength=0.1; # number of quadrature points per unit length (in Burgers vector units)
+quadPerLength=0.02; # number of quadrature points per unit length (in Burgers vector units)
 coreSize=2.0; # The dislocation core width, used in the non-singular expression of the dislocation stress field
 alphaLineTension=1.0; # dimensionless scale factor in for line tension forces
 
@@ -82,7 +82,7 @@ grainBoundaryTransmissionModel=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=1;
+outputFrequency=10;
 outputBinary=0;
 computeElasticEnergyPerLength=0;
 outputMeshDisplacement=0;

@@ -134,8 +134,11 @@ namespace model
                 }
                 else if(lli.type==LineLineIntersection<dim>::COINCIDENT)
                 {// a coincident line was found, which means that the glide planes intersec on a boundary face
-                    roots.insert(P0);
-                    roots.insert(P1);
+                    if(plane.contains(P0) && plane.contains(P1))
+                    {
+                        roots.insert(P0);
+                        roots.insert(P1);
+                    }
                 }
             }
             

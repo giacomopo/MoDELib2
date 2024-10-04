@@ -1,0 +1,2 @@
+microstructureFile = sphericalInclusionsIndividual.txt;
+microstructureFile = periodicDipoleIndividual.txt;
