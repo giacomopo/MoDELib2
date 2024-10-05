@@ -14,7 +14,6 @@
 /*  Version 1.6                                                              */
 /*  July 28, 2005                                                            */
 /*                                                                           */
-/*  Copyright 1993, 1995, 1997, 1998, 2002, 2005                             */
 /*  Jonathan Richard Shewchuk                                                */
 /*  2360 Woolsey #H                                                          */
 /*  Berkeley, California  94705-1927                                         */
@@ -1553,7 +1552,6 @@ void info()
 "A Two-Dimensional Quality Mesh Generator and Delaunay Triangulator.\n");
   printf("Version 1.6\n\n");
   printf(
-"Copyright 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk\n");
   printf("2360 Woolsey #H / Berkeley, California 94705-1927\n");
   printf("Bugs/comments to jrs@cs.berkeley.edu\n");
   printf(

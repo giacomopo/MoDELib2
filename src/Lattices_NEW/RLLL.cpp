@@ -1,6 +1,6 @@
 /* This file is part of model.
  *
- * model is distributed without any warranty under the MIT License.
+ * MoDELib is distributed without any warranty under the MIT License.
  */
 
 

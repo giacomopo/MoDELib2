@@ -1,12 +1,7 @@
-/* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
+/* This file is part of MoDELib, the Mechanics Of Defects Evolution Library.
  *
- * Copyright (C) 2011 by Giacomo Po         <gpo@ucla.edu>.
- * Copyright (C) 2011 by Benjamin Ramirez   <ramirezbrf@gmail.com>.
- * Copyright (C) 2011 by Tamer Crsoby       <tamercrosby@gmail.com>,
- * Copyright (C) 2011 by Can Erel           <canerel55@gmail.com>,
- * Copyright (C) 2011 by Mamdouh Mohamed    <msm07d@fsu.edu>
  *
- * model is distributed without any warranty under the
+ * MoDELib is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 

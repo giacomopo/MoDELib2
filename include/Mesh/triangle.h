@@ -7,7 +7,6 @@
 /*  Accompanies Triangle Version 1.6                                         */
 /*  July 28, 2005                                                            */
 /*                                                                           */
-/*  Copyright 1996, 2005                                                     */
 /*  Jonathan Richard Shewchuk                                                */
 /*  2360 Woolsey #H                                                          */
 /*  Berkeley, California  94705-1927                                         */
