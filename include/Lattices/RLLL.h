@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
+#include <cassert>
 //#include <Eigen/QR>
 //#include <RoundEigen.h>
 //#include <SmithDecomposition.h>

@@ -15,6 +15,7 @@
 #include <deque>
 #include <algorithm>
 #include <Eigen/Dense>
+#include <cassert>
 
 #include <SegmentSegmentDistance.h>
 

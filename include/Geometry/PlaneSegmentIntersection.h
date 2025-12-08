@@ -12,6 +12,7 @@
 #include <Eigen/Dense>
 #include <Plane.h>
 #include <FiniteLineSegment.h>
+#include <cassert>
 
 namespace model
 {

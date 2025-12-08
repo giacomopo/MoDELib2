@@ -13,6 +13,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Cholesky>
 #include <Plane.h>
+#include <cassert>
 
 namespace model
 {

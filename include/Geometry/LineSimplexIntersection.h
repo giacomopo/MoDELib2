@@ -11,6 +11,7 @@
 #include <tuple>
 #include <map>
 #include <Eigen/Dense>
+#include <cassert>
 
 namespace model
 {
