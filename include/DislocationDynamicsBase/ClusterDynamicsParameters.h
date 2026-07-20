@@ -15,13 +15,8 @@
 #define model_ClusterDynamicsParameters_H_
 
 #include <TerminalColors.h>
-//#include <DislocatedMaterialBase.h>
 #include <Polycrystal.h>
 #include <DislocationDynamicsBase.h>
-//#include <TrialBase.h>
-//#include <EvalFunction.h>
-//#include <EvalExpression.h>
-//#include <DislocationStress.h>
 
 namespace model
 {

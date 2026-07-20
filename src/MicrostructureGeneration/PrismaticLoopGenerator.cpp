@@ -15,6 +15,7 @@
 #include <list>
 #include <assert.h>
 #include <Eigen/LU>
+#include <Eigen/QR>
 #include <Eigen/Cholesky>
 #include <limits>
 #include <cmath>
@@ -79,7 +80,7 @@ PrismaticLoopGenerator::PrismaticLoopGenerator(const PrismaticLoopDensitySpecifi
             const std::pair<LatticeVector<3>, int> rp(mg.ddBase.poly.randomLatticePointInMesh());
             const LatticeVector<3> L0=rp.first;
             const size_t grainID=rp.second;
-            
+                        
             if(allowAllGrains || allowedGrainIDsSet.find(grainID)!=allowedGrainIDsSet.end())
             {
                 std::uniform_int_distribution<> ssDist(0,mg.ddBase.poly.grain(grainID)->slipSystems().size()-1);
@@ -90,13 +91,12 @@ PrismaticLoopGenerator::PrismaticLoopGenerator(const PrismaticLoopDensitySpecifi
                 const double radius(radiusDistribution(generator));
                 try
                 {
-                    
                     density+=generateSingle(mg,rSS,L0.cartesian(),radius,50.0)/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,2);
                     std::cout<<"prismatic loop density="<<density<<std::endl;
                 }
                 catch(const std::exception& e)
                 {
-                    
+                    std::cout<<e.what()<<std::endl;
                 }
             }
 
@@ -220,68 +220,54 @@ double PrismaticLoopGenerator::generateSingle(MicrostructureGenerator& mg,const 
             }
             
             double loopLength=0.0;
-            for(size_t k1=0;k1<sessileLoopNodePos.size();++k1)
-            {
-                size_t k2(k1==sessileLoopNodePos.size()-1? 0 : k1+1);
-                loopLength+=(sessileLoopNodePos[k2]-sessileLoopNodePos[k1]).norm();
-            }
             
             
-            mg.insertJunctionLoop(sessileLoopNodePos,sessilePlane,
+            const bool sessileLoopInserted(mg.insertJunctionLoop(sessileLoopNodePos,sessilePlane,
                                   b.cartesian(),sessilePlane->referencePlane->unitNormal,
-                                  center,grain->grainID,DislocationLoopIO<3>::SESSILELOOP);
+                                  center,grain->grainID,DislocationLoopIO<3>::SESSILELOOP));
             
-            
-            //Create glissile loops on prism planes
-            const auto periodicShifts(mg.ddBase.periodicLatticeBasis);
-            Eigen::Matrix<double,3,3> box(Eigen::Matrix<double,3,3>::Zero());
-            Eigen::Matrix<double,3,3> invBox(Eigen::Matrix<double,3,3>::Zero());
-            
-            if(periodicShifts.cols()==3)
+            if(sessileLoopInserted)
             {
-                for(int k=0;k<3;++k)
+                for(size_t k1=0;k1<sessileLoopNodePos.size();++k1)
                 {
-                    box.col(k)=periodicShifts.col(k);
+                    size_t k2(k1==sessileLoopNodePos.size()-1? 0 : k1+1);
+                    loopLength+=(sessileLoopNodePos[k2]-sessileLoopNodePos[k1]).norm();
                 }
-                invBox=box.inverse();
-            }
-            else
-            {
-                throw std::runtime_error("Cannot determine periodic box size.");
-            }
-            
-            const VectorDimD step(L*b.cartesian());
-            for(size_t k1=0;k1<planes.size();++k1)
-            {
-                size_t k2(k1==planes.size()-1? 0 : k1+1);
-                
-                const Eigen::Matrix<double,3,1> boxCoord((invBox*(sessileLoopNodePos[k2]-mg.ddBase.mesh.xMin())).array().floor().matrix());
-                const Eigen::Matrix<double,3,1> shift(box*boxCoord);
-                
-                if(mg.ddBase.mesh.searchRegion(grainID,sessileLoopNodePos[k2]-shift).first)
+
+                const VectorDimD step(L*b.cartesian());
+                for(size_t k1=0;k1<planes.size();++k1)
                 {
-                    std::vector<VectorDimD> loopNodePos;
-                    loopNodePos.push_back(sessileLoopNodePos[k2]-shift);
-                    loopNodePos.push_back(sessileLoopNodePos[k1]-shift);
-                    loopNodePos.push_back(sessileLoopNodePos[k1]+step-shift);
-                    loopNodePos.push_back(sessileLoopNodePos[k2]+step-shift);
+                    size_t k2(k1==planes.size()-1? 0 : k1+1);
                     
-                    const int planeHeight(planes[k2].n.planeIndexOfPoint(loopNodePos.front()));
-//                    const LatticePlaneKey planeKey(planes[k2].n,planeHeight,grain->grainID);
-                    const LatticePlaneKey planeKey(planeHeight,planes[k2].n);
-                    const auto periodicGlidePlane(mg.ddBase.periodicGlidePlaneFactory.getFromKey(planeKey));
-                    
-                    mg.insertJunctionLoop(loopNodePos,periodicGlidePlane,
-                                          b.cartesian(),periodicGlidePlane->referencePlane->unitNormal,
-                                          periodicGlidePlane->referencePlane->P,grain->grainID,DislocationLoopIO<3>::GLISSILELOOP);
-                }
-                else
-                {
-                    throw std::runtime_error("Mesh does not contain shifted point.");
+                    Eigen::Matrix<double,3,1> shift(Eigen::Matrix<double,3,1>::Zero());
+                    for(int c=0;c<mg.ddBase.periodicLatticeBasis.cols();++c)
+                    {
+                        shift+=mg.ddBase.periodicLatticeBasis.col(c)*std::floor(mg.ddBase.periodicLatticeReciprocalBasis.col(c).dot(sessileLoopNodePos[k2]-mg.ddBase.mesh.xMin()));
+                    }
+                                        
+                    if(mg.ddBase.mesh.searchRegion(grainID,sessileLoopNodePos[k2]-shift).first)
+                    {
+                        std::vector<VectorDimD> loopNodePos;
+                        loopNodePos.push_back(sessileLoopNodePos[k2]-shift);
+                        loopNodePos.push_back(sessileLoopNodePos[k1]-shift);
+                        loopNodePos.push_back(sessileLoopNodePos[k1]+step-shift);
+                        loopNodePos.push_back(sessileLoopNodePos[k2]+step-shift);
+                        
+                        const int planeHeight(planes[k2].n.planeIndexOfPoint(loopNodePos.front()));
+                        const LatticePlaneKey planeKey(planeHeight,planes[k2].n);
+                        const auto periodicGlidePlane(mg.ddBase.periodicGlidePlaneFactory.getFromKey(planeKey));
+                        
+                        mg.insertJunctionLoop(loopNodePos,periodicGlidePlane,
+                                              b.cartesian(),periodicGlidePlane->referencePlane->unitNormal,
+                                              periodicGlidePlane->referencePlane->P,grain->grainID,DislocationLoopIO<3>::GLISSILELOOP);
+                    }
+                    else
+                    {
+                        throw std::runtime_error("Mesh does not contain shifted point.");
+                    }
                 }
             }
             return loopLength;
-            
         }
         else
         {

@@ -420,23 +420,27 @@ namespace model
       *    In this case, nodes have moved but right-handed normal has not been updated
       */
         
-        for(int n=0;n<N;++n)
-        {
-            const double du((1.0*n)/N);
-        
-        
-        VectorDim newAreaVector(VectorDim::Zero());
-        const VectorDim P0((*this->loopLinks().begin())->source->get_P()-du*(*this->loopLinks().begin())->source->get_deltaP());
-        for(const auto& loopLink : this->loopLinks())
-        {
-            newAreaVector+= 0.5*(loopLink->source->get_P()-du*loopLink->source->get_deltaP()-P0).cross(loopLink->sink->get_P()-du*loopLink->sink->get_deltaP()-loopLink->source->get_P()+du*loopLink->source->get_deltaP());
-            }
-            const double newArea(newAreaVector.norm());
-            if(newArea<areaThreshold && newAreaVector.dot(_rightHandedUnitNormal)>=0.0)
-            {// area fell close to zero and rightHandedNormal did not change
-                return true;
-            }
-        }
+//        for(int n=0;n<N;++n)
+//        {
+//            const double du((1.0*n)/N);
+//        
+//        
+//        VectorDim newAreaVector(VectorDim::Zero());
+//        const VectorDim P0((*this->loopLinks().begin())->source->get_P()-du*(*this->loopLinks().begin())->source->get_deltaP());
+//        for(const auto& loopLink : this->loopLinks())
+//        {
+//            newAreaVector+= 0.5*(loopLink->source->get_P()-du*loopLink->source->get_deltaP()-P0).cross(loopLink->sink->get_P()-du*loopLink->sink->get_deltaP()-loopLink->source->get_P()+du*loopLink->source->get_deltaP());
+//            }
+//            const double newArea(newAreaVector.norm());
+//            if(newArea<areaThreshold && newAreaVector.dot(_rightHandedUnitNormal)>=0.0)
+//            {// area fell close to zero and rightHandedNormal did not change
+//
+//                CHECK THIS IMPLEMENTATION ESPECIALLY  CONDITION ON THE NORMAL.
+//                ALSO, CONSIDER JUNCTIONS< SO MAYBE LOOP MUST BE ISOLATED?
+//                
+//                return true;
+//            }
+//        }
         return false;
     }
 

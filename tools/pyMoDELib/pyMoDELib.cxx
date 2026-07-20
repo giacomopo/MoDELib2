@@ -442,6 +442,7 @@ PYBIND11_MODULE(pyMoDELib,m)
     /*      */,MicrostructureBase<3>
     /*      */,LoopNetwork<DislocationNetworkType>>(m,"DislocationNetwork")
         .def(py::init<MicrostructureContainer<3>&>())
+        .def("networkLength",&DislocationNetworkType::networkLength)
     ;
     
     py::class_<DefectiveCrystal<3>

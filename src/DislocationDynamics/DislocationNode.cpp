@@ -267,10 +267,10 @@ typename DislocationNode<dim>::VectorDim DislocationNode<dim>::climbDirection() 
     bool DislocationNode<dim>::trySet_P(const typename DislocationNode<dim>::VectorDim& newP)
     {
         VerboseDislocationNode(1, " Try  Setting P for Network Node " << this->tag()<<" to"<<newP.transpose()<< std::endl;);
-        const VectorDim snappedPosition(this->snapToGlidePlanesinPeriodic(newP));
+        const VectorDim snappedPosition(snapToGlidePlanesinPeriodic(newP));
         VerboseDislocationNode(2, " snappedPosition= " << snappedPosition.transpose()<< std::endl;);
         std::pair<bool, const Simplex<dim,dim>*> temp(this->network().ddBase.mesh.searchRegionWithGuess(newP,p_Simplex));
-        if((this->get_P()-snappedPosition).norm()>FLT_EPSILON && temp.first)
+        if((this->get_P()-snappedPosition).norm()>FLT_EPSILON && (this->network().ddBase.isPeriodicDomain || temp.first))
         {
             for (auto &loopNode : this->loopNodes())
             {

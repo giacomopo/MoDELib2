@@ -292,24 +292,3 @@ void ClusterDynamics<dim>::applyBoundaryConditions()
 }
 #endif
 
-
-//template<int dim>
-//void ClusterDynamics<dim>::solveDiffusiveDisplacement()
-//{
-//    std::cout<<"Solving diffusiveDisplacementRate..."<<std::flush;
-//    const auto t0= std::chrono::system_clock::now();
-//    diffusiveDisplacementRate=Eigen::VectorXd::Zero(this->diffusiveDisplacement.gSize());
-//    for(const auto& node: this->microstructures.ddBase.fe->nodes())
-//    {
-//        const Eigen::Matrix<double,dim*mSize,1> speciesFlux(eval(this->mobileFlux)(node));
-//        Eigen::Matrix<double,dim,1> netFlux(Eigen::Matrix<double,dim,1>::Zero());
-//        for(int i=0; i<mSize; i++)
-//        {
-//            const int mSgn(this->cdp.msVector(i)/std::abs(this->cdp.msVector(i)));
-//            netFlux+= speciesFlux.template block<dim,1>(i*dim,0)*mSgn;
-//        }
-//        diffusiveDisplacementRate.template segment<dim>(dim*node.gID)=netFlux;
-//    }
-//    std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-//
-//}

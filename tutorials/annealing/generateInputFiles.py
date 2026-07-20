@@ -43,6 +43,7 @@ setInputVariable('inputFiles/'+DDfile,'outputQuadraturePoints','0')  # output qu
 setInputVariable('inputFiles/'+DDfile,'glideSolverType','none')  # type of glide solver, or none
 setInputVariable('inputFiles/'+DDfile,'climbSolverType','Galerkin')  # type of clim solver, or none
 setInputVariable('inputFiles/'+DDfile,'crossSlipModel','0')  # crossSlipModel
+setInputVariable('inputFiles/'+DDfile,'outputLoopLength','1')  # crossSlipModel
 
 # Make a local copy of ElasticDeformation file, and modify that copy if necessary
 elasticDeformatinoFile='ElasticDeformation.txt';
