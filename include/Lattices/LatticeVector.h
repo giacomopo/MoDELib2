@@ -12,6 +12,7 @@
 #include <Eigen/Dense>
 #include <Lattice.h>
 #include <ReciprocalLatticeVector.h>
+#include <cassert>
 
 namespace model
 {

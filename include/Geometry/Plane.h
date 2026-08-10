@@ -13,7 +13,7 @@
 //#include <map>
 #include <Eigen/Dense>
 #include <iostream>
-
+#include <cassert>
 
 namespace model
 {

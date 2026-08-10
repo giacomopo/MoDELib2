@@ -9,6 +9,7 @@
 #define _model_DislocationFieldBase_h_
 
 #include <Eigen/Dense>
+#include <cassert>
 
 namespace model
 {

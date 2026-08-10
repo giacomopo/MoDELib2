@@ -16,6 +16,7 @@
 #include <SweepPlane.h>
 #include <TypeTraits.h>
 #include <StressStraight.h>
+#include <cassert>
 
 #include <DislocationNetworkRemesh.h>
 

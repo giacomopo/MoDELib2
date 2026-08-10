@@ -12,6 +12,7 @@
 #include <map>
 #include <Eigen/Dense>
 #include <Eigen/Cholesky>
+#include <cassert>
 
 namespace model
 {
