@@ -45,6 +45,33 @@ namespace model
         return temp;
     }
 
+template <int dim>
+std::shared_ptr<GlidePlaneBase> GlidePlane<dim>::planeBase() const
+{
+    for(const auto& ss : grain.planeNormals())
+    {
+        if(this->n.cross(*ss.second).base().squaredNorm()==0)
+        {
+            return ss.second;
+        }
+    }
+    return std::shared_ptr<GlidePlaneBase>(nullptr);
+}
+
+template <int dim>
+int GlidePlane<dim>::planeBaseID() const
+{
+    for(const auto& ss : grain.planeNormals())
+    {
+        if(this->n.cross(*ss.second).base().squaredNorm()==0)
+        {
+            return int(ss.first);
+        }
+    }
+    return -1;
+}
+
+
 template struct GlidePlane<3>;
 }
 #endif

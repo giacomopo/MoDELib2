@@ -302,6 +302,10 @@ PYBIND11_MODULE(pyMoDELib,m)
         .def_readonly("primitiveVectors", &GlidePlaneBase::primitiveVectors)
         .def_readonly("gammaSurface", &GlidePlaneBase::gammaSurface)
     ;
+    
+    py::class_<GlidePlane<3>,std::shared_ptr<GlidePlane<3>>>(m,"GlidePlane")
+        .def("planeBaseID", &GlidePlane<3>::planeBaseID)
+    ;
 
     py::class_<SlipSystem,std::shared_ptr<SlipSystem>>(m,"SlipSystem")
 //        .def(py::init<const GlidePlaneBase&,const RationalLatticeDirection<3>&,const std::shared_ptr<DislocationMobilityBase>&,const std::shared_ptr<GlidePlaneNoise>&>())
@@ -414,6 +418,8 @@ PYBIND11_MODULE(pyMoDELib,m)
         .def("solidAngle",&LoopType::solidAngle)
         .def("meshed",&LoopType::meshed)
         .def("slippedArea",&LoopType::slippedArea)
+        .def_readonly("glidePlane", &LoopType::glidePlane)
+        .def("averagePlasticDistortion",&LoopType::averagePlasticDistortion)
     ;
     
     py::class_<MeshedDislocationLoop

@@ -61,6 +61,8 @@ namespace model
         GlidePlane(const GlidePlane<dim>& other) = delete;
         ~GlidePlane();
         std::set<std::shared_ptr<SlipSystem>> slipSystems() const;
+        std::shared_ptr<GlidePlaneBase> planeBase() const;
+        int planeBaseID() const;
 
     };
 

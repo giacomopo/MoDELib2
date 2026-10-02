@@ -444,11 +444,11 @@ typename DislocationNode<dim>::VectorDim DislocationNode<dim>::climbDirection() 
         for (const auto &ln : this->loopNodes())
         {
             if (ln->periodicPlaneEdge.first)
-            {
+            {// initialize container
                 temp = ln->periodicPlaneEdge.first->meshIntersection->faces;
             }
             if (ln->periodicPlaneEdge.second)
-            {
+            {// add to container
                 for (const auto &face : ln->periodicPlaneEdge.second->meshIntersection->faces)
                 {
                     temp.emplace(face);
@@ -471,7 +471,6 @@ typename DislocationNode<dim>::VectorDim DislocationNode<dim>::climbDirection() 
                 break;
             }
         }
-
         return _isOnExternalBoundary;
     }
 
@@ -519,6 +518,31 @@ typename DislocationNode<dim>::VectorDim DislocationNode<dim>::climbDirection() 
     template <int dim>
     typename DislocationNode<dim>::VectorDim DislocationNode<dim>::snapToGlidePlanesinPeriodic(const VectorDim &x) const
     {
+        std::vector<const PlanarMeshFace<dim>*> bndFaces;
+        for(const auto& loopNode : this->loopNodes())
+        {
+            const auto pLocal(loopNode->loop()->periodicGlidePlane->referencePlane->localPosition(loopNode->get_P()));
+            const auto pLocalNew(loopNode->loop()->periodicGlidePlane->referencePlane->localPosition(loopNode->get_P()+x-this->get_P()));
+
+                for(const auto& edge : loopNode->periodicPlanePatch()->edges())
+                {
+                    SegmentSegmentDistance<dim-1> ssd(*edge->source,*edge->sink,pLocal,pLocalNew);
+                    if(ssd.dMin<FLT_EPSILON)
+                    {
+                        for(const auto& face : edge->meshIntersection->faces)
+                        {
+                            if(face->periodicFacePair.second==nullptr)
+                            {// a non-periodic face being crossed
+                                bndFaces.push_back(face);
+                                
+//                                FINISH THIS. BND CONFINEMENT IS BASED ON loopNoDE periodiPlaneEdge, so need to modify that
+                                
+                            }
+                        }
+                    }
+                }
+        }
+        
         GlidePlaneContainerType gps(glidePlanes());
         if(gps.size())
         {
